@@ -492,7 +492,8 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       )}
 
       {!isPreview && (
-        <div className="flex flex-col            <div className="flex flex-col gap-4 w-full">
+        <div className="flex flex-col gap-4 w-full mt-2">
+           <div className="flex flex-col gap-4 w-full">
                <button 
                  onClick={() => {
                    if(!isFinalized) return alert("⚠️ ¡Ocultando imagen! \n\nPrimero debes terminar y guardar tu diseño haciendo clic en 'Finalizar Diseño HD'.");
@@ -504,7 +505,6 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                  <MessageCircle className="w-5 h-5 fill-white/20" />
                  {downloading ? 'Compilando JPG...' : 'Compartir por WhatsApp'}
                </button>
-            </div>            </button>
            </div>
            
            <button 
