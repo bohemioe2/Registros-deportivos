@@ -5,7 +5,7 @@ import { db, storage } from "@/lib/firebase/config";
 import { updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as htmlToImage from "html-to-image";
-import { Download, CheckCircle2, Loader2 } from "lucide-react";
+import { Download, CheckCircle2, Loader2, MessageCircle } from "lucide-react";
 
 interface WelcomePosterProps {
   folio: string;
@@ -492,28 +492,19 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       )}
 
       {!isPreview && (
-        <div className="flex flex-col gap-4 w-full mt-2">
-           <div className="flex flex-col sm:flex-row gap-4 w-full">
-             <button 
-               onClick={() => {
-                 if(!isFinalized) return alert("⚠️ ¡Ocultando imagen! \n\nPrimero debes terminar y guardar tu diseño haciendo clic en 'Finalizar Diseño HD'.");
-                 handleNativeShare();
-               }}
-               disabled={downloading || !ready}
-               className={`flex-1 bg-gradient-to-r from-[#25D366] to-[#1DA851] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 uppercase tracking-widest text-[11px] transition-all ${!isFinalized ? 'opacity-50 grayscale cursor-allowed' : 'shadow-[0_0_20px_rgba(37,211,102,0.4)] hover:shadow-[0_0_30px_rgba(37,211,102,0.6)]'}`}
-             >
-               {downloading ? 'Compilando JPG...' : 'Compartir WhatsApp'}
-             </button>
-
-             <button 
-               onClick={() => {
-                 if(!isFinalized) return alert("⚠️ ¡Aún no guardas el diseño! \n\nPrimero debes terminar y guardar tu diseño haciendo clic en 'Finalizar Diseño HD'.");
-                 alert("Simulación: Correo enviado a tu email a través de Resend API. Contiene Folio y Adjuntos.");
-               }}
-               className={`flex-1 bg-[#171821] text-[#00d2ff] py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 border border-[#00d2ff]/30 uppercase tracking-widest text-[11px] transition-all ${!isFinalized ? 'opacity-50 cursor-allowed text-gray-400 border-[#ffffff10]' : 'hover:bg-[#25283d] shadow-sm'}`}
-             >
-               Copia por Correo
-             </button>
+        <div className="flex flex-col            <div className="flex flex-col gap-4 w-full">
+               <button 
+                 onClick={() => {
+                   if(!isFinalized) return alert("⚠️ ¡Ocultando imagen! \n\nPrimero debes terminar y guardar tu diseño haciendo clic en 'Finalizar Diseño HD'.");
+                   handleNativeShare();
+                 }}
+                 disabled={downloading || !ready}
+                 className={`w-full bg-gradient-to-r from-[#25D366] to-[#1DA851] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 uppercase tracking-widest text-[11px] transition-all ${!isFinalized ? 'opacity-50 grayscale cursor-allowed' : 'shadow-[0_0_20px_rgba(37,211,102,0.4)] hover:shadow-[0_0_30px_rgba(37,211,102,0.6)] animate-pulse'}`}
+               >
+                 <MessageCircle className="w-5 h-5 fill-white/20" />
+                 {downloading ? 'Compilando JPG...' : 'Compartir por WhatsApp'}
+               </button>
+            </div>            </button>
            </div>
            
            <button 
