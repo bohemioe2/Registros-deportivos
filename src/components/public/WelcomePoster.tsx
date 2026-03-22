@@ -193,7 +193,8 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       const dataUrl = await htmlToImage.toJpeg(posterRef.current, { 
         quality: 0.9, 
         pixelRatio: 2,
-        backgroundColor: "#000"
+        backgroundColor: "#000",
+        cacheBust: true,
       });
       
       const res = await fetch(dataUrl);
@@ -314,10 +315,13 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         >
         {/* Layer 1: Background Participant Photo (Draggable & Scaled) */}
         <div className="absolute inset-0 z-0 bg-black">
-           <div 
-             className="w-full h-full bg-cover bg-center transition-transform duration-[50ms]" 
+           <img 
+             src={getProxyUrl(photoUrl)}
+             crossOrigin="anonymous"
+             alt="Background" 
+             draggable={false}
+             className="w-full h-full object-cover transition-transform duration-[50ms]" 
              style={{ 
-               backgroundImage: safePhotoUrl ? `url(${safePhotoUrl})` : "url('https://www.transparenttextures.com/patterns/stardust.png')",
                transform: `scale(${bgScale}) translate(${bgPos.x / bgScale}px, ${bgPos.y / bgScale}px)`
              }} 
            />
