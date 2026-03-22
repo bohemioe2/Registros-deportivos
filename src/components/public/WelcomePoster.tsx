@@ -325,7 +325,12 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         
         {/* Layer 2: Graphic Transparent Overlay Template (Admin's Upload) */}
         {posterTemplateUrl && (
-          <img src={safeTemplateUrl} crossOrigin="anonymous" alt="Template" className="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none" />
+          <img 
+            src={getProxyUrl(posterTemplateUrl)} 
+            crossOrigin="anonymous" 
+            alt="Template" 
+            className="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none" 
+          />
         )}
 
         {/* Fallback Legacy Design if no Admin Template provided */}
