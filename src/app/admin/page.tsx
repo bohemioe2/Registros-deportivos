@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase/config";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, where } from "firebase/firestore";
 import { useAuth } from "@/components/admin/AuthProvider";
 import { Clock, Activity as ActivityIcon } from "lucide-react";
 import Link from "next/link";
@@ -14,14 +14,40 @@ export default function AdminDashboard() {
     daily: [] as { name: string; count: number }[],
     munis: [] as { name: string; count: number; fullState: string; muni: string }[],
   });
+  const [events, setEvents] = useState<any[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState<string>("ALL");
   const [loading, setLoading] = useState(true);
+  const isSuperAdmin = user?.email === "eder.beltran.acosta@gmail.com";
 
+  // 1. Obtener Eventos para el selector
   useEffect(() => {
+    if (!user) return;
     let q;
-    if (user?.email === "eder.beltran.acosta@gmail.com") {
-      q = query(collection(db, "registrations"), orderBy("createdAt", "asc"));
+    if (isSuperAdmin) {
+      q = collection(db, "events");
     } else {
-      q = query(collection(db, "registrations"), orderBy("createdAt", "asc"));
+      q = query(collection(db, "events"), where("organizerEmail", "==", user.email));
+    }
+    const unsub = onSnapshot(q, (snapshot) => {
+      setEvents(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, [user, isSuperAdmin]);
+
+  // 2. Obtener Estadísticas Filtradas
+  useEffect(() => {
+    if (!user) return;
+    setLoading(true);
+    let q;
+    
+    // Construir consulta base
+    const baseColl = collection(db, "registrations");
+    
+    if (selectedEventId === "ALL") {
+      // Como SuperAdmin ve todo, como organizador solo sus eventos (filtrado en cliente para simplicidad de dashboards dinamicos)
+      q = query(baseColl, orderBy("createdAt", "asc"));
+    } else {
+      q = query(baseColl, where("eventId", "==", selectedEventId), orderBy("createdAt", "asc"));
     }
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -31,6 +57,13 @@ export default function AdminDashboard() {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
+        
+        // SEGURIDAD: Si no es SuperAdmin, filtrar por pertenencia a sus eventos
+        if (!isSuperAdmin) {
+          const belongsToOwnEvent = events.some(e => e.id === data.eventId);
+          if (!belongsToOwnEvent) return;
+        }
+
         allDocs.push({ id: doc.id, ...data });
         
         if (data.createdAt) {
@@ -46,21 +79,9 @@ export default function AdminDashboard() {
            const shortenedName = muniDisplay.length > 25 ? muniDisplay.substring(0, 25) + '...' : muniDisplay;
            
            if (!munisCount[shortenedName]) {
-              // we store an object here instead of a crude number so we can retain full state name
-              munisCount[shortenedName] = { 
-                 count: 1, 
-                 name: shortenedName, 
-                 fullState: stateFull, 
-                 muni: data.muni 
-              } as any;
+              munisCount[shortenedName] = { count: 1, name: shortenedName, fullState: stateFull, muni: data.muni } as any;
            } else {
               (munisCount[shortenedName] as any).count++;
-           }
-        } else {
-           if (!munisCount["No Especificado"]) {
-              munisCount["No Especificado"] = { count: 1, name: "No Especificado", fullState: "N/A", muni: "N/A" } as any;
-           } else {
-              (munisCount["No Especificado"] as any).count++;
            }
         }
       });
@@ -78,21 +99,39 @@ export default function AdminDashboard() {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [user]);
+  }, [user, selectedEventId, events, isSuperAdmin]);
 
   return (
     <div className="flex h-full w-full bg-[#1b1c27] text-white">
       {/* Left Main Content */}
       <div className="flex-1 p-10 lg:pl-12 flex flex-col overflow-y-auto custom-scrollbar">
         {/* Custom Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-10">
-          <div>
-            <h2 className="text-[12px] font-bold tracking-[0.25em] text-gray-400 uppercase mb-2">Análisis de Operaciones</h2>
-            <h1 className="text-3xl font-light text-white tracking-tight">Kardex Central</h1>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 mb-10">
+          <div className="flex-1">
+            <h2 className="text-[11px] font-black tracking-[0.3em] text-[#4b55f5] uppercase mb-2">Monitor Estratégico</h2>
+            <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">
+               Kardex <span className="text-[#00d2ff]">Central</span>
+            </h1>
           </div>
-          <Link href="/admin/events" className="bg-gradient-to-r from-[#4b55f5] to-[#884af0] hover:scale-105 text-white text-[11px] font-bold px-7 py-3 rounded-full shadow-[0_0_20px_rgba(75,85,245,0.4)] transition-all uppercase tracking-widest inline-flex items-center justify-center">
-            Gestor de Eventos
-          </Link>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+             <select 
+               value={selectedEventId} 
+               onChange={(e) => setSelectedEventId(e.target.value)}
+               className="w-full sm:w-[320px] bg-[#171821] border border-[#ffffff10] text-gray-200 rounded-2xl text-[11px] px-6 py-4 font-black uppercase tracking-widest focus:border-[#4b55f5] transition-all cursor-pointer hover:bg-white/5 appearance-none"
+               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234b55f5' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1.5rem center' }}
+             >
+                {isSuperAdmin && <option value="ALL">Vista Global: TODOS LOS EVENTOS 🌍</option>}
+                {!isSuperAdmin && <option value="ALL" disabled>SELECCIONAR EVENTO 👇</option>}
+                {events.map((ev) => (
+                   <option key={ev.id} value={ev.id}>{ev.name}</option>
+                ))}
+             </select>
+
+             <Link href="/admin/events" className="w-full sm:w-auto bg-gradient-to-r from-[#4b55f5] to-[#884af0] text-white text-[10px] font-black px-8 py-4 rounded-2xl shadow-[0_0_20px_rgba(75,85,245,0.4)] transition-all uppercase tracking-widest text-center hover:scale-105 active:scale-95">
+               Eventos
+             </Link>
+          </div>
         </div>
 
         {/* 1. Total Enrolled */}
