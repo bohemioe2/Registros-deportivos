@@ -382,7 +382,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
               bgDragRef.current.startY = e.touches[0].clientY - bgPos.y;
             }
           }}
-          className={`relative w-full aspect-[4/5] overflow-hidden bg-black text-white flex flex-col items-center justify-between z-10 select-none ${isFinalized || isPreview ? 'pointer-events-none' : 'cursor-move touch-none'} m-0`}
+          className={`relative w-full aspect-[4/5] overflow-hidden bg-black text-white flex flex-col items-center justify-between z-10 select-none ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'} m-0`}
         >
         <div className="absolute inset-0 z-0 bg-black">
            <img 
@@ -422,7 +422,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         
         {processedLogo && (
            <div 
-             className={`absolute top-[60%] left-[30%] z-20 ${isFinalized || isPreview ? 'pointer-events-none' : 'cursor-move touch-none'}`}
+             className={`absolute top-[60%] left-[30%] z-20 ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'}`}
              style={{ transform: `translate(${logoPos.x}px, ${logoPos.y}px)` }}
              onMouseDown={(e) => {
                if (isFinalized) return;
@@ -453,7 +453,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         {posterTemplateUrl && (
           <>
             <div 
-              className={`absolute top-[40%] left-0 w-full px-8 z-30 flex flex-col items-start ${isFinalized || isPreview ? 'pointer-events-none' : 'cursor-move touch-none'}`}
+              className={`absolute top-[40%] left-0 w-full px-8 z-30 flex flex-col items-start ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'}`}
               style={{ transform: `translate(${welcomePos.x}px, ${welcomePos.y}px)` }}
               onMouseDown={(e) => {
                 if (isFinalized) return;
@@ -484,7 +484,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
             </div>
 
             <div 
-              className={`absolute top-[48%] left-0 w-full px-8 z-30 flex flex-col items-start ${isFinalized || isPreview ? 'pointer-events-none' : 'cursor-move touch-none'}`}
+              className={`absolute top-[48%] left-0 w-full px-8 z-30 flex flex-col items-start ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'}`}
              style={{ transform: `translate(${textPos.x}px, ${textPos.y}px)` }}
              onMouseDown={(e) => {
                if (isFinalized) return;
@@ -542,6 +542,39 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
 
         </div>
 
+        {/* --- CONSOLA DE CONTROLES PARA ADMIN Y USUARIOS --- */}
+        {!isFinalized && (
+          <div className="flex flex-col gap-5 w-full bg-[#171821]/80 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-2xl mt-4">
+            
+            {/* ZOOM FOTO */}
+            <div className="space-y-3">
+               <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-[#00d2ff]">
+                  <span>Zoom Foto</span>
+                  <span>x{bgScale.toFixed(2)}</span>
+               </div>
+               <input type="range" step="0.01" min="1" max="5" value={bgScale} onChange={(e) => setBgScale(parseFloat(e.target.value))} className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-[#00d2ff]" />
+            </div>
+
+            {/* ZOOM LOGO (CONTROL QUE FALTABA) */}
+            {processedLogo && (
+              <div className="space-y-3 border-t border-white/5 pt-5">
+                 <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-[#bb86fc]">
+                    <span>Zoom Logo / Sponsor</span>
+                    <span>x{logoScale.toFixed(2)}</span>
+                 </div>
+                 <input type="range" step="0.01" min="0.2" max="3" value={logoScale} onChange={(e) => setLogoScale(parseFloat(e.target.value))} className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-[#bb86fc]" />
+              </div>
+            )}
+
+            <button 
+              onClick={() => setIsRemovingBg(!isRemovingBg)}
+              className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${isRemovingBg ? 'bg-[#4b55f5] text-white border-[#4b55f5]' : 'bg-transparent text-gray-400 border-white/10'}`}
+            >
+              {isRemovingBg ? "✨ Quitar Fondo Blanco: Activo" : "Intentar quitar fondo blanco al logo"}
+            </button>
+          </div>
+        )}
+
         {/* --- TUTORIAL OVERLAY PARA USUARIOS NUEVOS --- */}
         {!isFinalized && !isPreview && showTutorial && (
           <div className="absolute inset-0 z-[100] bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
@@ -583,16 +616,16 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
 
       </div>
 
-      {!isPreview && !isFinalized && (
+      {(!isFinalized) && (
         <button 
           onClick={handleFinalize}
           disabled={finalizing || !ready}
-          className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-4 rounded-xl font-black shadow-[0_0_20px_rgba(75,85,245,0.4)] hover:shadow-[0_0_30px_rgba(75,85,245,0.6)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-widest text-[12px] mt-2 relative overflow-hidden"
+          className="w-full bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-500 text-white py-4 mt-4 rounded-xl font-black shadow-[0_0_20px_rgba(75,85,245,0.4)] hover:shadow-[0_0_30px_rgba(75,85,245,0.6)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-widest text-[11px] relative overflow-hidden group"
         >
           {finalizing && (
             <div className="absolute inset-0 w-full h-full bg-white/20 animate-pulse" />
           )}
-          {finalizing ? <><Loader2 className="w-5 h-5 animate-spin" /> Salvando en Servidor...</> : <><CheckCircle2 className="w-5 h-5" /> Finalizar Diseño HD</>}
+          {finalizing ? <><Loader2 className="w-5 h-5 animate-spin" /> Salvando Cambios...</> : <><CheckCircle2 className="w-5 h-5 group-hover:scale-125 transition-transform" /> {isPreview ? 'Guardar Cambios como Administrador' : 'Finalizar Diseño HD'}</>}
         </button>
       )}
 
