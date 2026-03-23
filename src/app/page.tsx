@@ -49,14 +49,6 @@ export default function Home() {
 
       {/* Grid Principal */}
       <main className="max-w-5xl mx-auto px-6 mt-16 pb-24 relative z-10">
-        <div className="flex items-end justify-between border-b border-[#ffffff10] pb-6 mb-12">
-           <h2 className="text-xl font-light tracking-tight text-white flex items-center gap-3">
-             <Target className="w-5 h-5 text-[#884af0]" />
-             <span className="font-bold text-[#884af0]">Cartelera</span> de Operaciones
-           </h2>
-           <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Mostrando Eventos En Vivo</span>
-        </div>
-        
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
           {loading ? (
              <div className="col-span-full text-center py-20 flex flex-col items-center justify-center">
