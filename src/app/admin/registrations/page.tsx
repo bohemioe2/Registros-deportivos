@@ -160,6 +160,50 @@ export default function RegistrationsPage() {
     }
   };
 
+  const exportToCSV = () => {
+    if (filteredRegistrations.length === 0) {
+      alert("No hay datos para exportar en este filtro.");
+      return;
+    }
+
+    const headers = [
+      "Folio", "Nombre", "Apellidos", "Email", "Telefono 1", "Telefono 2", 
+      "Edad", "Sexo", "Tipo Sangre", "Estado", "Municipio", "Categoria", 
+      "KIT ID", "Jersey", "Status", "Fecha Registro", "URL Poster", "URL Voucher"
+    ];
+
+    const csvRows = filteredRegistrations.map(r => [
+      r.folio || "",
+      r.firstName || "",
+      r.lastName || "",
+      r.email || "",
+      r.phone1 || "",
+      r.phone2 || "",
+      r.age || "",
+      r.gender || "",
+      r.bloodType || "",
+      r.state || "",
+      r.muni || "",
+      r.category || "",
+      r.kitId || "N/A",
+      r.jerseySize || "N/A",
+      r.status || "",
+      formatTimestamp(r.createdAt),
+      r.posterFinalUrl || "",
+      r.voucherUrl || ""
+    ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(","));
+
+    const csvContent = [headers.join(","), ...csvRows].join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `LISTADO_ATLETAS_${selectedEventId}_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredRegistrations = registrations.filter(r => {
     if (!searchQuery) return true;
     const search = searchQuery.toLowerCase();
@@ -183,7 +227,15 @@ export default function RegistrationsPage() {
           )}
         </div>
         
-        <div className="w-full sm:w-auto">
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4">
+          <button 
+            onClick={exportToCSV}
+            className="flex items-center justify-center gap-3 bg-[#171821] border border-[#ffffff0a] hover:bg-[#25283d] hover:border-[#00d2ff]/30 text-gray-400 hover:text-[#00d2ff] px-6 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl group"
+          >
+            <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            Descargar Base de Datos (EXCEL)
+          </button>
+
           <select 
             value={selectedEventId} 
             onChange={(e) => setSelectedEventId(e.target.value)}
