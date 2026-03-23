@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { db, storage } from "@/lib/firebase/config";
 import { updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -34,6 +35,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
   const [isFinalized, setIsFinalized] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
+  const router = useRouter();
 
   // States for Dragging
   const [textPos, setTextPos] = useState({ x: 0, y: 0 });
@@ -228,10 +230,15 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       const posterFinalUrl = await getDownloadURL(fileRef);
 
       await updateDoc(doc(db, "registrations", registrationId), {
-        posterFinalUrl
+        posterFinalUrl,
+        // Si el admin guarda, forzamos que ESTA sea la nueva bienvenida oficial del usuario
+        ...(isPreview ? { welcomeCardUrl: posterFinalUrl } : {})
       });
       
       setIsFinalized(true);
+      if (isPreview) {
+        alert("✅ Diseño guardado exitosamente. Los cambios ahora son oficiales para el usuario.");
+      }
     } catch (err: any) {
       alert(`Error al guardar diseño.`);
     } finally {
@@ -582,6 +589,25 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                 <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#00d2ff]/20 rounded-full animate-ping" />
                 <MousePointer2 className="w-12 h-12 text-[#00d2ff] rotate-12" />
              </div>
+
+        {/* --- OPCIÓN PARA VOLVER AL REGISTRO (SOLO ADMIN) --- */}
+        {isFinalized && isPreview && (
+          <div className="absolute inset-0 z-[110] bg-[#171821]/95 backdrop-blur-xl flex flex-col items-center justify-center p-8 text-center animate-in zoom-in duration-300">
+             <div className="w-20 h-20 bg-[#00ff88]/20 rounded-full flex items-center justify-center mb-6">
+                <CheckCircle2 className="w-10 h-10 text-[#00ff88]" />
+             </div>
+             <h3 className="text-xl font-black uppercase text-white mb-4">¡DISEÑO ACTUALIZADO! ✨</h3>
+             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed mb-10">
+                Has corregido la bienvenida exitosamente. <br/> Ahora puedes volver al listado de registros.
+             </p>
+             <button 
+                onClick={() => router.push('/admin/registrations')}
+                className="w-full bg-[#00ff88] text-[#1b1c27] py-4 rounded-xl font-black uppercase tracking-widest text-[12px] shadow-[0_0_30px_rgba(0,255,136,0.3)] hover:scale-105 transition-all"
+             >
+                🏁 TERMINAR Y VOLVER A REGISTROS
+             </button>
+          </div>
+        )}
              
              <h3 className="text-xl font-black uppercase tracking-tighter mb-4 text-white">
                 💡 ¡Es momento de <span className="text-[#00d2ff]">diseñar</span>!
