@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm, useFieldArray } from "react-hook-form";
-import { Plus, Trash2, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import { Plus, Trash2, Loader2, Sparkles, CheckCircle2, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 import { db, storage } from "@/lib/firebase/config";
 import { collection, addDoc, serverTimestamp, updateDoc, doc } from "firebase/firestore";
@@ -471,6 +471,26 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
            </div>
         </div>
         
+        <div className="space-y-4 md:col-span-2 border-t border-[#ffffff0a] pt-10">
+           <h3 className="text-[#00d2ff] text-sm font-black uppercase tracking-widest flex items-center gap-2 mb-4">
+              <MapPin className="w-5 h-5" /> Logística Final (Para Página de Éxito)
+           </h3>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                 <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Ubicación (Texto Libre)</label>
+                 <input {...register("locationText")} className="w-full rounded-xl bg-[#171821] border border-[#ffffff10] text-gray-200 px-4 py-3 text-[13px]" placeholder="Ej: Auditorio Francisco Villa, Sede Central" />
+              </div>
+              <div className="space-y-2">
+                 <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">URL Google Maps (Opcional)</label>
+                 <input {...register("locationUrl")} className="w-full rounded-xl bg-[#171821] border border-[#ffffff10] text-[#00d2ff] px-4 py-3 text-[13px]" placeholder="https://maps.google.com/..." />
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                 <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Recomendaciones e Instrucciones Finales</label>
+                 <textarea {...register("finalInstructions")} rows={3} className="w-full rounded-xl bg-[#171821] border border-[#ffffff10] text-gray-200 px-4 py-3 text-[13px]" placeholder="Ej: Llegar 30 min antes. Es obligatorio el uso de casco y número frontal." />
+              </div>
+           </div>
+        </div>
+
         <div className="space-y-2 md:col-span-2 mt-4">
            <div className="flex justify-between items-end mb-2">
              <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Carta Legal y Terminos Responsivos</label>

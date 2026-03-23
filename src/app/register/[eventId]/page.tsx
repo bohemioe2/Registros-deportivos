@@ -343,6 +343,18 @@ export default function RegisterFormPage() {
                  </button>
                </div>
                               
+                {/* BOTÓN FINAL DE ORO */}
+                <div className="mt-12 py-8 border-t border-white/5 relative">
+                   <div className="absolute inset-0 bg-gradient-to-t from-[#4b55f5]/5 to-transparent pointer-events-none" />
+                   <button 
+                     onClick={() => router.push(`/register/${eventId}/finish?name=${encodeURIComponent(registrationData.firstName)}`)}
+                     className="w-full bg-gradient-to-r from-[#4b55f5] via-[#884af0] to-[#ff007f] text-white py-5 rounded-2xl font-black text-[13px] uppercase tracking-[0.3em] transition-all shadow-[0_0_40px_rgba(136,74,240,0.4)] hover:shadow-[0_0_60px_rgba(136,74,240,0.6)] hover:scale-[1.03] animate-pulse flex items-center justify-center gap-3 relative z-10"
+                   >
+                     🏁 ¡FINALIZAR INSCRIPCIÓN! 🏁
+                   </button>
+                   <p className="text-[9px] text-gray-500 mt-4 font-bold uppercase tracking-widest text-center animate-bounce">Pulsa aquí para ver detalles de Logística</p>
+                </div>
+
                 {/* BACK DISCREET BUTTON */}
                 <div className="mt-8 pt-6 border-t border-[#ffffff0a]">
                   <button 
