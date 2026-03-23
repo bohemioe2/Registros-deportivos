@@ -388,13 +388,32 @@ export default function RegistrationsPage() {
               <button onClick={() => setSelectedUser(null)} className="text-gray-500 hover:text-white transition-colors rounded-xl p-2.5 bg-[#242636] hover:bg-gray-800 border border-[#ffffff0a]">
                 <X className="w-5 h-5" />
               </button>
-            </div>
-            
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-8 custom-scrollbar">
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-[#242636]/40 p-6 rounded-2xl border border-[#ffffff05]">
-                  <p className="text-[#00d2ff] text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Datos del Titular</p>
+                  {/* Botón de Visualización de Foto de Bienvenida */}
+                  {selectedUser.posterFinalUrl ? (
+                     <a 
+                       href={selectedUser.posterFinalUrl} 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-tr from-[#4b55f5]/20 to-[#884af0]/20 border border-[#4b55f5]/40 text-[#00d2ff] hover:bg-[#4b55f5]/30 transition-all group"
+                     >
+                       <ImageIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                       <div className="text-left">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Diseño Finalizado</p>
+                          <p className="text-xs font-bold">Ver y Descargar Póster HD</p>
+                       </div>
+                     </a>
+                  ) : (
+                    <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-[#171821] border border-white/5 text-gray-500 opacity-60">
+                      <ImageIcon className="w-5 h-5" />
+                      <div className="text-left">
+                         <p className="text-[10px] font-black uppercase tracking-widest">Estado: Pendiente</p>
+                         <p className="text-xs font-bold italic">Usuario no ha finalizado su póster</p>
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-[#00d2ff] text-[10px] font-bold uppercase tracking-[0.2em] mb-2 mt-6">Datos del Titular</p>
                   <p className="font-light text-white text-3xl mb-2">{liveUser.firstName} {liveUser.lastName}</p>
                   <p className="text-gray-400 text-sm font-medium">{liveUser.state} • {liveUser.muni}</p>
                 </div>
