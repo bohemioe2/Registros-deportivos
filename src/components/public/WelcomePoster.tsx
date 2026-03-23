@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { db, storage } from "@/lib/firebase/config";
 import { updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Download, CheckCircle2, Loader2, MessageCircle } from "lucide-react";
+import { Download, CheckCircle2, Loader2, MessageCircle, Move, Expand, MousePointer2 } from "lucide-react";
 
 interface WelcomePosterProps {
   folio: string;
@@ -33,6 +33,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
   const [ready, setReady] = useState(false);
   const [isFinalized, setIsFinalized] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(true);
 
   // States for Dragging
   const [textPos, setTextPos] = useState({ x: 0, y: 0 });
@@ -540,6 +541,46 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         )}
 
         </div>
+
+        {/* --- TUTORIAL OVERLAY PARA USUARIOS NUEVOS --- */}
+        {!isFinalized && !isPreview && showTutorial && (
+          <div className="absolute inset-0 z-[100] bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+             <div className="relative mb-8">
+                <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#00d2ff]/20 rounded-full animate-ping" />
+                <MousePointer2 className="w-12 h-12 text-[#00d2ff] rotate-12" />
+             </div>
+             
+             <h3 className="text-xl font-black uppercase tracking-tighter mb-4 text-white">
+                💡 ¡Es momento de <span className="text-[#00d2ff]">diseñar</span>!
+             </h3>
+             
+             <div className="space-y-6 mb-10">
+                <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                   <div className="bg-[#4b55f5]/20 p-3 rounded-full"><Move className="w-6 h-6 text-[#4b55f5] animate-bounce" /></div>
+                   <p className="text-[11px] font-bold uppercase tracking-widest text-left text-gray-300">
+                      <span className="text-white block">Arrastra con tu dedo</span> 
+                      La foto de fondo y los textos para acomodarlos.
+                   </p>
+                </div>
+                
+                <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                   <div className="bg-[#00d2ff]/20 p-3 rounded-full"><Expand className="w-6 h-6 text-[#00d2ff] animate-pulse" /></div>
+                   <p className="text-[11px] font-bold uppercase tracking-widest text-left text-gray-300">
+                      <span className="text-white block">Usa la barra de zoom</span> 
+                      Para ajustar el tamaño de tu imagen de fondo.
+                   </p>
+                </div>
+             </div>
+
+             <button 
+                onClick={() => setShowTutorial(false)}
+                className="w-full bg-[#00d2ff] text-[#1b1c27] py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[12px] shadow-[0_0_30px_rgba(0,210,255,0.4)] hover:scale-105 active:scale-95 transition-all"
+             >
+                ¡ENTENDIDO, A COMENZAR! 🚀
+             </button>
+          </div>
+        )}
+
       </div>
 
       {!isPreview && !isFinalized && (
