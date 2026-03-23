@@ -46,7 +46,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto flex flex-col items-center">
           <span className="flex items-center gap-3 bg-white/5 border border-white/10 text-[#00d2ff] text-[9px] sm:text-[10px] font-black px-6 py-2.5 rounded-full uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top duration-700">
              <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-             Temporada Operativa Activa 2026
+             BIENVENIDO, SELECCIONA EL EVENTO DE TU INTERÉS 🏁
           </span>
         </div>
       </header>
