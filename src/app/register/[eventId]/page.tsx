@@ -213,16 +213,20 @@ export default function RegisterFormPage() {
 
   if (registrationData) {
     return (
-      <div className="min-h-screen bg-[#1b1c27] flex flex-col items-center justify-center p-4 py-12 text-white">
-         <div className="bg-[#242636]/60 backdrop-blur-md max-w-lg w-full rounded-3xl p-8 sm:p-10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-[#ffffff0a] mb-6 text-center">
-           <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-tr from-[#00d2ff] to-[#4b55f5] rounded-full p-1 shadow-[0_0_30px_rgba(75,85,245,0.4)] relative">
-             <div className="w-full h-full bg-[#1b1c27] rounded-full flex items-center justify-center">
-                <CheckCircle2 className="w-12 h-12 text-[#00d2ff]" />
-             </div>
-           </div>
-           
-           <h2 className="text-3xl font-light text-white mb-3 tracking-tight">¡Éxito, <span className="font-bold text-[#00d2ff]">{registrationData.firstName}</span>!</h2>
-           <p className="text-gray-400 mb-8 text-[13px] font-medium leading-relaxed">Tu registro ha sido completado y sellado digitalmente. El comité administrativo auditará tus archivos lo antes posible.</p>
+      <div className={`min-h-screen bg-[#1b1c27] flex flex-col items-center justify-center p-4 ${showQrStep ? 'py-4' : 'py-12'} text-white`}>
+         <div className={`bg-[#242636]/60 backdrop-blur-md max-w-lg w-full rounded-3xl ${showQrStep ? 'p-4 sm:p-6' : 'p-8 sm:p-10'} shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-[#ffffff0a] mb-6 text-center transition-all duration-300`}>
+           {!showQrStep && (
+            <>
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-tr from-[#00d2ff] to-[#4b55f5] rounded-full p-1 shadow-[0_0_30px_rgba(75,85,245,0.4)] relative">
+                <div className="w-full h-full bg-[#1b1c27] rounded-full flex items-center justify-center">
+                   <CheckCircle2 className="w-10 h-10 text-[#00d2ff]" />
+                </div>
+              </div>
+              
+              <h2 className="text-3xl font-light text-white mb-3 tracking-tight">¡Éxito, <span className="font-bold text-[#00d2ff]">{registrationData.firstName}</span>!</h2>
+              <p className="text-gray-400 mb-8 text-[13px] font-medium leading-relaxed">Tu registro ha sido completado y sellado digitalmente. El comité administrativo auditará tus archivos lo antes posible.</p>
+            </>
+          )}
              
            {!showQrStep ? (
              <div className="animate-in fade-in zoom-in duration-500">
@@ -351,9 +355,18 @@ export default function RegisterFormPage() {
                     <span className="text-[9px] uppercase font-bold tracking-widest font-mono">Imprimir Gafete</span>
                  </button>
                </div>
-               
-             </div>
-           )}
+                              
+                {/* BACK DISCREET BUTTON */}
+                <div className="mt-8 pt-6 border-t border-[#ffffff0a]">
+                  <button 
+                    onClick={() => setShowQrStep(false)}
+                    className="text-gray-500 hover:text-white text-[11px] uppercase font-bold tracking-widest transition-colors flex items-center justify-center gap-2 mx-auto"
+                  >
+                    ← Volver a mi Póster de Bienvenida
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
          
          <button onClick={() => router.push('/')} className="text-gray-500 text-[11px] uppercase tracking-[0.2em] font-bold hover:text-white transition-colors px-6 py-2 mt-4 flex items-center gap-2">
