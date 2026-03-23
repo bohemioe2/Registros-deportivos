@@ -4,7 +4,6 @@ import { useRef, useState, useEffect } from "react";
 import { db, storage } from "@/lib/firebase/config";
 import { updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import * as htmlToImage from "html-to-image";
 import { Download, CheckCircle2, Loader2, MessageCircle } from "lucide-react";
 
 interface WelcomePosterProps {
@@ -53,11 +52,10 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
   const welcomeDragRef = useRef({ isDragging: false, startX: 0, startY: 0 });
 
   useEffect(() => {
-    const timer = setTimeout(() => setReady(true), 1500); // Give fonts & blobs a moment to paint
+    const timer = setTimeout(() => setReady(true), 1500);
     return () => clearTimeout(timer);
   }, [photoUrl, logoUrl]);
   
-  // Magic White Background Remover Toolkit
   useEffect(() => {
     if (!logoUrl) return;
     
@@ -73,10 +71,9 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         ctx.drawImage(img, 0, 0);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
-        // Erase White/Near-White Pixels
         for (let i = 0; i < data.length; i += 4) {
           if (data[i] > 220 && data[i+1] > 220 && data[i+2] > 220) {
-            data[i+3] = 0; // Alpha Zero
+            data[i+3] = 0;
           }
         }
         ctx.putImageData(imageData, 0, 0);
@@ -88,24 +85,184 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     }
   }, [logoUrl, isRemovingBg]);
 
-  const handleDownload = async () => {
-    if (!posterRef.current) return;
-    setDownloading(true);
-    
-    try {
-      const dataUrl = await htmlToImage.toJpeg(posterRef.current, { 
-        quality: 0.9, 
-        pixelRatio: 2,
-        backgroundColor: "#000"
+  const getProxyUrl = (url?: string) => {
+    if (!url) return "";
+    if (url.startsWith("blob:") || url.startsWith("data:")) return url;
+    return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+  };
+
+  const buildStaticPosterCanvas = async (): Promise<string | null> => {
+    if (!posterRef.current) return null;
+
+    const container = posterRef.current;
+    const rect = container.getBoundingClientRect();
+    const W = 1080; 
+    const H = 1350; 
+    const scaleFactor = W / rect.width;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+      return new Promise((resolve) => {
+        if (!src) return resolve(null);
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = src;
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
       });
+    };
+
+    const [bgImg, templateImg, logoImg] = await Promise.all([
+      loadImage(getProxyUrl(photoUrl)),
+      loadImage(getProxyUrl(posterTemplateUrl)),
+      loadImage(processedLogo ? processedLogo : "")
+    ]);
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, H);
+
+    if (bgImg) {
+      const bw = W * bgScale;
+      const aspect = bgImg.height / bgImg.width;
+      const bh = bw * aspect;
       
+      const bx = bgPos.x * scaleFactor;
+      const by = bgPos.y * scaleFactor;
+      
+      const dx = (W - bw) / 2 + bx;
+      const dy = (H - bh) / 2 + by;
+      
+      ctx.drawImage(bgImg, dx, dy, bw, bh);
+    }
+
+    if (templateImg) {
+      ctx.drawImage(templateImg, 0, 0, W, H);
+    }
+
+    if (logoImg) {
+      const lw = (150 * logoScale) * scaleFactor;
+      const lh = (logoImg.height * lw / logoImg.width);
+      
+      const uiStartX = rect.width * 0.3;
+      const uiStartY = rect.height * 0.6;
+      
+      const finalX = (uiStartX * scaleFactor) + (logoPos.x * scaleFactor);
+      const finalY = (uiStartY * scaleFactor) + (logoPos.y * scaleFactor);
+      
+      ctx.drawImage(logoImg, finalX, finalY, lw, lh);
+    }
+
+    const drawStyledText = (text: string, xPercent: number, yPercent: number, offsetX: number, offsetY: number, fontSize: number, color: string) => {
+      const fs = fontSize * scaleFactor;
+      ctx.font = `italic 900 ${fs}px ${posterFontFamily || 'Impact, sans-serif'}`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      
+      const tx = (rect.width * xPercent * scaleFactor) + (offsetX * scaleFactor);
+      const ty = (rect.height * yPercent * scaleFactor) + (offsetY * scaleFactor);
+
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 1.5 * scaleFactor;
+      ctx.strokeText(text.toUpperCase(), tx, ty);
+      
+      ctx.fillStyle = "rgba(0,0,0,0.8)";
+      ctx.fillText(text.toUpperCase(), tx + (3 * scaleFactor), ty + (3 * scaleFactor));
+      
+      ctx.fillStyle = color;
+      ctx.fillText(text.toUpperCase(), tx, ty);
+    };
+
+    if (posterTemplateUrl) {
+      drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff');
+      
+      if (showFolioOnPoster !== false) {
+        drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + textPos.x, textPos.y, 36, posterColorFolio || '#00ffcc');
+      }
+      
+      drawStyledText(name, 0, 0.48, 32 + textPos.x, textPos.y + 40, 24, posterColorName || '#ffffff');
+      drawStyledText(`DE: ${originState || "SEDE"}`, 0, 0.48, 32 + textPos.x, textPos.y + 70, 24, posterColorState || '#ccff00');
+    }
+
+    return canvas.toDataURL("image/jpeg", 0.9);
+  };
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const dataUrl = await buildStaticPosterCanvas();
+      if (!dataUrl) return;
       const link = document.createElement("a");
       link.href = dataUrl;
       link.download = `Bienvenida-${folio}.jpg`;
       link.click();
     } catch (err) {
-      console.error("Error generating static image", err);
-      alert("Hubo un error al compilar la imagen.");
+      alert("Error al descargar.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleFinalize = async () => {
+    if (!registrationId || !eventId) {
+      alert("Sesión Inválida. Haz un registro nuevo.");
+      setIsFinalized(true);
+      return;
+    }
+
+    setFinalizing(true);
+    try {
+      const dataUrl = await buildStaticPosterCanvas();
+      if (!dataUrl) throw new Error("Canvas Error");
+      
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      
+      const fileRef = ref(storage, `registrations/${eventId}/${folio}/poster_final.jpg`);
+      await uploadBytes(fileRef, blob);
+      const posterFinalUrl = await getDownloadURL(fileRef);
+
+      await updateDoc(doc(db, "registrations", registrationId), {
+        posterFinalUrl
+      });
+      
+      setIsFinalized(true);
+    } catch (err: any) {
+      alert(`Error al guardar diseño.`);
+    } finally {
+      setFinalizing(false);
+    }
+  };
+
+  const handleNativeShare = async () => {
+    setDownloading(true);
+    try {
+      const dataUrl = await buildStaticPosterCanvas();
+      if (!dataUrl) throw new Error("Canvas Error");
+      
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      
+      const file = new File([blob], `Bienvenida-${folio}.jpg`, { type: 'image/jpeg' });
+      const text = `¡Me he registrado exitosamente para ${eventName}! Mi número de operación es #${folio.slice(-3)}.`;
+      
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Registro ${eventName}`,
+          text: text,
+        });
+      } else {
+        alert("Dispositivo no soporta envío directo. Descárgala manualmente.");
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        alert("Error al compartir.");
+      }
     } finally {
       setDownloading(false);
     }
@@ -144,93 +301,6 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     welcomeDragRef.current.isDragging = false;
     bgDragRef.current.isDragging = false;
   };
-
-  const handleFinalize = async () => {
-    if (!posterRef.current) return;
-    
-    // Si la sesión de Next.js es vieja o no tiene ID de Firestore adjunto:
-    if (!registrationId || !eventId) {
-      alert("⚠️ Sesión Inválida o Caché: Para probar esta nueva función necesitas hacer un registro completito desde cero para que la Base de Datos reconozca el ID del documento y pueda adjuntarle la imagen hd.");
-      setIsFinalized(true); // Fallback para que al menos puedan probar la UI
-      return;
-    }
-
-    setFinalizing(true);
-    
-    try {
-      const dataUrl = await htmlToImage.toJpeg(posterRef.current, { 
-        quality: 0.9, 
-        pixelRatio: 2,
-        backgroundColor: "#000"
-      });
-      
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      if (!blob) throw new Error("Blob creation failed");
-      
-      const fileRef = ref(storage, `registrations/${eventId}/${folio}/poster_final.jpg`);
-      await uploadBytes(fileRef, blob);
-      const posterFinalUrl = await getDownloadURL(fileRef);
-
-      await updateDoc(doc(db, "registrations", registrationId), {
-        posterFinalUrl
-      });
-      
-      setIsFinalized(true);
-    } catch (err: any) {
-      console.error("Error finalizing poster", err);
-      alert(`Hubo un error al guardar tu diseño en el servidor. Inténtalo de nuevo. \n\nDetalle técnico: ${err.message || 'Error Desconocido'}`);
-    } finally {
-      setFinalizing(false);
-    }
-  };
-
-  const handleNativeShare = async () => {
-    if (!posterRef.current) return;
-    setDownloading(true);
-    
-    try {
-      const dataUrl = await htmlToImage.toJpeg(posterRef.current, { 
-        quality: 0.9, 
-        pixelRatio: 2,
-        backgroundColor: "#000",
-        cacheBust: true,
-      });
-      
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      if (!blob) throw new Error("Blob creation failed");
-      
-      const file = new File([blob], `Bienvenida-${folio}.jpg`, { type: 'image/jpeg' });
-      const text = `¡Me he registrado exitosamente para ${eventName}! Mi número de operación es #${folio.slice(-3)}.`;
-      
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `Registro ${eventName}`,
-          text: text,
-        });
-      } else {
-        alert("Tu dispositivo actual no soporta el envío de imágenes directas a WhatsApp. Por favor selecciona el botón 'Descargar' y envía la foto manualmente.");
-      }
-    } catch (err) {
-      console.error("Error sharing the image", err);
-      if ((err as Error).name !== 'AbortError') {
-        alert("Hubo un error al intentar compartir la imagen nativamente.");
-      }
-    } finally {
-      setDownloading(false);
-    }
-  };
-
-  const getProxyUrl = (url?: string) => {
-    if (!url) return "";
-    if (url.startsWith("blob:") || url.startsWith("data:")) return url;
-    return `/api/proxy-image?url=${encodeURIComponent(url)}`;
-  };
-
-  const safePhotoUrl = getProxyUrl(photoUrl);
-  const safeTemplateUrl = getProxyUrl(posterTemplateUrl);
 
   return (
     <div className="flex flex-col items-center gap-6 w-full relative">
@@ -313,7 +383,6 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
           }}
           className={`relative w-full aspect-[4/5] overflow-hidden bg-black text-white flex flex-col items-center justify-between z-10 select-none ${isFinalized || isPreview ? 'pointer-events-none' : 'cursor-move touch-none'} m-0`}
         >
-        {/* Layer 1: Background Participant Photo (Draggable & Scaled) */}
         <div className="absolute inset-0 z-0 bg-black">
            <img 
              src={getProxyUrl(photoUrl)}
@@ -327,7 +396,6 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
            />
         </div>
         
-        {/* Layer 2: Graphic Transparent Overlay Template (Admin's Upload) */}
         {posterTemplateUrl && (
           <img 
             src={getProxyUrl(posterTemplateUrl)} 
@@ -337,7 +405,6 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
           />
         )}
 
-        {/* Fallback Legacy Design if no Admin Template provided */}
         {!posterTemplateUrl && (
            <div className="absolute inset-0 z-10 bg-gradient-to-t from-black via-black/50 to-transparent flex flex-col items-center justify-between p-8">
              <div className="w-full text-center mt-2">
@@ -352,7 +419,6 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
            </div>
         )}
         
-        {/* Layer 2.5: Team Logo Render */}
         {processedLogo && (
            <div 
              className={`absolute top-[60%] left-[30%] z-20 ${isFinalized || isPreview ? 'pointer-events-none' : 'cursor-move touch-none'}`}
@@ -383,10 +449,8 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
            </div>
         )}
 
-        {/* Layer 3: Dynamic Data Rendering targeted for Template Overlays */}
         {posterTemplateUrl && (
           <>
-            {/* Dynamic Welcome Text */}
             <div 
               className={`absolute top-[40%] left-0 w-full px-8 z-30 flex flex-col items-start ${isFinalized || isPreview ? 'pointer-events-none' : 'cursor-move touch-none'}`}
               style={{ transform: `translate(${welcomePos.x}px, ${welcomePos.y}px)` }}
