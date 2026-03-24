@@ -130,9 +130,22 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     ctx.fillRect(0, 0, W, H);
 
     if (bgImg) {
-      const bw = W * bgScale;
-      const aspect = bgImg.height / bgImg.width;
-      const bh = bw * aspect;
+      const containerAspect = W / H;
+      const imgAspect = bgImg.width / bgImg.height;
+      
+      let renderW, renderH;
+      if (imgAspect > containerAspect) {
+        // Image is wider than container
+        renderH = H;
+        renderW = H * imgAspect;
+      } else {
+        // Image is taller than container
+        renderW = W;
+        renderH = W / imgAspect;
+      }
+
+      const bw = renderW * bgScale;
+      const bh = renderH * bgScale;
       
       const bx = bgPos.x * scaleFactor;
       const by = bgPos.y * scaleFactor;
@@ -313,48 +326,9 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
   return (
     <div className="flex flex-col items-center gap-6 w-full relative">
       {!isPreview && !isFinalized && (
-        <div className="w-full space-y-4">
-          <div className="bg-[#4b55f5]/10 border border-[#4b55f5]/30 text-[#00d2ff] text-[10px] uppercase font-bold tracking-widest px-4 py-2 rounded-lg text-center shadow-inner">
+        <div className="w-full">
+          <div className="bg-[#4b55f5]/10 border border-[#4b55f5]/30 text-[#00d2ff] text-[10px] uppercase font-bold tracking-widest px-4 py-2 rounded-lg text-center shadow-inner mb-4">
             Arrastra la foto de fondo, textos {logoUrl && 'y tu Logo '} libremente para acomodarlos.
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-[#171821] p-4 rounded-xl border border-[#ffffff10] shadow-inner flex items-center gap-4">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-400 whitespace-nowrap">Zoom Foto</span>
-              <input 
-                type="range" 
-                min="0.5" 
-                max="3" 
-                step="0.05" 
-                value={bgScale} 
-                onChange={(e) => setBgScale(parseFloat(e.target.value))}
-                className="w-full h-2 rounded-lg appearance-none bg-gray-700 outline-none accent-[#00d2ff] cursor-ew-resize"
-              />
-            </div>
-            
-            {logoUrl && (
-              <div className="bg-[#171821] p-4 rounded-xl border border-[#ffffff10] shadow-inner flex flex-col gap-3">
-                <div className="flex items-center gap-4">
-                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#884af0] whitespace-nowrap">Zoom Logo</span>
-                  <input 
-                    type="range" 
-                    min="0.2" 
-                    max="2" 
-                    step="0.05" 
-                    value={logoScale} 
-                    onChange={(e) => setLogoScale(parseFloat(e.target.value))}
-                    className="w-full h-2 rounded-lg appearance-none bg-gray-700 outline-none accent-[#884af0] cursor-ew-resize"
-                  />
-                </div>
-                <button 
-                  type="button"
-                  onClick={() => setIsRemovingBg(!isRemovingBg)}
-                  className={`w-full py-1.5 rounded text-[9px] uppercase tracking-widest font-bold transition-all border ${isRemovingBg ? 'bg-[#884af0] text-white border-[#884af0]' : 'bg-transparent text-gray-400 border-gray-600 hover:border-[#884af0] hover:text-[#884af0]'}`}
-                >
-                  {isRemovingBg ? 'Fondo Transparente Activado' : 'Quitar Fondo Blanco del Logo'}
-                </button>
-              </div>
-            )}
           </div>
         </div>
       )}
