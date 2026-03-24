@@ -30,6 +30,14 @@ export default function ScannerPage() {
 
       if (snap.exists()) {
         const data = snap.data();
+        
+        // --- VALIDACIÓN DE SEGURIDAD DOBLE REGISTRO ---
+        if (data.checkedInAt) {
+           setErrorStatus(`⚠️ ERROR DE SEGURIDAD: DOBLE REGISTRO DETECTADO. Este folio (#${data.folio?.slice(-3)}) YA fue REGISTRADO en Mesa el ${new Date(data.checkedInAt).toLocaleString()}.`);
+           setLoading(false);
+           return;
+        }
+
         if (data.status !== "APPROVED") {
            setErrorStatus(`ESTADO NO AUTORIZADO: El corredor tiene estado '${data.status}'. Cobrar o auditar en mesa.`);
         }

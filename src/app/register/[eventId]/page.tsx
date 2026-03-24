@@ -400,17 +400,29 @@ export default function RegisterFormPage() {
             </div>
           </div>
           
-          {/* Instrucciones de Pago */}
           <div className="relative z-20 bg-[#171821] border-y border-[#ffffff0a] p-6 sm:px-12 flex flex-col sm:flex-row gap-6 items-start">
             <div className="bg-[#4b55f5]/10 p-3.5 rounded-full shrink-0 shadow-inner border border-[#4b55f5]/30">
                <Award className="w-5 h-5 text-[#4b55f5]" />
             </div>
             <div>
               <h3 className="font-bold text-white tracking-widest uppercase text-sm lg:text-base mb-3">Instrucciones de Pago</h3>
-              <p className="text-sm lg:text-base text-gray-400 leading-relaxed font-medium">
-                Realiza el pago de tu inscripción a la cuenta CLABE: <strong className="text-[#00d2ff] bg-[#00d2ff]/10 px-3 py-1 pb-1.5 rounded tracking-widest text-base lg:text-lg">01234567890123</strong>. 
-                Conserva tu recibo de pago, ya que lo necesitarás para subirlo a la plataforma en la sección de anexos.
-              </p>
+              <div className="text-sm lg:text-base text-gray-400 leading-relaxed font-medium">
+                {eventData?.paymentMethods ? (
+                  <div className="space-y-2">
+                    <p>Realiza tu pago siguiendo estas instrucciones:</p>
+                    <div className="bg-[#00d2ff]/10 border border-[#00d2ff]/20 p-4 rounded-xl text-[#00d2ff] font-mono whitespace-pre-wrap break-all">
+                      {eventData.paymentMethods}
+                    </div>
+                  </div>
+                ) : (
+                  <p>
+                    Realiza el pago de tu inscripción a la cuenta CLABE: <strong className="text-[#00d2ff] bg-[#00d2ff]/10 px-3 py-1 pb-1.5 rounded tracking-widest text-base lg:text-lg">01234567890123</strong>. 
+                  </p>
+                )}
+                <p className="mt-4">
+                  Conserva tu recibo de pago, ya que lo necesitarás para subirlo a la plataforma en la sección de anexos.
+                </p>
+              </div>
             </div>
           </div>
 
