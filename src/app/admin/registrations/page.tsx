@@ -137,13 +137,13 @@ export default function RegistrationsPage() {
        
        await Promise.all(toDownload.map(async (reg) => {
           try {
-            const res = await fetch(`/api/proxy-image?url=${encodeURIComponent(reg.posterFinalUrl)}`);
-            const blob = await res.blob();
-            zip.file(`HD_${reg.folio}_${reg.firstName}.jpg`, blob);
-            count++;
-            setDownloadProgress(`Comprimiendo HD: ${count}/${toDownload.length}...`);
+             const res = await fetch(`/api/proxy-image?url=${encodeURIComponent(reg.posterFinalUrl)}`);
+             const blob = await res.blob();
+             zip.file(`HD_${reg.folio}_${reg.firstName}.jpg`, blob);
+             count++;
+             setDownloadProgress(`Comprimiendo HD: ${count}/${toDownload.length}...`);
           } catch(e) {
-            console.error("Error batch fetching HD node:", e);
+             console.error("Error batch fetching HD node:", e);
           }
        }));
        
@@ -425,11 +425,14 @@ export default function RegistrationsPage() {
       {/* Modal / Panel Flotante de Expediente */}
       {selectedUser && (() => {
         const liveUser = registrations.find(r => r.id === selectedUser.id) || selectedUser;
+        const currentEvent = events.find(e => e.id === liveUser.eventId);
+        
         return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#00000080] backdrop-blur-md p-4 sm:p-6 opacity-100 transition-opacity">
-          <div className="bg-[#1b1c27] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-[#ffffff10] max-w-3xl w-full flex flex-col max-h-[92vh] overflow-hidden transform scale-100 transition-transform">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#00000080] backdrop-blur-md p-4 sm:p-6 transition-opacity">
+          <div className="bg-[#1b1c27] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-[#ffffff10] max-w-3xl w-full flex flex-col max-h-[92vh] overflow-hidden transform transition-all animate-in zoom-in duration-300">
             
-            <div className="p-6 sm:px-8 sm:py-7 border-b border-[#ffffff0a] flex justify-between items-center bg-[#171821]">
+            {/* Modal Header */}
+            <div className="p-6 sm:px-8 sm:py-7 border-b border-[#ffffff0a] flex justify-between items-center bg-[#171821] shrink-0">
               <div className="flex items-center gap-4">
                  <div className="w-2 h-8 bg-gradient-to-b from-[#00d2ff] to-[#4b55f5] rounded-full"></div>
                  <div>
@@ -437,18 +440,25 @@ export default function RegistrationsPage() {
                     <span className="text-gray-500 font-mono text-sm tracking-widest">{liveUser.folio}</span>
                  </div>
               </div>
-              <button onClick={() => setSelectedUser(null)} className="text-gray-500 hover:text-white transition-colors rounded-xl p-2.5 bg-[#242636] hover:bg-gray-800 border border-[#ffffff0a]">
+              <button 
+                onClick={() => { setSelectedUser(null); setIsRegeneratingPoster(false); }} 
+                className="text-gray-500 hover:text-white transition-colors rounded-xl p-2.5 bg-[#242636] hover:bg-gray-800 border border-[#ffffff0a]"
+              >
                 <X className="w-5 h-5" />
               </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-[#242636]/40 p-6 rounded-2xl border border-[#ffffff05]">
                   {/* Botón de Visualización de Foto de Bienvenida */}
-                  {selectedUser.posterFinalUrl ? (
+                  {liveUser.posterFinalUrl ? (
                      <a 
-                       href={selectedUser.posterFinalUrl} 
+                       href={liveUser.posterFinalUrl} 
                        target="_blank" 
                        rel="noopener noreferrer"
-                       className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-tr from-[#4b55f5]/20 to-[#884af0]/20 border border-[#4b55f5]/40 text-[#00d2ff] hover:bg-[#4b55f5]/30 transition-all group"
+                       className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-tr from-[#4b55f5]/20 to-[#884af0]/20 border border-[#4b55f5]/40 text-[#00d2ff] hover:bg-[#4b55f5]/30 transition-all group mb-6"
                      >
                        <ImageIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
                        <div className="text-left">
@@ -457,7 +467,7 @@ export default function RegistrationsPage() {
                        </div>
                      </a>
                   ) : (
-                    <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-[#171821] border border-white/5 text-gray-500 opacity-60">
+                    <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-[#171821] border border-white/5 text-gray-500 opacity-60 mb-6">
                       <ImageIcon className="w-5 h-5" />
                       <div className="text-left">
                          <p className="text-[10px] font-black uppercase tracking-widest">Estado: Pendiente</p>
@@ -465,15 +475,15 @@ export default function RegistrationsPage() {
                       </div>
                     </div>
                   )}
-                  <p className="text-[#00d2ff] text-[10px] font-bold uppercase tracking-[0.2em] mb-2 mt-6">Datos del Titular</p>
+                  <p className="text-[#00d2ff] text-[10px] font-bold uppercase tracking-[0.2em] mb-2 mt-2">Datos del Titular</p>
                   <p className="font-light text-white text-3xl mb-2">{liveUser.firstName} {liveUser.lastName}</p>
                   <p className="text-gray-400 text-sm font-medium">{liveUser.state} • {liveUser.muni}</p>
                 </div>
                 
                 <div className="bg-[#242636]/40 p-6 rounded-2xl border border-[#ffffff05]">
                   <p className="text-[#884af0] text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Acuerdo Operativo</p>
-                  <p className="font-bold text-white text-xl mb-2">{events.find(e => e.id === liveUser.eventId)?.name || "Evento Base"}</p>
-                  <p className="text-gray-400 text-sm font-medium">Edad Operativa: {liveUser.age} | Rama: {liveUser.gender}</p>
+                  <p className="font-bold text-white text-xl mb-2">{currentEvent?.name || "Evento Base"}</p>
+                  <p className="text-gray-400 text-sm font-medium">Edad Operativa: {liveUser.age} | Rama: {liveUser.gender === 'MALE' ? 'Varonil' : 'Femenil'}</p>
                 </div>
               </div>
               
@@ -526,7 +536,7 @@ export default function RegistrationsPage() {
                          <FileText className="w-6 h-6 text-[#4b55f5]" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-200 group-hover:text-white transition-colors">Transferencia.pdf</p>
+                        <p className="text-sm font-bold text-gray-200 group-hover:text-white transition-colors">Comprobante de Pago</p>
                         <p className="text-[11px] text-blue-400 font-bold tracking-widest uppercase mt-1">Cliquear Carga</p>
                       </div>
                     </a>
@@ -538,7 +548,7 @@ export default function RegistrationsPage() {
                          <ImageIcon className="w-6 h-6 text-[#884af0]" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-200 group-hover:text-white transition-colors">Identidad_Oficial.img</p>
+                        <p className="text-sm font-bold text-gray-200 group-hover:text-white transition-colors">Identificación Oficial</p>
                         <p className="text-[11px] text-[#884af0] font-bold tracking-widest uppercase mt-1">Inspección Ocular</p>
                       </div>
                     </a>
@@ -550,7 +560,7 @@ export default function RegistrationsPage() {
                        <ImageIcon className="w-6 h-6 text-[#ff5f6d]" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-200 group-hover:text-white transition-colors">Fotografia_Base.jpeg</p>
+                      <p className="text-sm font-bold text-gray-200 group-hover:text-white transition-colors">Fotografía Base</p>
                       <p className="text-[11px] text-[#ff5f6d] font-bold tracking-widest uppercase mt-1">Descarga RAW</p>
                     </div>
                   </a>
@@ -562,77 +572,81 @@ export default function RegistrationsPage() {
                        <ImageIcon className="w-6 h-6 text-yellow-500" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-200 group-hover:text-white transition-colors">Logotipo_Equipo.png</p>
+                      <p className="text-sm font-bold text-gray-200 group-hover:text-white transition-colors">Logotipo del Equipo</p>
                       <p className="text-[11px] text-yellow-500 font-bold tracking-widest uppercase mt-1">Extracción Original</p>
                     </div>
                   </a>
                   )}
-                  {isRegeneratingPoster ? (
-                     <div className="md:col-span-2 border border-[#00d2ff]/30 rounded-2xl p-6 bg-[#00d2ff]/5 flex flex-col items-center mt-2">
-                       <div className="w-full flex justify-between items-center mb-6 max-w-3xl mx-auto">
-                           <h3 className="text-[#00d2ff] text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-                              <ImageIcon className="w-5 h-5" /> Consola de Ensamblaje Directo
-                           </h3>
-                           <button onClick={() => { setIsRegeneratingPoster(false); setIgnoreUserLogo(false); }} className="text-gray-400 hover:text-white bg-[#1c1d29] px-4 py-2 rounded-lg text-xs font-bold border border-[#ffffff0a]">
-                             Cerrar Consola
-                           </button>
-                       </div>
-                       
-                       <label className="flex items-center justify-center gap-3 bg-[#1c1d29] px-5 py-3 rounded-xl border border-[#ffffff0a] cursor-pointer mb-8 w-full max-w-sm shadow-inner transition-colors hover:border-[#ff5f6d]/50">
-                         <input type="checkbox" checked={ignoreUserLogo} onChange={(e) => setIgnoreUserLogo(e.target.checked)} className="accent-[#ff5f6d] w-4 h-4 cursor-pointer" />
-                         <span className="text-gray-300 text-[11px] uppercase font-bold tracking-widest">Ignorar y eliminar Logo Corrupto del Usuario</span>
-                       </label>
+                </div>
 
-                       <div className="w-full relative origin-top scale-[0.9] sm:scale-100 flex flex-col items-center">
-                         <WelcomePoster 
-                            folio={liveUser.folio}
-                            name={`${liveUser.firstName} ${liveUser.lastName}`}
-                            eventName={events.find(e => e.id === liveUser.eventId)?.name || "EVENTO"}
-                            category={liveUser.gender === 'MALE' ? 'Varonil' : 'Femenil'} 
-                            photoUrl={liveUser.photoUrl}
-                            logoUrl={ignoreUserLogo ? undefined : liveUser.logoUrl}
-                            posterTemplateUrl={events.find(e => e.id === liveUser.eventId)?.posterTemplateUrl}
-                            originState={liveUser.state}
-                            posterFontFamily={events.find(e => e.id === liveUser.eventId)?.posterFontFamily}
-                            posterColorFolio={events.find(e => e.id === liveUser.eventId)?.posterColorFolio}
-                            posterColorName={events.find(e => e.id === liveUser.eventId)?.posterColorName}
-                            posterColorState={events.find(e => e.id === liveUser.eventId)?.posterColorState}
-                            posterColorWelcome={events.find(e => e.id === liveUser.eventId)?.posterColorWelcome}
-                            showFolioOnPoster={events.find(e => e.id === liveUser.eventId)?.showFolioOnPoster !== false}
-                            gender={liveUser.gender}
-                            registrationId={liveUser.id}
-                            eventId={liveUser.eventId}
-                         />
-                       </div>
-                       
-                       <p className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase text-center mt-6">Maniobra Final: Al hacer clic en "Finalizar Diseño" reemplazarás el póster actual por el generado en esta consola.</p>
+                {isRegeneratingPoster ? (
+                   <div className="md:col-span-2 border border-[#00d2ff]/30 rounded-2xl p-6 bg-[#00d2ff]/5 flex flex-col items-center mt-8">
+                     <div className="w-full flex justify-between items-center mb-6">
+                         <h3 className="text-[#00d2ff] text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                            <ImageIcon className="w-5 h-5" /> Consola de Ensamblaje Directo
+                         </h3>
+                         <button 
+                            onClick={() => { setIsRegeneratingPoster(false); setIgnoreUserLogo(false); }} 
+                            className="text-gray-400 hover:text-white bg-[#1c1d29] px-4 py-2 rounded-lg text-xs font-bold border border-[#ffffff0a]"
+                         >
+                           Cerrar Consola
+                         </button>
                      </div>
-                  ) : (
-                  <div className="md:col-span-2 border border-[#ffffff0a] rounded-2xl p-6 bg-[#171821] flex flex-col md:flex-row gap-6 mt-2">
-                    <div className="flex-1 flex justify-center border border-[#ffffff0a] bg-black rounded-xl overflow-hidden shadow-inner aspect-[4/5] object-contain relative group">
+                     
+                     <label className="flex items-center justify-center gap-3 bg-[#1c1d29] px-5 py-3 rounded-xl border border-[#ffffff0a] cursor-pointer mb-8 w-full max-w-sm shadow-inner transition-colors hover:border-[#ff5f6d]/50">
+                       <input type="checkbox" checked={ignoreUserLogo} onChange={(e) => setIgnoreUserLogo(e.target.checked)} className="accent-[#ff5f6d] w-4 h-4 cursor-pointer" />
+                       <span className="text-gray-300 text-[11px] uppercase font-bold tracking-widest">Ignorar Logo del Usuario</span>
+                     </label>
+
+                     <div className="w-full max-w-sm">
+                       <WelcomePoster 
+                          folio={liveUser.folio}
+                          name={`${liveUser.firstName} ${liveUser.lastName}`}
+                          eventName={currentEvent?.name || "EVENTO"}
+                          category={liveUser.gender === 'MALE' ? 'Varonil' : 'Femenil'} 
+                          photoUrl={liveUser.photoUrl}
+                          logoUrl={ignoreUserLogo ? undefined : liveUser.logoUrl}
+                          posterTemplateUrl={currentEvent?.posterTemplateUrl}
+                          originState={liveUser.state}
+                          posterFontFamily={currentEvent?.posterFontFamily}
+                          posterColorFolio={currentEvent?.posterColorFolio}
+                          posterColorName={currentEvent?.posterColorName}
+                          posterColorState={currentEvent?.posterColorState}
+                          posterColorWelcome={currentEvent?.posterColorWelcome}
+                          showFolioOnPoster={currentEvent?.showFolioOnPoster !== false}
+                          gender={liveUser.gender}
+                          registrationId={liveUser.id}
+                          eventId={liveUser.eventId}
+                          isPreview={true}
+                       />
+                     </div>
+                   </div>
+                ) : (
+                  <div className="border border-[#ffffff0a] rounded-2xl p-6 bg-[#171821] flex flex-col md:flex-row gap-6 mt-8">
+                    <div className="flex-1 flex justify-center border border-[#ffffff0a] bg-black rounded-xl overflow-hidden shadow-inner aspect-[4/5] relative group">
                        {liveUser.posterFinalUrl ? (
                          <>
                            <img src={liveUser.posterFinalUrl} alt="Poster HD" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                           <a href={liveUser.posterFinalUrl} target="_blank" rel="noreferrer" className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm shadow-inner">
-                             <span className="bg-[#00d2ff] text-black font-bold uppercase tracking-widest text-[10px] px-4 py-2 rounded-full border border-transparent shadow-[0_0_20px_rgba(0,210,255,0.4)]">Descargar Archivo Real</span>
+                           <a href={liveUser.posterFinalUrl} target="_blank" rel="noreferrer" className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm">
+                             <span className="bg-[#00d2ff] text-black font-bold uppercase tracking-widest text-[10px] px-4 py-2 rounded-full shadow-[0_0_20px_rgba(0,210,255,0.4)]">Descargar Original</span>
                            </a>
                          </>
                        ) : (
                          <div className="flex flex-col items-center justify-center p-6 text-center space-y-3 w-full h-full">
-                           <div className="w-12 h-12 rounded-full border border-yellow-500/30 bg-yellow-500/10 flex items-center justify-center mix-blend-screen mb-2">
+                           <div className="w-12 h-12 rounded-full border border-yellow-500/30 bg-yellow-500/10 flex items-center justify-center mb-2">
                              <ImageIcon className="w-5 h-5 text-yellow-500" />
                            </div>
-                           <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-500 w-full mb-1">Sin Interacción</span>
-                           <span className="text-[9px] font-bold tracking-widest uppercase text-yellow-500/70 w-full leading-relaxed">El usuario abandonó la sesión<br/>sin guardar su póster HD</span>
+                           <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-500">Sin Interacción</span>
+                           <span className="text-[9px] font-bold tracking-widest uppercase text-yellow-500/70 leading-relaxed">El usuario no ha<br/>guardado su póster HD</span>
                          </div>
                        )}
                     </div>
-                    <div className="flex-[2] flex flex-col justify-center relative">
+                    <div className="flex-[2] flex flex-col justify-center">
                        <p className="text-[#00d2ff] uppercase text-[10px] font-bold tracking-[0.2em] mb-2">Generación Autómata</p>
                        <p className="font-light text-2xl text-white mb-4">Póster HD Finalizado</p>
-                       <p className="text-gray-400 text-sm font-medium leading-relaxed max-w-sm relative z-10">Esta es la visualización exacta que el atleta ha procesado utilizando sus coordenadas y escalas. Este documento puede emplearse administrativamente para gafetes de escaneo físico u honoríficos pre-carrera.</p>
+                       <p className="text-gray-400 text-sm font-medium leading-relaxed max-w-sm">Esta es la visualización exacta que el atleta ha procesado. Útil para gafetes y redes sociales.</p>
                        
-                       <div className="mt-8 flex flex-col gap-3 relative z-10">
+                       <div className="mt-8 flex flex-col gap-3">
                          <button onClick={() => setIsRegeneratingPoster(true)} className="w-full bg-[#1c1d29] hover:bg-[#25283d] text-[#00d2ff] py-3 rounded-xl border border-[#ffffff0a] font-bold uppercase tracking-widest text-[11px] hover:border-[#00d2ff]/30 transition-all flex justify-center items-center gap-2">
                            Ensamblar Documento HD Manualmente
                          </button>
@@ -643,18 +657,24 @@ export default function RegistrationsPage() {
                        </div>
                     </div>
                   </div>
-                  )}
-                </div>
+                )}
               </div>
             </div>
 
-            <div className="p-6 sm:px-8 sm:py-5 border-t border-[#ffffff0a] bg-[#171821] flex justify-end gap-4 rounded-b-3xl">
-              <button onClick={() => setSelectedUser(null)} className="px-7 py-3 text-[11px] uppercase tracking-widest font-bold text-gray-400 bg-[#242636] hover:bg-[#2c2f42] hover:text-white rounded-xl transition-colors">
-                Silenciar
+            {/* Modal Footer */}
+            <div className="p-6 sm:px-8 sm:py-5 border-t border-[#ffffff0a] bg-[#171821] flex justify-end gap-4 shrink-0">
+              <button 
+                onClick={() => { setSelectedUser(null); setIsRegeneratingPoster(false); }} 
+                className="px-7 py-3 text-[11px] uppercase tracking-widest font-bold text-gray-400 bg-[#242636] hover:bg-[#2c2f42] hover:text-white rounded-xl transition-colors"
+              >
+                Cerrar
               </button>
               {liveUser.status === 'PENDING' && (
-                <button onClick={() => approveRegistration(liveUser.id)} className="px-7 py-3 text-[11px] uppercase tracking-widest font-bold text-white bg-gradient-to-r from-[#4b55f5] to-[#884af0] rounded-xl hover:opacity-90 flex items-center gap-2 shadow-[0_0_20px_rgba(75,85,245,0.4)] transition-transform hover:-translate-y-px">
-                  <CheckCircle className="w-[14px] h-[14px]" /> Completar Operación
+                <button 
+                  onClick={() => approveRegistration(liveUser.id)} 
+                  className="px-7 py-3 text-[11px] uppercase tracking-widest font-bold text-white bg-gradient-to-r from-[#4b55f5] to-[#884af0] rounded-xl hover:opacity-90 flex items-center gap-2 shadow-[0_0_20px_rgba(75,85,245,0.4)] transition-transform hover:-translate-y-px"
+                >
+                  <CheckCircle className="w-[14px] h-[14px]" /> Aprobar Registro
                 </button>
               )}
             </div>
