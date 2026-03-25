@@ -17,15 +17,13 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-[260px] bg-[#171821] border-r border-[#ffffff0a] flex flex-col justify-between text-gray-400">
+    <aside className="w-[220px] bg-[#171821] border-r border-[#ffffff0a] flex flex-col justify-between text-gray-400 shrink-0">
       <div>
-        <div className="flex h-[100px] items-center px-8">
-          <span className="text-[17px] font-black tracking-[0.15em] text-white uppercase flex items-center gap-2.5">
-            <div className="w-5 h-5 bg-[#4b55f5] rounded-sm shadow-[0_0_15px_rgba(75,85,245,0.6)]"></div>
-            DASHBOARD
-          </span>
+        <div className="flex h-[80px] items-center px-5">
+          <h2 className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-1">Tabla de Atletas</h2>
+          <h1 className="text-2xl font-light text-white tracking-tight">Registros e Inscripciones</h1>
         </div>
-        <div className="px-8 mt-2 mb-4">
+        <div className="px-6 mt-1 mb-3">
           <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Principal</span>
         </div>
         <nav className="px-5 space-y-2">

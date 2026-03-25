@@ -213,36 +213,36 @@ export default function RegistrationsPage() {
   });
 
   return (
-    <div className="p-10 lg:pl-12 flex flex-col h-full overflow-y-auto custom-scrollbar space-y-8">
+    <div className="p-4 lg:p-8 flex flex-col h-full overflow-y-auto custom-scrollbar space-y-6">
       
       {/* Header Registros */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-[12px] font-bold tracking-[0.25em] text-gray-400 uppercase mb-2">Tabla de Atletas</h2>
-          <h1 className="text-3xl font-light text-white tracking-tight">Registros e Inscripciones</h1>
+          <h2 className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-1">Tabla de Atletas</h2>
+          <h1 className="text-2xl font-light text-white tracking-tight">Registros e Inscripciones</h1>
           {!isSuperAdmin && (
-            <p className="text-[10px] text-[#00d2ff] font-bold mt-3 uppercase tracking-widest flex items-center gap-2">
+            <p className="text-[10px] text-[#00d2ff] font-bold mt-2 uppercase tracking-widest flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse"></span> Modo Organizador: {user?.email}
             </p>
           )}
         </div>
         
-        <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4">
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3">
           <button 
             onClick={exportToCSV}
-            className="flex items-center justify-center gap-3 bg-[#171821] border border-[#ffffff0a] hover:bg-[#25283d] hover:border-[#00d2ff]/30 text-gray-400 hover:text-[#00d2ff] px-6 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl group"
+            className="flex items-center justify-center gap-2.5 bg-[#171821] border border-[#ffffff0a] hover:bg-[#25283d] hover:border-[#00d2ff]/30 text-gray-400 hover:text-[#00d2ff] px-5 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl group"
           >
             <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
-            Descargar Base de Datos (EXCEL)
+            Bajar Excel
           </button>
 
           <select 
             value={selectedEventId} 
             onChange={(e) => setSelectedEventId(e.target.value)}
-            className="w-full sm:w-[300px] bg-[#242636] border border-[#ffffff1a] text-white rounded-xl text-sm px-5 py-3.5 focus:outline-none focus:border-[#4b55f5] font-semibold tracking-wide shadow-xl appearance-none cursor-pointer hover:bg-[#2a2d3d] transition-colors"
-            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center' }}
+            className="w-full sm:w-[260px] bg-[#242636] border border-[#ffffff1a] text-white rounded-xl text-xs px-4 py-3 focus:outline-none focus:border-[#4b55f5] font-semibold tracking-wide shadow-xl appearance-none cursor-pointer hover:bg-[#2a2d3d] transition-colors"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.8rem center' }}
           >
-            {isSuperAdmin && <option value="ALL">Vista Global: TODOS LOS EVENTOS</option>}
+            {isSuperAdmin && <option value="ALL">Vista Global: TODOS</option>}
             {!isSuperAdmin && <option value="ALL" disabled>ELIGE UN EVENTO 👇</option>}
             {events.map((ev) => (
               <option key={ev.id} value={ev.id}>{ev.name}</option>
@@ -330,77 +330,73 @@ export default function RegistrationsPage() {
         
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left whitespace-nowrap">
-            <thead className="bg-[#171821] text-gray-500 font-bold text-[10px] uppercase tracking-widest border-b border-[#ffffff0a]">
+            <thead className="bg-[#171821] text-gray-500 font-bold text-[9px] uppercase tracking-widest border-b border-[#ffffff0a]">
               <tr>
-                <th className="px-8 py-5">Id Folio</th>
-                <th className="px-8 py-5">Participante</th>
-                {isSuperAdmin && selectedEventId === "ALL" && <th className="px-8 py-5">Campaña</th>}
-                <th className="px-8 py-5">Registro Inicial</th>
-                <th className="px-8 py-5">Paquete / Inversión</th>
-                <th className="px-8 py-5">Rama / Categoría</th>
-                <th className="px-8 py-5">Estado Pago</th>
-                <th className="px-8 py-5 text-right">Acción Rapida</th>
+                <th className="px-4 py-4">Id Folio</th>
+                <th className="px-4 py-4">Participante</th>
+                {isSuperAdmin && selectedEventId === "ALL" && <th className="px-4 py-4">Campaña</th>}
+                <th className="px-4 py-4">Registro Inicial</th>
+                <th className="px-4 py-4">Paquete / Inversión</th>
+                <th className="px-4 py-4">Rama / Categoría</th>
+                <th className="px-4 py-4">Estado Pago</th>
+                <th className="px-4 py-4 text-right">Acción Rapida</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#ffffff0a]">
               {filteredRegistrations.map((reg) => (
                 <tr key={reg.id} className="hover:bg-[#4b55f5]/5 transition-colors group">
-                  <td className="px-8 py-5 font-mono text-[13px] font-bold text-[#00d2ff]">{reg.folio}</td>
-                  <td className="px-8 py-5">
-                     <span className="font-bold text-gray-200 group-hover:text-white transition-colors">{reg.firstName} {reg.lastName}</span>
-                     <span className="block text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">{reg.state}</span>
+                  <td className="px-4 py-4 font-mono text-[12px] font-bold text-[#00d2ff]">{reg.folio}</td>
+                  <td className="px-4 py-4">
+                     <span className="font-bold text-gray-200 group-hover:text-white transition-colors text-[13px]">{reg.firstName} {reg.lastName}</span>
+                     <span className="block text-[9px] text-gray-500 uppercase tracking-wider mt-0.5">{reg.state}</span>
                   </td>
                   {isSuperAdmin && selectedEventId === "ALL" && (
-                    <td className="px-8 py-5 text-gray-400 font-medium text-[12px]">{events.find(e => e.id === reg.eventId)?.name || "N/A"}</td>
+                    <td className="px-4 py-4 text-gray-400 font-medium text-[11px] truncate max-w-[150px]">{events.find(e => e.id === reg.eventId)?.name || "N/A"}</td>
                   )}
-                  <td className="px-8 py-5">
-                    <span className="text-gray-300 text-[11px] uppercase tracking-widest font-bold bg-[#171821] px-3 py-1.5 rounded-lg border border-[#ffffff05] shadow-inner flex inline-flex w-max">
+                  <td className="px-4 py-4">
+                    <span className="text-gray-300 text-[10px] uppercase tracking-widest font-bold bg-[#171821] px-2.5 py-1.5 rounded-lg border border-[#ffffff05] shadow-inner flex inline-flex w-max">
                        {formatTimestamp(reg.createdAt)}
                     </span>
                   </td>
-                  <td className="px-8 py-5 flex flex-col items-start justify-center gap-1.5 min-w-[200px]">
+                  <td className="px-4 py-4 flex flex-col items-start justify-center gap-1 min-w-[180px]">
                      {reg.kitName ? (
                        <>
-                         <span className="bg-[#4b55f5]/10 text-[#00d2ff] font-bold text-[10px] px-3 py-1 rounded-md border border-[#4b55f5]/30 shadow-inner uppercase tracking-widest leading-none">
+                         <span className="bg-[#4b55f5]/10 text-[#00d2ff] font-bold text-[9px] px-2 py-0.5 rounded-md border border-[#4b55f5]/30 shadow-inner uppercase tracking-widest leading-none">
                            {reg.kitName} ~ ${reg.kitPricePaid}
                          </span>
                          {reg.jerseyType && reg.jerseyType !== "N/A" && (
-                           <span className="text-[9px] text-[#ff5f6d] font-mono tracking-widest mt-1">
-                             🎽 {reg.jerseyType} [Talla {reg.jerseySize}]
+                           <span className="text-[9px] text-[#ff5f6d] font-mono tracking-widest">
+                             🎽 {reg.jerseyType} [{reg.jerseySize}]
                            </span>
                          )}
                        </>
                      ) : (
-                       <span className="text-[#ffffff40] text-[10px] font-mono uppercase tracking-widest">Sin Selección</span>
+                       <span className="text-[#ffffff40] text-[9px] font-mono uppercase tracking-widest">Sin Selección</span>
                      )}
                   </td>
-                  <td className="px-8 py-5 text-gray-400 font-medium">
+                  <td className="px-4 py-4 text-gray-400 font-medium text-[12px]">
                      {reg.gender === "MALE" ? "Varonil" : "Femenil"} <span className="opacity-50">({reg.age})</span>
                   </td>
-                  <td className="px-8 py-5">
-                    <span className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest rounded-full border ${
+                  <td className="px-4 py-4">
+                    <span className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest rounded-full border ${
                       reg.status === 'APPROVED' 
                       ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' 
                       : 'bg-orange-500/10 text-orange-400 border-orange-500/30'
                     }`}>
-                      {reg.status === 'APPROVED' ? 'Aprobado L.' : 'Auditar'}
+                      {reg.status === 'APPROVED' ? 'Aprobado' : 'Pendiente'}
                     </span>
                   </td>
-                  <td className="px-8 py-5 flex items-center justify-end gap-3">
-                    <button onClick={() => setSelectedUser(reg)} className="text-gray-500 hover:text-[#00d2ff] bg-[#1c1d29] hover:bg-[#25283d] w-9 h-9 flex items-center justify-center rounded-lg border border-[#ffffff0a] transition-all" title="Ver Expediente">
-                      <Eye className="w-[18px] h-[18px]" />
+                  <td className="px-4 py-4 flex items-center justify-end gap-2">
+                    <button onClick={() => setSelectedUser(reg)} className="text-gray-500 hover:text-[#00d2ff] bg-[#1c1d29] hover:bg-[#25283d] w-8 h-8 flex items-center justify-center rounded-lg border border-[#ffffff0a] transition-all" title="Ver Expediente">
+                      <Eye className="w-4 h-4" />
                     </button>
                     {reg.status === 'PENDING' && (
-                      <>
-                        <div className="w-px h-5 bg-[#ffffff10]" />
-                        <button onClick={() => approveRegistration(reg.id)} className="text-gray-300 hover:text-white bg-gradient-to-r from-[#4b55f5] to-[#884af0] px-4 py-2 rounded-lg text-xs font-bold transition-transform hover:scale-105 shadow-[0_0_15px_rgba(75,85,245,0.4)] flex items-center gap-2">
-                          Aprobar <CheckCircle className="w-3.5 h-3.5" />
-                        </button>
-                      </>
+                      <button onClick={() => approveRegistration(reg.id)} className="text-gray-300 hover:text-white bg-gradient-to-r from-[#4b55f5] to-[#884af0] px-3 py-1.5 rounded-lg text-[10px] font-bold transition-transform hover:scale-105 shadow-[0_0_10px_rgba(75,85,245,0.4)] flex items-center gap-1.5">
+                        Aprobar <CheckCircle className="w-3 h-3" />
+                      </button>
                     )}
-                    <div className="w-px h-5 bg-[#ffffff10]" />
-                    <button onClick={() => deleteRegistration(reg.id, reg.folio)} className="text-gray-500 hover:text-white bg-[#1c1d29] hover:bg-red-500/80 w-9 h-9 flex items-center justify-center rounded-lg border border-[#ffffff0a] transition-all" title="Eliminar Registro">
-                      <Trash2 className="w-[16px] h-[16px]" />
+                    <button onClick={() => deleteRegistration(reg.id, reg.folio)} className="text-gray-500 hover:text-white bg-[#1c1d29] hover:bg-red-500/80 w-8 h-8 flex items-center justify-center rounded-lg border border-[#ffffff0a] transition-all" title="Eliminar Registro">
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </td>
                 </tr>
