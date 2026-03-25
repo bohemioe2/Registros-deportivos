@@ -6,6 +6,7 @@ export interface EventType {
   liabilityText: string;
   categoriesEnabled: boolean;
   welcomeTemplateUrl?: string;
+  eventBannerUrl?: string;
   createdAt: number;
 }
 

@@ -54,6 +54,7 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
 
   const [isSaving, setIsSaving] = useState(false);
   const [templatePreviewUrl, setTemplatePreviewUrl] = useState<string | null>(null);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -67,9 +68,13 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
       if (initialData.posterTemplateUrl) {
          setTemplatePreviewUrl(initialData.posterTemplateUrl);
       }
+      if (initialData.eventBannerUrl) {
+         setBannerPreviewUrl(initialData.eventBannerUrl);
+      }
     } else {
       reset(DEFAULT_VALUES);
       setTemplatePreviewUrl(null);
+      setBannerPreviewUrl(null);
     }
   }, [initialData, reset]);
 
@@ -82,6 +87,17 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
       setTemplatePreviewUrl(null);
     }
   }, [posterTemplateList, initialData]);
+
+  useEffect(() => {
+    const bannerFile = watch("eventBanner");
+    if (bannerFile && (bannerFile as any).length > 0) {
+      const objectUrl = URL.createObjectURL((bannerFile as any)[0]);
+      setBannerPreviewUrl(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    } else if (!initialData?.eventBannerUrl) {
+      setBannerPreviewUrl(null);
+    }
+  }, [watch("eventBanner"), initialData]);
 
   const onSubmit = async (data: any) => {
     setIsSaving(true);
@@ -155,6 +171,13 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
         <div className="space-y-2 md:col-span-2 p-6 rounded-2xl bg-[#bb86fc]/10 border border-[#bb86fc]/30 shadow-inner mb-2">
            <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#bb86fc]">Imagen de Portada (Banner Público Opcional)</label>
            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Sube una fotografía ancha y de alta calidad (Landscape). Esta será la imagen principal que tus atletas verán al entrar a Mundo Deportivo.</p>
+           
+           {bannerPreviewUrl && (
+             <div className="mb-4 rounded-xl overflow-hidden border border-[#bb86fc]/30 shadow-lg h-32 w-full">
+                <img src={bannerPreviewUrl} className="w-full h-full object-cover" alt="Banner Preview" />
+             </div>
+           )}
+
            <input 
              type="file" 
              accept="image/*"

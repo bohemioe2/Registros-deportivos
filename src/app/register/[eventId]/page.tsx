@@ -385,9 +385,13 @@ export default function RegisterFormPage() {
           {/* Header Hero Section Exclusiva */}
           <div className="relative overflow-hidden flex flex-col justify-end min-h-[400px]">
             {/* Arte Fotográfico Embebido */}
-            <div className="absolute inset-0 z-0">
-               <img src="/emtb-hero.png" alt="Specialized E-MTB Preview" className="w-full h-full object-cover mix-blend-screen opacity-60 scale-105" />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#242636]/90 via-[#242636]/40 to-transparent"></div>
+            <div className="absolute inset-0 z-0 bg-[#1b1c27]">
+               <img 
+                 src={eventData?.eventBannerUrl || "/emtb-hero.png"} 
+                 alt={eventData?.name || "Event Banner"} 
+                 className={`w-full h-full object-cover ${eventData?.eventBannerUrl ? 'opacity-40' : 'mix-blend-screen opacity-60'} scale-105 transition-opacity duration-700`} 
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#242636] via-[#242636]/40 to-transparent"></div>
             </div>
             
             <div className="p-8 sm:p-12 sm:pt-40 relative z-10 w-full h-full">
