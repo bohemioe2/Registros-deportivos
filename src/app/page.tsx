@@ -46,12 +46,11 @@ export default function Home() {
         {/* Banner Background */}
         <div className="absolute inset-0 z-0">
            <img 
-            src="https://images.unsplash.com/photo-1511994298241-608e28f14f66?q=80&w=2670&auto=format&fit=crop" 
-            alt="MTB Mountain Background" 
+            src="https://images.unsplash.com/photo-1444491741275-3747c03c99bd?q=80&w=2574&auto=format&fit=crop" 
+            alt="MTB Mountain Sunset" 
             className="w-full h-full object-cover transform scale-105"
            />
-           <div className="absolute inset-0 bg-gradient-to-b from-[#0d0e14]/40 via-transparent to-[#0d0e14]"></div>
-           <div className="absolute inset-0 bg-black/20"></div>
+           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#0d0e14]"></div>
         </div>
 
         {/* Floating Featured Event Card (Glassmorphism) */}
