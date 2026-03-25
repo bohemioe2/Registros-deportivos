@@ -71,11 +71,11 @@ export default function Home() {
               className="group relative bg-gradient-to-b from-white/10 to-transparent backdrop-blur-2xl rounded-[48px] border border-white/10 p-4 transition-all duration-700 hover:border-[#4b55f5]/50 hover:shadow-[0_40px_80px_rgba(0,0,0,0.6)] hover:-translate-y-3 animate-in fade-in slide-in-from-bottom duration-700" 
               style={{ animationDelay: `${index * 150}ms` }}
             >
-              <div className="aspect-[16/10] w-full overflow-hidden rounded-[40px] relative">
+              <div className="aspect-[16/10] w-full overflow-hidden rounded-[40px] relative bg-[#171821] flex items-center justify-center">
                  <img 
                     src={evt.eventBannerUrl || "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1000&auto=format&fit=crop"} 
                     alt={evt.name} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1500ms]" 
+                    className={`w-full h-full ${evt.eventBannerUrl ? 'object-contain' : 'object-cover group-hover:scale-110'} transition-transform duration-[1500ms]`} 
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d0e14] via-transparent to-transparent opacity-90"></div>
                  
