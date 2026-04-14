@@ -606,12 +606,15 @@ export default function RegistrationsPage() {
                           logoUrl={ignoreUserLogo ? undefined : liveUser.logoUrl}
                           posterTemplateUrl={currentEvent?.posterTemplateUrl}
                           originState={liveUser.state}
+                          originMuni={liveUser.muni}
                           posterFontFamily={currentEvent?.posterFontFamily}
                           posterColorFolio={currentEvent?.posterColorFolio}
                           posterColorName={currentEvent?.posterColorName}
                           posterColorState={currentEvent?.posterColorState}
                           posterColorWelcome={currentEvent?.posterColorWelcome}
                           showFolioOnPoster={currentEvent?.showFolioOnPoster !== false}
+                          showStateOnPoster={currentEvent?.showStateOnPoster !== false}
+                          showMuniOnPoster={currentEvent?.showMuniOnPoster === true}
                           gender={liveUser.gender}
                           registrationId={liveUser.id}
                           eventId={liveUser.eventId}

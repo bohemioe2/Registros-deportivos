@@ -288,12 +288,15 @@ export default function RegisterFormPage() {
                  logoUrl={registrationData.logoUrl}
                  posterTemplateUrl={eventData?.posterTemplateUrl}
                  originState={registrationData.state}
+                 originMuni={registrationData.muni}
                  posterFontFamily={eventData?.posterFontFamily}
                  posterColorFolio={eventData?.posterColorFolio}
                  posterColorName={eventData?.posterColorName}
                  posterColorState={eventData?.posterColorState}
                  posterColorWelcome={eventData?.posterColorWelcome}
                  showFolioOnPoster={eventData?.showFolioOnPoster !== false}
+                 showStateOnPoster={eventData?.showStateOnPoster !== false}
+                 showMuniOnPoster={eventData?.showMuniOnPoster === true}
                  gender={registrationData.gender}
                  registrationId={registrationData.id}
                  eventId={eventId}
@@ -691,8 +694,10 @@ export default function RegisterFormPage() {
               </h2>
               <div className="bg-[#171821] p-6 sm:p-8 rounded-2xl text-[11px] sm:text-xs leading-relaxed text-gray-400 h-56 overflow-y-auto font-mono border border-[#ffffff0a] shadow-inner custom-scrollbar relative">
                 <p className="text-[#00d2ff] font-bold mb-4">/* DECLARACIÓN_LEGAL_Y_EXONERACIÓN */</p>
-                Por medio del presente documento, declaro y doy fehaciencia de que conozco los riesgos mecánicos y orgánicos inherentes a la participación en esta estructura competitiva. Libero totalmente de responsabilidad civil, administrativa o imputación a los Operadores, Patrocinadores y Creadores de la Plataforma frente a cualquier fallo, alteración o impacto directo hacia mi integridad.<br/><br/>
-                Confirmo que mis métricas de salud vital son estables y óptimas para la prueba. Al aceptar esta responsiva legal, confirmo mi aceptación incondicional de los términos operativos del evento {eventId}.
+                {eventData?.liabilityText
+                  ? eventData.liabilityText
+                  : <span className="text-gray-500 italic">Cargando términos del evento...</span>
+                }
               </div>
               <label className="bg-[#171821] p-6 sm:p-8 rounded-2xl border border-[#ffffff0a] shadow-sm mt-6 flex items-start gap-4 cursor-pointer hover:bg-[#1b1c28] transition-colors group">
                  <div className="flex items-center h-6 mt-0.5">

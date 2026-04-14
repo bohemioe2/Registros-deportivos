@@ -16,19 +16,22 @@ interface WelcomePosterProps {
   logoUrl?: string;
   posterTemplateUrl?: string;
   originState?: string;
+  originMuni?: string;
   posterFontFamily?: string;
   posterColorFolio?: string;
   posterColorName?: string;
   posterColorState?: string;
   posterColorWelcome?: string;
   showFolioOnPoster?: boolean;
+  showStateOnPoster?: boolean;
+  showMuniOnPoster?: boolean;
   gender?: string;
   registrationId?: string;
   eventId?: string;
   isPreview?: boolean;
 }
 
-export default function WelcomePoster({ folio, name, eventName, category, photoUrl, logoUrl, posterTemplateUrl, originState, posterFontFamily, posterColorFolio, posterColorName, posterColorState, posterColorWelcome, showFolioOnPoster, gender, registrationId, eventId, isPreview }: WelcomePosterProps) {
+export default function WelcomePoster({ folio, name, eventName, category, photoUrl, logoUrl, posterTemplateUrl, originState, originMuni, posterFontFamily, posterColorFolio, posterColorName, posterColorState, posterColorWelcome, showFolioOnPoster, showStateOnPoster, showMuniOnPoster, gender, registrationId, eventId, isPreview }: WelcomePosterProps) {
   const posterRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [ready, setReady] = useState(false);
@@ -218,7 +221,14 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       }
       
       drawStyledText(name, 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale);
-      drawStyledText(`DE: ${originState || "SEDE"}`, 0, 0.48, 32 + statePos.x, statePos.y, 24, posterColorState || '#ccff00', stateScale);
+
+      // Build location text based on flags
+      const locationParts: string[] = [];
+      if (showStateOnPoster !== false && originState) locationParts.push(originState);
+      if (showMuniOnPoster && originMuni) locationParts.push(originMuni);
+      if (locationParts.length > 0) {
+        drawStyledText(`DE: ${locationParts.join(' / ')}`, 0, 0.48, 32 + statePos.x, statePos.y, 24, posterColorState || '#ccff00', stateScale);
+      }
     }
 
     return canvas.toDataURL("image/jpeg", 0.9);
@@ -542,19 +552,28 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                 </h2>
               ))}</div>
               
-              <div className="mt-14">{renderBoundingBox('state', statePos, stateScale, (
-                <span 
-                  className="text-2xl italic tracking-tighter leading-none block whitespace-nowrap"
-                  style={{ 
-                    fontFamily: posterFontFamily || 'Impact, sans-serif',
-                    color: posterColorState || '#ccff00',
-                    WebkitTextStroke: '1px black', 
-                    textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
-                  }}
-                >
-                  DE: {originState || "SEDE"}
-                </span>
-              ))}</div>
+              {/* Dynamic location text based on event config */}
+              {(() => {
+                const parts: string[] = [];
+                if (showStateOnPoster !== false && originState) parts.push(originState);
+                if (showMuniOnPoster && originMuni) parts.push(originMuni);
+                if (parts.length === 0) return null;
+                return (
+                  <div className="mt-14">{renderBoundingBox('state', statePos, stateScale, (
+                    <span 
+                      className="text-2xl italic tracking-tighter leading-none block whitespace-nowrap"
+                      style={{ 
+                        fontFamily: posterFontFamily || 'Impact, sans-serif',
+                        color: posterColorState || '#ccff00',
+                        WebkitTextStroke: '1px black', 
+                        textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
+                      }}
+                    >
+                      DE: {parts.join(' / ')}
+                    </span>
+                  ))}</div>
+                );
+              })()}
            </div>
           </>
         )}

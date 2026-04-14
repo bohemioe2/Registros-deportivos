@@ -23,6 +23,8 @@ const DEFAULT_VALUES = {
   posterColorState: "#ccff00",
   posterColorWelcome: "#ff007f",
   showFolioOnPoster: true,
+  showStateOnPoster: true,
+  showMuniOnPoster: false,
   eventBanner: null,
   kitsEnabled: false,
   kits: [{ name: "Kit Básico", description: "Medalla e Hidratación", price: 500, includesJersey: false }],
@@ -427,16 +429,41 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
               </div>
            </div>
            
-           <div className="mt-4 flex items-center gap-3 bg-[#171821] p-4 rounded-xl border border-[#ffffff10]">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" {...register("showFolioOnPoster")} />
-                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff5f6d]"></div>
-              </label>
-              <div>
-                <span className="text-sm font-bold text-gray-200">Mostrar Folio en Dinámica Gráfica</span>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed">Si lo desactivas, el hashtag con el número del competidor se borrará en todas las generaciones HD y visualizaciones.</p>
+           <div className="mt-4 flex flex-col gap-3">
+              {/* Toggle Folio */}
+              <div className="flex items-center gap-3 bg-[#171821] p-4 rounded-xl border border-[#ffffff10]">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" {...register("showFolioOnPoster")} />
+                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff5f6d]"></div>
+                </label>
+                <div>
+                  <span className="text-sm font-bold text-gray-200">Mostrar Folio en Dinámica Gráfica</span>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed">Si lo desactivas, el hashtag con el número del competidor se borrará en todas las generaciones HD.</p>
+                </div>
               </div>
-           </div>
+              {/* Toggle Estado */}
+              <div className="flex items-center gap-3 bg-[#171821] p-4 rounded-xl border border-[#ffffff10]">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" {...register("showStateOnPoster")} />
+                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ccff00]"></div>
+                </label>
+                <div>
+                  <span className="text-sm font-bold text-gray-200">Mostrar Estado en Póster</span>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed">Ej: “DE: Hidalgo” — muestra el estado de procedencia del ciclista.</p>
+                </div>
+              </div>
+              {/* Toggle Municipio */}
+              <div className="flex items-center gap-3 bg-[#171821] p-4 rounded-xl border border-[#ffffff10]">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" {...register("showMuniOnPoster")} />
+                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00d2ff]"></div>
+                </label>
+                <div>
+                  <span className="text-sm font-bold text-gray-200">Mostrar Municipio en Póster</span>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed">Ej: “DE: Tulancingo” — si activas ambos verás “DE: Hidalgo / Tulancingo”.</p>
+                </div>
+              </div>
+            </div>
         </div>
         
         {/* VISTA PREVIA DEL POSTER */}
