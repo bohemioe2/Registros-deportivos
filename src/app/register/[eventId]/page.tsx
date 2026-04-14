@@ -587,7 +587,7 @@ export default function RegisterFormPage() {
                   
                   return (
                     <div key={doc.id} className={`border border-dashed p-7 rounded-2xl text-center transition-all relative group shadow-inner ${isUploaded ? 'bg-[#1b2a24] border-[#00ff88]/50 shadow-[0_0_15px_rgba(0,255,136,0.1)]' : `bg-[#171821] hover:bg-[#1b1d2e] ${doc.border} ${doc.hover}`}`}>
-                      <input type="file" {...register(`docs_${doc.id}`, { required: doc.req })} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" title={isUploaded ? "Cambiar archivo" : "Seleccionar archivo"} accept={doc.id === 'photo' || doc.id === 'logo' ? "image/*" : "image/*,application/pdf"} />
+                      <input type="file" {...register(`docs_${doc.id}`, { required: doc.req })} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" title={isUploaded ? "Cambiar archivo" : "Seleccionar archivo"} accept={doc.id === 'photo' || doc.id === 'logo' ? "image/jpeg, image/png" : "image/jpeg, image/png, application/pdf"} />
                       
                       {/* Generación Dinámica de Miniatura */}
                       <div className={`w-16 h-16 mx-auto mb-5 rounded-xl flex items-center justify-center transition-transform overflow-hidden relative ${isUploaded && !isImage ? 'bg-[#00ff88]/20 scale-110' : !isImage ? `group-hover:scale-110 ${doc.bg}` : 'shadow-lg ring-2 ring-[#00ff88]/50 ring-offset-2 ring-offset-[#1b2a24] scale-110'}`}>
