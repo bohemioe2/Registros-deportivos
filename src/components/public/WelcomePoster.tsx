@@ -372,7 +372,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     const isActive = activeElement === id;
     return (
       <div 
-        className={`absolute origin-top-left z-30 transition-shadow bg-transparent ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'} ${isActive ? 'ring-2 ring-dashed ring-[#00d2ff] bg-[#00d2ff]/10' : 'hover:ring-1 hover:ring-white/30 hover:bg-white/5'} ${widthClasses}`}
+        className={`absolute origin-top-left z-30 transition-shadow bg-white/5 ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'} ${isActive ? 'ring-2 ring-dashed ring-[#00d2ff] bg-[#00d2ff]/10' : 'hover:ring-1 hover:ring-white/30 hover:bg-white/5'} ${widthClasses}`}
         style={{ transform: `translate(${pos.x}px, ${pos.y}px) scale(${scale})` }}
         onMouseDown={(e) => handleSelect(e, id, pos, scale, false)}
         onTouchStart={(e) => handleSelect(e, id, pos, scale, false)}
