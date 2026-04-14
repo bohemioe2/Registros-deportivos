@@ -17,6 +17,7 @@ const DEFAULT_BIB_CONFIG = {
   nameYPct: 88,     // % del alto
   logoXPct: 3,      // % desde izquierda
   logoYPct: 76,     // % desde arriba
+  logoSizePct: 15,  // % del ancho total del dorsal
 };
 
 type BibConfig = typeof DEFAULT_BIB_CONFIG;
@@ -139,8 +140,8 @@ export default function BibsPage() {
 
     // LAYER 4: Team logo
     if (logoImg) {
-      const maxW = 180, maxH = 120;
-      const scale = Math.min(maxW / logoImg.width, maxH / logoImg.height);
+      const maxW = W * (cfg.logoSizePct / 100);
+      const scale = maxW / logoImg.width;
       const lw = logoImg.width * scale, lh = logoImg.height * scale;
       ctx.drawImage(logoImg, W * (cfg.logoXPct / 100), H * (cfg.logoYPct / 100), lw, lh);
     }
@@ -292,9 +293,10 @@ export default function BibsPage() {
             </div>
 
             <div className="bg-[#242636]/60 border border-[#ffffff0a] rounded-2xl p-5 space-y-4">
-              <h3 className="text-[10px] font-black uppercase tracking-widest text-[#00ff88]">📐 Posición del Logo</h3>
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-[#00ff88]">📐 Posición y Tamaño del Logo</h3>
               <SliderRow label="Horizontal (X)" configKey="logoXPct" />
               <SliderRow label="Vertical (Y)" configKey="logoYPct" />
+              <SliderRow label="Tamaño" configKey="logoSizePct" min={5} max={60} />
             </div>
 
             {/* Save Button */}
