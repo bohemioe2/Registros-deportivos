@@ -26,6 +26,7 @@ const DEFAULT_VALUES = {
   showStateOnPoster: true,
   showMuniOnPoster: false,
   eventBanner: null,
+  bibTemplate: null,
   kitsEnabled: false,
   kits: [{ name: "Kit Básico", description: "Medalla e Hidratación", price: 500, includesJersey: false }],
   jerseyTypes: ["Playera manga corta"],
@@ -118,8 +119,15 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
         eventBannerUrl = await getDownloadURL(fileRef);
       }
 
+      let bibTemplateUrl = initialData?.bibTemplateUrl || "";
+      if (data.bibTemplate && data.bibTemplate.length > 0) {
+        const fileRef = ref(storage, `bibtemplates/${Date.now()}_${data.bibTemplate[0].name}`);
+        await uploadBytes(fileRef, data.bibTemplate[0]);
+        bibTemplateUrl = await getDownloadURL(fileRef);
+      }
+
       // Evitar guardar objetos file binarios directamente a la Base de Datos
-      const { posterTemplate, eventBanner, ...cleanData } = data;
+      const { posterTemplate, eventBanner, bibTemplate, ...cleanData } = data;
       
       let kitsToSave = cleanData.kits ? [...cleanData.kits] : [];
       for(let i = 0; i < kitsToSave.length; i++) {
@@ -143,17 +151,19 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
          await updateDoc(doc(db, "events", initialData.id), {
            ...cleanData,
            posterTemplateUrl,
-           eventBannerUrl
+           eventBannerUrl,
+           bibTemplateUrl
          });
          alert("¡Operación Actualizada Exitosamente!");
          if (onCancelEdit) onCancelEdit();
       } else {
          await addDoc(collection(db, "events"), {
            ...cleanData,
-           status: "ABIERTO", // Status Default
-           date: "Por Definir", // Default for now
+           status: "ABIERTO",
+           date: "Por Definir",
            posterTemplateUrl,
            eventBannerUrl,
+           bibTemplateUrl,
            createdAt: serverTimestamp()
          });
          alert("¡Operación Evento sincronizada exitosamente en tu Base de Datos!");
@@ -393,6 +403,23 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
              accept="image/png"
              {...register("posterTemplate")} 
              className="w-full text-[12px] file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-[#00d2ff] file:text-black hover:file:bg-[#00d2ff]/80 text-gray-300 font-mono"
+           />
+        </div>
+
+        {/* Bib Template Upload */}
+        <div className="space-y-2 md:col-span-2 p-6 rounded-2xl bg-[#ff9500]/10 border border-[#ff9500]/30 shadow-inner">
+           <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#ff9500]">🏷️ Plantilla de Dorsal (PNG Horizontal/Transparente)</label>
+           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Sube tu diseño de dorsal hecho en Canva (formato horizontal/landscape, PNG con fondo transparente). El módulo de Dorsales pondrá el número, nombre y logo del equipo automáticamente.</p>
+           {initialData?.bibTemplateUrl && (
+             <div className="mb-3 p-3 bg-[#ff9500]/10 border border-[#ff9500]/20 rounded-xl">
+               <a href={initialData.bibTemplateUrl} target="_blank" rel="noreferrer" className="text-[#ff9500] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">✓ Plantilla Actual Cargada — Click para ver</a>
+             </div>
+           )}
+           <input 
+             type="file" 
+             accept="image/png"
+             {...register("bibTemplate")} 
+             className="w-full text-[12px] file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-[#ff9500] file:text-black hover:file:bg-[#ff9500]/80 text-gray-300 font-mono"
            />
         </div>
 
