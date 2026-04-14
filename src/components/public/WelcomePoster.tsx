@@ -367,8 +367,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         >
         <div className="absolute inset-0 z-0 bg-black">
            <img 
-             src={getProxyUrl(photoUrl)}
-             crossOrigin="anonymous"
+             src={photoUrl || ''}
              alt="Background" 
              draggable={false}
              className="w-full h-full object-cover transition-transform duration-[50ms]" 
@@ -380,8 +379,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         
         {posterTemplateUrl && (
           <img 
-            src={getProxyUrl(posterTemplateUrl)} 
-            crossOrigin="anonymous" 
+            src={posterTemplateUrl} 
             alt="Template" 
             className="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none" 
           />
