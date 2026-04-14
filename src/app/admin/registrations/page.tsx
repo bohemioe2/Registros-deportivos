@@ -18,6 +18,7 @@ export default function RegistrationsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isRegeneratingPoster, setIsRegeneratingPoster] = useState(false);
   const [ignoreUserLogo, setIgnoreUserLogo] = useState(false);
+  const [registrationToDelete, setRegistrationToDelete] = useState<{id: string, folio: string} | null>(null);
   
   const [isDownloadingBatch, setIsDownloadingBatch] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState("");
@@ -87,15 +88,16 @@ export default function RegistrationsPage() {
     }
   };
 
-  const deleteRegistration = async (id: string, folio: string) => {
-    if (window.confirm(`⚠️ ESTÁS A PUNTO DE ELIMINAR EL EXPEDIENTE [ ${folio} ]\n\nEsta acción es irreversible y borrará al atleta de la Base de Datos.\n¿Estás absolutamente seguro de continuar?`)) {
-      try {
-        await deleteDoc(doc(db, "registrations", id));
-        if (selectedUser?.id === id) setSelectedUser(null);
-      } catch (err) {
-        console.error("Error al eliminar", err);
-        alert("Ocurrió un error al intentar eliminar el registro.");
-      }
+  const confirmDelete = async () => {
+    if (!registrationToDelete) return;
+    try {
+      await deleteDoc(doc(db, "registrations", registrationToDelete.id));
+      if (selectedUser?.id === registrationToDelete.id) setSelectedUser(null);
+    } catch (err) {
+      console.error("Error al eliminar", err);
+      alert("Ocurrió un error al intentar eliminar el registro.");
+    } finally {
+      setRegistrationToDelete(null);
     }
   };
 
@@ -395,7 +397,7 @@ export default function RegistrationsPage() {
                         Aprobar <CheckCircle className="w-3 h-3" />
                       </button>
                     )}
-                    <button onClick={() => deleteRegistration(reg.id, reg.folio)} className="text-gray-500 hover:text-white bg-[#1c1d29] hover:bg-red-500/80 w-8 h-8 flex items-center justify-center rounded-lg border border-[#ffffff0a] transition-all" title="Eliminar Registro">
+                    <button onClick={(e) => { e.stopPropagation(); setRegistrationToDelete({id: reg.id, folio: reg.folio}); }} className="text-gray-500 hover:text-white bg-[#1c1d29] hover:bg-red-500/80 w-8 h-8 flex items-center justify-center rounded-lg border border-[#ffffff0a] transition-all" title="Eliminar Registro">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </td>
@@ -678,6 +680,35 @@ export default function RegistrationsPage() {
         </div>
         );
       })()}
+
+      {/* Modal de Confirmación de Eliminación Personalizado */}
+      {registrationToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-[#1b1c27] rounded-3xl border border-red-500/30 max-w-sm w-full p-6 sm:p-8 flex flex-col items-center text-center shadow-[0_0_50px_rgba(239,68,68,0.2)] animate-in zoom-in duration-200">
+            <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-6">
+              <Trash2 className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">¿Eliminar Expediente?</h3>
+            <p className="text-gray-400 text-sm mb-1">Estás a punto de borrar irremediablemente el folio:</p>
+            <p className="text-red-400 font-mono text-lg font-bold mb-8 tracking-widest">{registrationToDelete.folio}</p>
+            
+            <div className="flex w-full gap-3">
+              <button 
+                onClick={() => setRegistrationToDelete(null)}
+                className="flex-1 py-3 px-4 bg-[#242636] hover:bg-[#2c2f42] text-white rounded-xl font-bold uppercase tracking-wider text-[11px] transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={() => confirmDelete()}
+                className="flex-1 py-3 px-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold uppercase tracking-wider text-[11px] shadow-lg shadow-red-500/20 transition-colors"
+              >
+                Borrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
