@@ -308,7 +308,6 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
 
   const handleSelect = (e: React.MouseEvent | React.TouchEvent, id: string, pos: {x:number, y:number}, scale: number, isResize: boolean = false) => {
     if (isFinalized) return;
-    e.stopPropagation();
     setActiveElement(id);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -416,15 +415,19 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
           onTouchEnd={endDrag}
           onMouseDown={(e) => {
              if (isFinalized) return;
-             setActiveElement(null); // Click on empty space deselects
-             handleSelect(e, 'bg', bgPos, bgScale, false);
+             if (e.target === e.currentTarget) {
+                 setActiveElement(null);
+                 handleSelect(e, 'bg', bgPos, bgScale, false);
+             }
           }}
           onTouchStart={(e) => {
              if (isFinalized) return;
-             setActiveElement(null);
-             handleSelect(e, 'bg', bgPos, bgScale, false);
+             if (e.target === e.currentTarget) {
+                 setActiveElement(null);
+                 handleSelect(e, 'bg', bgPos, bgScale, false);
+             }
           }}
-          className={`relative w-full aspect-[4/5] overflow-hidden bg-black text-white flex flex-col items-center justify-between z-10 select-none ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'} m-0`}
+          className={`relative w-full aspect-[4/5] overflow-hidden bg-black text-white flex flex-col items-center justify-between z-10 select-none ${isFinalized ? 'pointer-events-none' : 'cursor-default touch-none'} m-0`}
         >
         <div className="absolute inset-0 z-0 bg-black">
            <img 

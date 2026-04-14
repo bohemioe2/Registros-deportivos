@@ -9,6 +9,7 @@ import WelcomePoster from "@/components/public/WelcomePoster";
 import { db, storage } from "@/lib/firebase/config";
 import { collection, addDoc, serverTimestamp, doc, getDoc, getCountFromServer, query, where } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import heic2any from "heic2any";
 import mexicoDataRaw from "@/lib/mexico.json";
 
 const mexicoData = mexicoDataRaw as Record<string, string[]>;
@@ -166,7 +167,20 @@ export default function RegisterFormPage() {
       
       const compressImage = (file: File): Promise<Blob> => {
         return new Promise((resolve, reject) => {
+          if (file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic')) {
+            heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 })
+              .then((result) => {
+                 let blobResult = Array.isArray(result) ? result[0] : result;
+                 // Now run it through the canvas compressor just in case it's huge
+                 compressStandardImage(new File([blobResult], "converted.jpg", { type: "image/jpeg" }));
+              })
+              .catch(() => resolve(file)); // Fallback
+            return;
+          }
           if (!file.type.startsWith('image/')) return resolve(file);
+          compressStandardImage(file);
+          
+          function compressStandardImage(fileToUse: File|Blob) {
           const reader = new FileReader();
           reader.onload = (e) => {
             const img = new Image();
@@ -198,7 +212,8 @@ export default function RegisterFormPage() {
             img.src = e.target?.result as string;
           };
           reader.onerror = () => resolve(file);
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(fileToUse);
+          }
         });
       };
 
