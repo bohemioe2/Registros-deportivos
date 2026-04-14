@@ -38,21 +38,37 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
   const router = useRouter();
 
   // States for Dragging
-  const [textPos, setTextPos] = useState({ x: 0, y: 0 });
+  const [activeElement, setActiveElement] = useState<string | null>(null);
+
   const [bgPos, setBgPos] = useState({ x: 0, y: 0 });
   const [bgScale, setBgScale] = useState(1.5);
   
-  // Logo States
   const [logoPos, setLogoPos] = useState({ x: 0, y: 0 });
   const [logoScale, setLogoScale] = useState(1);
   const [processedLogo, setProcessedLogo] = useState<string | null>(null);
   const [isRemovingBg, setIsRemovingBg] = useState(false);
-  
+
   const [welcomePos, setWelcomePos] = useState({ x: 0, y: 0 });
-  const textDragRef = useRef({ isDragging: false, startX: 0, startY: 0 });
-  const bgDragRef = useRef({ isDragging: false, startX: 0, startY: 0 });
-  const logoDragRef = useRef({ isDragging: false, startX: 0, startY: 0 });
-  const welcomeDragRef = useRef({ isDragging: false, startX: 0, startY: 0 });
+  const [welcomeScale, setWelcomeScale] = useState(1);
+
+  const [folioPos, setFolioPos] = useState({ x: 0, y: 0 });
+  const [folioScale, setFolioScale] = useState(1);
+
+  const [namePos, setNamePos] = useState({ x: 0, y: 40 });
+  const [nameScale, setNameScale] = useState(1);
+
+  const [statePos, setStatePos] = useState({ x: 0, y: 70 });
+  const [stateScale, setStateScale] = useState(1);
+
+  const interactRef = useRef({
+    isDragging: false,
+    isResizing: false,
+    target: '',
+    startX: 0,
+    startY: 0,
+    startScale: 1,
+    originalPos: {x: 0, y: 0}
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => setReady(true), 1500);
@@ -173,8 +189,9 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       ctx.drawImage(logoImg, finalX, finalY, lw, lh);
     }
 
-    const drawStyledText = (text: string, xPercent: number, yPercent: number, offsetX: number, offsetY: number, fontSize: number, color: string) => {
-      const fs = fontSize * scaleFactor;
+    const drawStyledText = (text: string, xPercent: number, yPercent: number, offsetX: number, offsetY: number, fontSize: number, color: string, textScale: number = 1) => {
+      const fs = (fontSize * textScale) * scaleFactor;
+      
       ctx.font = `italic 900 ${fs}px ${posterFontFamily || 'Impact, sans-serif'}`;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
@@ -194,14 +211,14 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     };
 
     if (posterTemplateUrl) {
-      drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff');
+      drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff', welcomeScale);
       
       if (showFolioOnPoster !== false) {
-        drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + textPos.x, textPos.y, 36, posterColorFolio || '#00ffcc');
+        drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale);
       }
       
-      drawStyledText(name, 0, 0.48, 32 + textPos.x, textPos.y + 40, 24, posterColorName || '#ffffff');
-      drawStyledText(`DE: ${originState || "SEDE"}`, 0, 0.48, 32 + textPos.x, textPos.y + 70, 24, posterColorState || '#ccff00');
+      drawStyledText(name, 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale);
+      drawStyledText(`DE: ${originState || "SEDE"}`, 0, 0.48, 32 + statePos.x, statePos.y, 24, posterColorState || '#ccff00', stateScale);
     }
 
     return canvas.toDataURL("image/jpeg", 0.9);
@@ -289,38 +306,88 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     }
   };
 
-  const onDragMove = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleSelect = (e: React.MouseEvent | React.TouchEvent, id: string, pos: {x:number, y:number}, scale: number, isResize: boolean = false) => {
+    if (isFinalized) return;
+    e.stopPropagation();
+    setActiveElement(id);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     
-    if (textDragRef.current.isDragging) {
-      setTextPos({
-        x: clientX - textDragRef.current.startX,
-        y: clientY - textDragRef.current.startY
-      });
-    } else if (welcomeDragRef.current.isDragging) {
-      setWelcomePos({
-        x: clientX - welcomeDragRef.current.startX,
-        y: clientY - welcomeDragRef.current.startY
-      });
-    } else if (logoDragRef.current.isDragging) {
-      setLogoPos({
-        x: clientX - logoDragRef.current.startX,
-        y: clientY - logoDragRef.current.startY
-      });
-    } else if (bgDragRef.current.isDragging) {
-      setBgPos({
-        x: clientX - bgDragRef.current.startX,
-        y: clientY - bgDragRef.current.startY
-      });
+    interactRef.current = {
+      isDragging: !isResize,
+      isResizing: isResize,
+      target: id,
+      startX: clientX,
+      startY: clientY,
+      startScale: scale,
+      originalPos: { ...pos }
+    };
+  };
+
+  const onDragMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (isFinalized) return;
+    const { isDragging, isResizing, target, startX, startY, startScale, originalPos } = interactRef.current;
+    if (!isDragging && !isResizing) return;
+
+    if (isResizing) {
+       // Prevent default to prevent scrolling while drawing
+       if(e.cancelable) e.preventDefault(); 
+    }
+    
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    if (isDragging) {
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+      const newPos = { x: originalPos.x + dx, y: originalPos.y + dy };
+      
+      if (target === 'bg') setBgPos(newPos);
+      else if (target === 'logo') setLogoPos(newPos);
+      else if (target === 'welcome') setWelcomePos(newPos);
+      else if (target === 'folio') setFolioPos(newPos);
+      else if (target === 'name') setNamePos(newPos);
+      else if (target === 'state') setStatePos(newPos);
+    } else if (isResizing) {
+      const deltaX = clientX - startX;
+      const deltaY = startY - clientY;
+      const factor = (deltaX + deltaY) * 0.005; 
+      let newScale = Math.max(0.1, startScale + factor);
+      
+      if (target === 'bg') { newScale = Math.max(0.5, startScale + factor); setBgScale(newScale); }
+      else if (target === 'logo') setLogoScale(newScale);
+      else if (target === 'welcome') setWelcomeScale(newScale);
+      else if (target === 'folio') setFolioScale(newScale);
+      else if (target === 'name') setNameScale(newScale);
+      else if (target === 'state') setStateScale(newScale);
     }
   };
 
   const endDrag = () => {
-    textDragRef.current.isDragging = false;
-    logoDragRef.current.isDragging = false;
-    welcomeDragRef.current.isDragging = false;
-    bgDragRef.current.isDragging = false;
+    interactRef.current.isDragging = false;
+    interactRef.current.isResizing = false;
+  };
+
+  const renderBoundingBox = (id: string, pos: {x:number, y:number}, scale: number, children: React.ReactNode, widthClasses: string = "w-max") => {
+    const isActive = activeElement === id;
+    return (
+      <div 
+        className={`absolute origin-top-left z-30 transition-shadow ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'} ${isActive ? 'ring-2 ring-dashed ring-[#00d2ff] bg-[#00d2ff]/10' : 'hover:ring-1 hover:ring-white/30 hover:bg-white/5'} ${widthClasses}`}
+        style={{ transform: `translate(${pos.x}px, ${pos.y}px) scale(${scale})` }}
+        onMouseDown={(e) => handleSelect(e, id, pos, scale, false)}
+        onTouchStart={(e) => handleSelect(e, id, pos, scale, false)}
+      >
+        {children}
+        {isActive && !isFinalized && (
+          <div 
+            className="absolute -bottom-3 -right-3 w-8 h-8 bg-[#00d2ff] border-4 border-[#1b1c27] rounded-full flex items-center justify-center cursor-nwse-resize shadow-[0_0_15px_rgba(0,210,255,0.6)] touch-none"
+            style={{ transform: `scale(${1/scale})` }}
+            onMouseDown={(e) => handleSelect(e, id, pos, scale, true)}
+            onTouchStart={(e) => handleSelect(e, id, pos, scale, true)}
+          />
+        )}
+      </div>
+    );
   };
 
   return (
@@ -348,20 +415,14 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
           onMouseLeave={endDrag}
           onTouchEnd={endDrag}
           onMouseDown={(e) => {
-            if (isFinalized) return;
-            if (!textDragRef.current.isDragging && !logoDragRef.current.isDragging && !welcomeDragRef.current.isDragging) {
-              bgDragRef.current.isDragging = true;
-              bgDragRef.current.startX = e.clientX - bgPos.x;
-              bgDragRef.current.startY = e.clientY - bgPos.y;
-            }
+             if (isFinalized) return;
+             setActiveElement(null); // Click on empty space deselects
+             handleSelect(e, 'bg', bgPos, bgScale, false);
           }}
           onTouchStart={(e) => {
-            if (isFinalized) return;
-            if (!textDragRef.current.isDragging && !logoDragRef.current.isDragging && !welcomeDragRef.current.isDragging) {
-              bgDragRef.current.isDragging = true;
-              bgDragRef.current.startX = e.touches[0].clientX - bgPos.x;
-              bgDragRef.current.startY = e.touches[0].clientY - bgPos.y;
-            }
+             if (isFinalized) return;
+             setActiveElement(null);
+             handleSelect(e, 'bg', bgPos, bgScale, false);
           }}
           className={`relative w-full aspect-[4/5] overflow-hidden bg-black text-white flex flex-col items-center justify-between z-10 select-none ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'} m-0`}
         >
@@ -399,122 +460,98 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
            </div>
         )}
         
-        {processedLogo && (
+        {activeElement === 'bg' && !isFinalized && (
            <div 
-             className={`absolute top-[60%] left-[30%] z-20 ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'}`}
-             style={{ transform: `translate(${logoPos.x}px, ${logoPos.y}px)` }}
-             onMouseDown={(e) => {
-               if (isFinalized) return;
-               e.stopPropagation();
-               logoDragRef.current.isDragging = true;
-               logoDragRef.current.startX = e.clientX - logoPos.x;
-               logoDragRef.current.startY = e.clientY - logoPos.y;
-             }}
-             onTouchStart={(e) => {
-               if (isFinalized) return;
-               e.stopPropagation();
-               logoDragRef.current.isDragging = true;
-               logoDragRef.current.startX = e.touches[0].clientX - logoPos.x;
-               logoDragRef.current.startY = e.touches[0].clientY - logoPos.y;
-             }}
+             className="absolute inset-[25%] z-20 ring-2 ring-dashed ring-white/50 pointer-events-none"
            >
-             <img 
-               src={processedLogo} 
-               alt="Team Logo" 
-               {...(!processedLogo.startsWith('data:') ? { crossOrigin: "anonymous" } : {})}
-               draggable={false}
-               className="object-contain pointer-events-none select-none"
-               style={{ width: `${150 * logoScale}px` }} 
-             />
+              <div 
+                className="absolute -bottom-4 -right-4 w-12 h-12 bg-black/60 backdrop-blur border-2 border-white rounded-full flex items-center justify-center cursor-nwse-resize pointer-events-auto shadow-xl"
+                onMouseDown={(e) => handleSelect(e, 'bg', bgPos, bgScale, true)}
+                onTouchStart={(e) => handleSelect(e, 'bg', bgPos, bgScale, true)}
+              >
+                 <Expand className="w-5 h-5 text-white" />
+              </div>
+              <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 rounded text-[10px] uppercase font-bold text-white pointer-events-none">Fondo (Ajuste)</div>
+           </div>
+        )}
+
+        {processedLogo && (
+           <div className="absolute top-[60%] left-[30%] z-20">
+             {renderBoundingBox('logo', logoPos, logoScale, (
+               <img 
+                 src={processedLogo} 
+                 alt="Team Logo" 
+                 {...(!processedLogo.startsWith('data:') ? { crossOrigin: "anonymous" } : {})}
+                 draggable={false}
+                 className="object-contain pointer-events-none select-none"
+                 style={{ width: `150px` }} 
+               />
+             ))}
            </div>
         )}
 
         {posterTemplateUrl && (
           <>
-            <div 
-              className={`absolute top-[40%] left-0 w-full px-8 z-30 flex flex-col items-start ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'}`}
-              style={{ transform: `translate(${welcomePos.x}px, ${welcomePos.y}px)` }}
-              onMouseDown={(e) => {
-                if (isFinalized) return;
-                e.stopPropagation();
-                welcomeDragRef.current.isDragging = true;
-                welcomeDragRef.current.startX = e.clientX - welcomePos.x;
-                welcomeDragRef.current.startY = e.clientY - welcomePos.y;
-              }}
-              onTouchStart={(e) => {
-                if (isFinalized) return;
-                e.stopPropagation();
-                welcomeDragRef.current.isDragging = true;
-                welcomeDragRef.current.startX = e.touches[0].clientX - welcomePos.x;
-                welcomeDragRef.current.startY = e.touches[0].clientY - welcomePos.y;
-              }}
-            >
-              <h1 
-                className="text-4xl italic font-black uppercase tracking-widest leading-none drop-shadow-2xl"
-                style={{ 
-                  fontFamily: posterFontFamily || 'Impact, sans-serif',
-                  color: posterColorWelcome || '#ffffff',
-                  WebkitTextStroke: '1px black', 
-                  textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
-                }}
-              >
-                {gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO'}
-              </h1>
+            <div className="absolute top-[40%] left-0 w-full px-8 z-30">
+               {renderBoundingBox('welcome', welcomePos, welcomeScale, (
+                  <h1 
+                    className="text-4xl italic font-black uppercase tracking-widest leading-none drop-shadow-2xl whitespace-nowrap"
+                    style={{ 
+                      fontFamily: posterFontFamily || 'Impact, sans-serif',
+                      color: posterColorWelcome || '#ffffff',
+                      WebkitTextStroke: '1px black', 
+                      textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
+                    }}
+                  >
+                    {gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO'}
+                  </h1>
+               ))}
             </div>
 
-            <div 
-              className={`absolute top-[48%] left-0 w-full px-8 z-30 flex flex-col items-start ${isFinalized ? 'pointer-events-none' : 'cursor-move touch-none'}`}
-             style={{ transform: `translate(${textPos.x}px, ${textPos.y}px)` }}
-             onMouseDown={(e) => {
-               if (isFinalized) return;
-               e.stopPropagation();
-               textDragRef.current.isDragging = true;
-               textDragRef.current.startX = e.clientX - textPos.x;
-               textDragRef.current.startY = e.clientY - textPos.y;
-             }}
-             onTouchStart={(e) => {
-               if (isFinalized) return;
-               e.stopPropagation();
-               textDragRef.current.isDragging = true;
-               textDragRef.current.startX = e.touches[0].clientX - textPos.x;
-               textDragRef.current.startY = e.touches[0].clientY - textPos.y;
-             }}
-           >
+            <div className="absolute top-[48%] left-0 w-full px-8 z-30 flex flex-col items-start">
               {showFolioOnPoster !== false && (
-                <span 
-                  className="text-4xl italic tracking-tighter leading-none mb-1 shadow-lg"
+                 <div className="mb-1">{renderBoundingBox('folio', folioPos, folioScale, (
+                  <span 
+                    className="text-4xl italic tracking-tighter leading-none shadow-lg block whitespace-nowrap"
+                    style={{ 
+                      fontFamily: posterFontFamily || 'Impact, sans-serif',
+                      color: posterColorFolio || '#00ffcc',
+                      WebkitTextStroke: '1px black', 
+                      textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
+                    }}
+                  >
+                    #{folio.slice(-3)}
+                  </span>
+                ))}</div>
+              )}
+              
+              <div className="mt-8 mb-0">{renderBoundingBox('name', namePos, nameScale, (
+                <h2  
+                  className="text-2xl italic tracking-tighter uppercase leading-none break-words text-left block"
                   style={{ 
                     fontFamily: posterFontFamily || 'Impact, sans-serif',
-                    color: posterColorFolio || '#00ffcc',
+                    color: posterColorName || '#ffffff',
                     WebkitTextStroke: '1px black', 
                     textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
                   }}
                 >
-                  #{folio.slice(-3)}
+                  {name}
+                </h2>
+              ))}</div>
+              
+              <div className="mt-14">{renderBoundingBox('state', statePos, stateScale, (
+                <span 
+                  className="text-2xl italic tracking-tighter leading-none block whitespace-nowrap"
+                  style={{ 
+                    fontFamily: posterFontFamily || 'Impact, sans-serif',
+                    color: posterColorState || '#ccff00',
+                    WebkitTextStroke: '1px black', 
+                    textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
+                  }}
+                >
+                  DE: {originState || "SEDE"}
                 </span>
-              )}
-              <h2  
-                className="text-2xl italic tracking-tighter uppercase leading-none break-words w-full text-left"
-                style={{ 
-                  fontFamily: posterFontFamily || 'Impact, sans-serif',
-                  color: posterColorName || '#ffffff',
-                  WebkitTextStroke: '1px black', 
-                  textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
-                }}
-              >
-                {name}
-              </h2>
-              <span 
-                className="text-2xl italic tracking-tighter leading-none mt-1"
-                style={{ 
-                  fontFamily: posterFontFamily || 'Impact, sans-serif',
-                  color: posterColorState || '#ccff00',
-                  WebkitTextStroke: '1px black', 
-                  textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
-                }}
-              >
-                DE: {originState || "SEDE"}
-              </span>
+              ))}</div>
            </div>
           </>
         )}
