@@ -173,7 +173,9 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     }
 
     if (templateImg) {
+      ctx.globalCompositeOperation = "screen";
       ctx.drawImage(templateImg, 0, 0, W, H);
+      ctx.globalCompositeOperation = "source-over"; // Reset
     }
 
     if (logoImg) {
@@ -445,7 +447,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
           <img 
             src={posterTemplateUrl} 
             alt="Template" 
-            className="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none" 
+            className="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none mix-blend-screen" 
           />
         )}
 

@@ -206,7 +206,8 @@ export default function RegisterFormPage() {
               canvas.height = height;
               const ctx = canvas.getContext('2d');
               ctx?.drawImage(img, 0, 0, width, height);
-              canvas.toBlob(blob => blob ? resolve(blob) : resolve(file), 'image/jpeg', 0.8);
+              const outType = fileToUse.type === 'image/png' ? 'image/png' : 'image/jpeg';
+              canvas.toBlob(blob => blob ? resolve(blob) : resolve(file), outType, 0.8);
             };
             img.onerror = () => resolve(file);
             img.src = e.target?.result as string;
