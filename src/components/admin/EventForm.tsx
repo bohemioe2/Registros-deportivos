@@ -27,6 +27,8 @@ const DEFAULT_VALUES = {
   showMuniOnPoster: false,
   eventBanner: null,
   bibTemplate: null,
+  bibNumberColor: "#000000",
+  bibNameColor: "#000000",
   kitsEnabled: false,
   kits: [{ name: "Kit Básico", description: "Medalla e Hidratación", price: 500, includesJersey: false }],
   jerseyTypes: ["Playera manga corta"],
@@ -421,9 +423,31 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
              {...register("bibTemplate")} 
              className="w-full text-[12px] file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-[#ff9500] file:text-black hover:file:bg-[#ff9500]/80 text-gray-300 font-mono"
            />
-        </div>
+         </div>
 
-        <div className="space-y-4 md:col-span-2 p-6 rounded-2xl bg-[#ff5f6d]/5 border border-[#ff5f6d]/30 shadow-inner mt-2">
+         {/* Bib Colors */}
+         <div className="space-y-4 md:col-span-2 p-6 rounded-2xl bg-[#ff9500]/5 border border-[#ff9500]/20 shadow-inner">
+           <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#ff9500]">Colores del Texto en el Dorsal</label>
+           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Elige el color del número gigante y del nombre que se estamparán automáticamente en cada dorsal.</p>
+           <div className="grid grid-cols-2 gap-6 mt-2">
+             <div className="space-y-2">
+               <label className="text-[9px] uppercase font-bold text-gray-500 tracking-widest block">Color del Número</label>
+               <div className="flex items-center gap-3 bg-[#171821] p-3 rounded-xl border border-[#ffffff10]">
+                 <input type="color" {...register("bibNumberColor")} className="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0" />
+                 <span className="text-gray-400 text-[11px] font-mono font-bold tracking-widest">Ej: Negro, Blanco...</span>
+               </div>
+             </div>
+             <div className="space-y-2">
+               <label className="text-[9px] uppercase font-bold text-gray-500 tracking-widest block">Color del Nombre</label>
+               <div className="flex items-center gap-3 bg-[#171821] p-3 rounded-xl border border-[#ffffff10]">
+                 <input type="color" {...register("bibNameColor")} className="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0" />
+                 <span className="text-gray-400 text-[11px] font-mono font-bold tracking-widest">Ej: Gris, Blanco...</span>
+               </div>
+             </div>
+           </div>
+         </div>
+
+         <div className="space-y-4 md:col-span-2 p-6 rounded-2xl bg-[#ff5f6d]/5 border border-[#ff5f6d]/30 shadow-inner mt-2">
            <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#ff5f6d]">Estilo de Textos para Bienvenida HD</label>
            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Escoge la tipografía y los colores de las letras para que combinen perfecto con el diseño de tu marco PNG.</p>
            

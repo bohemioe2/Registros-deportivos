@@ -108,7 +108,7 @@ export default function BibsPage() {
     ctx.shadowOffsetY = 6;
 
     // Draw number
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = event?.bibNumberColor || "#000000";
     ctx.fillText(bibNumber, W / 2, H / 2 - 30);
 
     ctx.shadowColor = "transparent";
@@ -121,7 +121,7 @@ export default function BibsPage() {
     ctx.font = `bold 52px 'Arial Black', Arial, sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = event?.bibNameColor || "#000000";
     ctx.fillText(fullName, W / 2, H - 52);
 
     // ── LAYER 4: Team logo bottom-left corner (if exists)
