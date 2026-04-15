@@ -29,9 +29,10 @@ interface WelcomePosterProps {
   registrationId?: string;
   eventId?: string;
   isPreview?: boolean;
+  onFinalized?: () => void;
 }
 
-export default function WelcomePoster({ folio, name, eventName, category, photoUrl, logoUrl, posterTemplateUrl, originState, originMuni, posterFontFamily, posterColorFolio, posterColorName, posterColorState, posterColorWelcome, showFolioOnPoster, showStateOnPoster, showMuniOnPoster, gender, registrationId, eventId, isPreview }: WelcomePosterProps) {
+export default function WelcomePoster({ folio, name, eventName, category, photoUrl, logoUrl, posterTemplateUrl, originState, originMuni, posterFontFamily, posterColorFolio, posterColorName, posterColorState, posterColorWelcome, showFolioOnPoster, showStateOnPoster, showMuniOnPoster, gender, registrationId, eventId, isPreview, onFinalized }: WelcomePosterProps) {
   const posterRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [ready, setReady] = useState(false);
@@ -276,6 +277,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       });
       
       setIsFinalized(true);
+      onFinalized?.();
       if (isPreview) {
         alert("✅ Diseño guardado exitosamente. Los cambios ahora son oficiales para el usuario.");
       }

@@ -18,6 +18,7 @@ export default function RegisterFormPage() {
   const params = useParams();
   const eventId = (params?.eventId as string) || "Evento-Test";
   const [showQrStep, setShowQrStep] = useState(false);
+  const [posterFinalized, setPosterFinalized] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -311,14 +312,24 @@ export default function RegisterFormPage() {
                  gender={registrationData.gender}
                  registrationId={registrationData.id}
                  eventId={eventId}
+                  onFinalized={() => setPosterFinalized(true)}
                />
                
                <button 
-                  onClick={() => setShowQrStep(true)} 
-                  className="w-full mt-8 bg-gradient-to-r from-[#00d2ff] to-[#4b55f5] text-white font-bold text-sm tracking-widest uppercase py-5 rounded-2xl hover:scale-105 transition-transform shadow-[0_0_30px_rgba(75,85,245,0.4)] flex items-center justify-center gap-3 animate-pulse"
-               >
-                  Ver Código QR de Acceso <ArrowRight className="w-5 h-5" />
-               </button>
+                  onClick={() => { if (posterFinalized) setShowQrStep(true); }} 
+                   disabled={!posterFinalized}
+                   className={`w-full mt-8 font-bold text-sm tracking-widest uppercase py-5 rounded-2xl flex items-center justify-center gap-3 transition-all ${
+                     posterFinalized
+                       ? 'bg-gradient-to-r from-[#00d2ff] to-[#4b55f5] text-white hover:scale-105 shadow-[0_0_30px_rgba(75,85,245,0.4)] animate-pulse'
+                       : 'bg-white/5 text-gray-500 border border-white/10 cursor-not-allowed'
+                   }`}
+                >
+                   {posterFinalized ? (
+                     <>Ver Código QR de Acceso <ArrowRight className="w-5 h-5" /></>
+                   ) : (
+                     <>🔒 Finaliza tu diseño HD primero</>
+                   )}
+                </button
              </div>
            ) : (
              <div className="animate-in slide-in-from-bottom-8 duration-500">
