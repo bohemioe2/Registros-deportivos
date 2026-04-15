@@ -347,7 +347,7 @@ export default function RegisterFormPage() {
                    ) : (
                      <>🔒 Finaliza tu diseño HD primero</>
                    )}
-                </button
+                </button>
              </div>
            ) : (
              <div className="animate-in slide-in-from-bottom-8 duration-500">
