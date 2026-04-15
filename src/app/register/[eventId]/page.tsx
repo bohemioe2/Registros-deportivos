@@ -374,28 +374,30 @@ export default function RegisterFormPage() {
                  <p className="text-[#00d2ff] text-3xl font-bold font-mono tracking-widest uppercase mb-2">{registrationData.folio}</p>
                  <p className="text-gray-200 font-bold uppercase tracking-widest text-lg mb-4">{registrationData.firstName} {registrationData.lastName}</p>
 
-                 {/* CATEGORÍA DETECTADA */}
-                  {(() => {
-                    const displayCat =
-                      registrationData.detectedCategory ||
-                      detectCategory(
-                        parseInt(registrationData.age || "0", 10),
-                        registrationData.gender || "",
-                        eventData?.categories || []
-                      ) ||
-                      (registrationData.gender === "MALE" ? "Varonil" : registrationData.gender === "FEMALE" ? "Femenil" : "");
-                    if (!displayCat) return null;
-                    return (
-                      <div className="mt-1 mb-4 flex flex-col items-center gap-2">
-                        <span className="text-[9px] font-black uppercase tracking-[0.35em] text-gray-500">Categoría</span>
-                        <div className="bg-gradient-to-r from-[#ff9500] to-[#ff5f6d] px-6 py-3 rounded-2xl shadow-[0_0_30px_rgba(255,149,0,0.4)]">
-                          <p className="text-white font-black text-2xl sm:text-3xl uppercase tracking-widest leading-none">
-                            {displayCat}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })()}
+                                   {/* CATEGORIA DETECTADA */}
+                  <div className="mt-1 mb-4 flex flex-col items-center gap-2">
+                    <span className="text-[9px] font-black uppercase tracking-[0.35em] text-gray-500">Categoría</span>
+                    <div className="bg-gradient-to-r from-[#ff9500] to-[#ff5f6d] px-6 py-3 rounded-2xl shadow-[0_0_30px_rgba(255,149,0,0.4)]">
+                      <p className="text-white font-black text-2xl sm:text-3xl uppercase tracking-widest leading-none">
+                        {(() => {
+                          const ageNum = parseInt(registrationData.age || "0", 10);
+                          const g = registrationData.gender === "MALE" ? "MALE" : "FEMALE"; // defaults to FEMALE if undefined since it's the first option
+                          
+                          if (registrationData.detectedCategory) return registrationData.detectedCategory;
+                          
+                          if (eventData?.categories && eventData.categories.length > 0) {
+                            const match = eventData.categories.find((c: any) => 
+                              (c.gender === "MIXED" || c.gender === g) &&
+                              ageNum >= (c.minAge ?? 0) && ageNum <= (c.maxAge ?? 999)
+                            );
+                            if (match) return match.name;
+                          }
+                          
+                          return g === "MALE" ? "Varonil" : "Femenil";
+                        })()}
+                      </p>
+                    </div>
+                  </div>
                  
                  {registrationData.kitName && (
                    <div className="mt-6 bg-[#242636] border border-[#ffffff0a] rounded-xl p-4 inline-flex flex-col sm:flex-row items-center gap-2 max-w-full overflow-hidden">
