@@ -30,9 +30,9 @@ export default function Home() {
       </div>
 
       {/* Navbar Minimalista Premium */}
-      <nav className="fixed top-0 w-full p-6 sm:p-10 flex justify-between items-center z-[100] backdrop-blur-sm border-b border-white/5 bg-[#0d0e14]/40">
+      <nav className="fixed top-0 w-full px-6 py-3 flex justify-between items-center z-[100] backdrop-blur-sm border-b border-white/5 bg-[#0d0e14]/40">
           <div className="flex items-center gap-4 group">
-            <div className="w-10 h-10 bg-gradient-to-tr from-[#4b55f5] to-[#884af0] rounded-xl shadow-[0_0_30px_rgba(75,85,245,0.4)] flex items-center justify-center p-2 group-hover:scale-110 transition-transform duration-500">
+            <div className="w-8 h-8 bg-gradient-to-tr from-[#4b55f5] to-[#884af0] rounded-xl shadow-[0_0_30px_rgba(75,85,245,0.4)] flex items-center justify-center p-1.5 group-hover:scale-110 transition-transform duration-500">
                <Award className="w-full h-full text-white" />
             </div>
           </div>
@@ -42,7 +42,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Minimalist Spark */}
-      <header className="relative pt-48 pb-16 px-6 text-center z-10">
+      <header className="relative pt-24 pb-6 px-6 text-center z-10">
         <div className="max-w-4xl mx-auto flex flex-col items-center">
           <span className="flex items-center gap-3 bg-white/5 border border-white/10 text-[#00d2ff] text-[9px] sm:text-[10px] font-black px-6 py-2.5 rounded-full uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top duration-700">
              <Sparkles className="w-3.5 h-3.5 animate-pulse" />
