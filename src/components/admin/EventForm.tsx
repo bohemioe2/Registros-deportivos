@@ -353,6 +353,32 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
                           <input type="file" accept="image/*" {...register(`kits.${idx}.imageFile` as const)} className="w-full bg-[#1c1d29] border border-[#ffffff10] text-gray-300 rounded-lg text-[10px] file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[9px] file:font-bold file:uppercase file:bg-green-500/20 file:text-green-400 hover:file:bg-green-500/30 transition-all" />
                           {(field as any).imageUrl && <span className="text-[10px] text-green-400 font-bold mt-2 sm:mt-0 flex items-center shrink-0">✓ Imagen Pre-Cargada</span>}
                        </div>
+
+                      {/* ── CONTROLES DE VISIBILIDAD ── */}
+                      <div className="sm:col-span-12 grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#ffffff08] mt-1">
+                        {/* Toggle manual ocultar/mostrar */}
+                        <label className="flex items-center justify-between gap-4 bg-[#0d0e14] border border-[#ffffff10] px-5 py-4 rounded-xl cursor-pointer hover:border-red-500/40 transition-colors group">
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 group-hover:text-white transition-colors">Ocultar kit manualmente</p>
+                            <p className="text-[9px] text-gray-600 uppercase tracking-widest mt-0.5">Se esconde del formulario público inmediatamente</p>
+                          </div>
+                          <div className="relative shrink-0">
+                            <input type="checkbox" {...register(`kits.${idx}.hidden` as const)} className="sr-only peer" />
+                            <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                          </div>
+                        </label>
+
+                        {/* Fecha/Hora límite automática */}
+                        <div className="bg-[#0d0e14] border border-[#ffffff10] px-5 py-4 rounded-xl hover:border-yellow-500/40 transition-colors group">
+                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 mb-1 group-hover:text-white transition-colors">⏰ Fecha/Hora límite automática</p>
+                          <p className="text-[9px] text-gray-600 uppercase tracking-widest mb-3">Después de este momento, el kit se oculta solo</p>
+                          <input
+                            type="datetime-local"
+                            {...register(`kits.${idx}.deadlineAt` as const)}
+                            className="w-full bg-[#171821] border border-[#ffffff10] text-yellow-300 rounded-lg px-3 py-2 text-[11px] font-mono focus:outline-none focus:border-yellow-500 transition-all"
+                          />
+                        </div>
+                      </div>
                      </div>
                    </div>
                  </div>

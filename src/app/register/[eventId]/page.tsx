@@ -138,6 +138,13 @@ export default function RegisterFormPage() {
   const selectedKitName = watch("kitSelection");
   const selectedKitDef = eventData?.kits?.find((k:any) => k.name === selectedKitName);
 
+  // Filtrar kits visibles: excluir ocultos manualmente o con fecha límite vencida
+  const visibleKits = (eventData?.kits || []).filter((kit: any) => {
+    if (kit.hidden) return false;
+    if (kit.deadlineAt && new Date(kit.deadlineAt) < new Date()) return false;
+    return true;
+  });
+
   useEffect(() => {
     setValue("muni", "");
   }, [selectedState, setValue]);
@@ -564,8 +571,14 @@ export default function RegisterFormPage() {
                    Selección de Paquete (Kit)
                  </h2>
                  
+                 {visibleKits.length === 0 ? (
+                   <div className="text-center py-10 border border-dashed border-white/10 rounded-2xl">
+                     <p className="text-[11px] font-black uppercase tracking-widest text-gray-500">⛔ Los paquetes de este evento ya no están disponibles.</p>
+                     <p className="text-[9px] text-gray-600 mt-2 uppercase tracking-widest">La fecha límite de pedido ha vencido o fueron cerrados por el organizador.</p>
+                   </div>
+                 ) : (
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                   {eventData.kits.map((kit: any, idx: number) => {
+                   {visibleKits.map((kit: any, idx: number) => {
                      const isSelected = selectedKitName === kit.name;
                      return (
                      <label key={idx} className={`relative rounded-2xl border cursor-pointer transition-all flex flex-col group overflow-hidden ${isSelected ? 'border-[#00d2ff] bg-[#00d2ff]/10 shadow-[0_0_30px_rgba(0,210,255,0.15)]' : 'border-[#ffffff10] bg-[#1a1c23] hover:border-[#ffffff30] hover:bg-[#242636]'}`}>
@@ -593,6 +606,7 @@ export default function RegisterFormPage() {
                      </label>
                    )})}
                  </div>
+                 )}
 
                  {selectedKitDef?.includesJersey && (
                    <div className="mt-8 bg-[#171821] border border-[#ffffff10] rounded-2xl p-6 sm:p-8 relative z-10 shadow-inner">

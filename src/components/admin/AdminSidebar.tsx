@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Users, Settings, LogOut, FileText, Target, Tag } from "lucide-react";
+import { Activity, Users, Settings, LogOut, FileText, Target, Tag, Shirt } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 
@@ -11,6 +11,7 @@ const navItems = [
   { name: "Registros", href: "/admin/registrations", icon: Users },
   { name: "Audit. Mesa (Scan)", href: "/admin/scanner", icon: Target },
   { name: "Dorsales", href: "/admin/bibs", icon: Tag },
+  { name: "Kits / Textiles", href: "/admin/kits", icon: Shirt },
   { name: "Eventos", href: "/admin/events", icon: Settings },
 ];
 
