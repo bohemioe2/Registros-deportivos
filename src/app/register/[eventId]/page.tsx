@@ -148,14 +148,15 @@ export default function RegisterFormPage() {
 
   // Detectar categoría automáticamente por edad y género
   const detectCategory = (age: number, gender: string, categories: any[]): string => {
-    if (!categories || !categories.length) return "";
+    const genderLabel = gender === "MALE" ? "Varonil" : gender === "FEMALE" ? "Femenil" : "";
+    if (!categories || !categories.length) return genderLabel;
     const genderKey = gender === "MALE" ? "MALE" : "FEMALE";
     const match = categories.find((cat: any) => {
       const genderOk = cat.gender === "MIXED" || cat.gender === genderKey;
       const ageOk = age >= (cat.minAge ?? 0) && age <= (cat.maxAge ?? 999);
       return genderOk && ageOk;
     });
-    return match?.name || "Categoría General";
+    return match?.name || genderLabel || "Categoría General";
   };
 
   useEffect(() => {
@@ -278,9 +279,11 @@ export default function RegisterFormPage() {
         kitPricePaid: eventData?.kitsEnabled && selectedKitDef ? (selectedKitDef.price || 0) : 0,
         jerseyType: eventData?.kitsEnabled && selectedKitDef?.includesJersey ? (data.jerseyType || "N/A") : "N/A",
         jerseySize: eventData?.kitsEnabled && selectedKitDef?.includesJersey ? (data.jerseySize || "N/A") : "N/A",
-        detectedCategory: eventData?.categoriesEnabled && eventData?.categories?.length
-          ? detectCategory(parseInt(data.age || "0", 10), data.gender || "", eventData.categories)
-          : "",
+        detectedCategory: detectCategory(
+          parseInt(data.age || "0", 10),
+          data.gender || "",
+          eventData?.categories || []
+        ),
         status: "PENDING", 
         createdAt: serverTimestamp(),
       };
