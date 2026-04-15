@@ -113,7 +113,7 @@ export default function AdminDashboard() {
                <h2 className="text-[10px] font-black tracking-[0.3em] text-gray-400 uppercase">Monitor de Élite Ops</h2>
             </div>
             <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tighter uppercase leading-none italic">
-               Kardex <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#4b55f5]">Central</span>
+               Central de <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#4b55f5]">Monitoreo</span>
             </h1>
           </div>
           
