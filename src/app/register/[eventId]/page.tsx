@@ -146,6 +146,18 @@ export default function RegisterFormPage() {
     return true;
   });
 
+  // Detectar categoría automáticamente por edad y género
+  const detectCategory = (age: number, gender: string, categories: any[]): string => {
+    if (!categories || !categories.length) return "";
+    const genderKey = gender === "MALE" ? "MALE" : "FEMALE";
+    const match = categories.find((cat: any) => {
+      const genderOk = cat.gender === "MIXED" || cat.gender === genderKey;
+      const ageOk = age >= (cat.minAge ?? 0) && age <= (cat.maxAge ?? 999);
+      return genderOk && ageOk;
+    });
+    return match?.name || "Categoría General";
+  };
+
   useEffect(() => {
     setValue("muni", "");
   }, [selectedState, setValue]);
@@ -266,6 +278,9 @@ export default function RegisterFormPage() {
         kitPricePaid: eventData?.kitsEnabled && selectedKitDef ? (selectedKitDef.price || 0) : 0,
         jerseyType: eventData?.kitsEnabled && selectedKitDef?.includesJersey ? (data.jerseyType || "N/A") : "N/A",
         jerseySize: eventData?.kitsEnabled && selectedKitDef?.includesJersey ? (data.jerseySize || "N/A") : "N/A",
+        detectedCategory: eventData?.categoriesEnabled && eventData?.categories?.length
+          ? detectCategory(parseInt(data.age || "0", 10), data.gender || "", eventData.categories)
+          : "",
         status: "PENDING", 
         createdAt: serverTimestamp(),
       };
@@ -354,7 +369,19 @@ export default function RegisterFormPage() {
                  </div>
                  
                  <p className="text-[#00d2ff] text-3xl font-bold font-mono tracking-widest uppercase mb-2">{registrationData.folio}</p>
-                 <p className="text-gray-200 font-bold uppercase tracking-widest text-lg">{registrationData.firstName} {registrationData.lastName}</p>
+                 <p className="text-gray-200 font-bold uppercase tracking-widest text-lg mb-4">{registrationData.firstName} {registrationData.lastName}</p>
+
+                 {/* CATEGORÍA DETECTADA */}
+                 {registrationData.detectedCategory && (
+                   <div className="mt-1 mb-4 flex flex-col items-center gap-2">
+                     <span className="text-[9px] font-black uppercase tracking-[0.35em] text-gray-500">Categoría</span>
+                     <div className="bg-gradient-to-r from-[#ff9500] to-[#ff5f6d] px-6 py-3 rounded-2xl shadow-[0_0_30px_rgba(255,149,0,0.4)]">
+                       <p className="text-white font-black text-2xl sm:text-3xl uppercase tracking-widest leading-none">
+                         {registrationData.detectedCategory}
+                       </p>
+                     </div>
+                   </div>
+                 )}
                  
                  {registrationData.kitName && (
                    <div className="mt-6 bg-[#242636] border border-[#ffffff0a] rounded-xl p-4 inline-flex flex-col sm:flex-row items-center gap-2 max-w-full overflow-hidden">
