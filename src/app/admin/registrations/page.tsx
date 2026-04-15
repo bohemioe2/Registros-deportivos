@@ -618,7 +618,7 @@ export default function RegistrationsPage() {
                           gender={liveUser.gender}
                           registrationId={liveUser.id}
                           eventId={liveUser.eventId}
-                          isPreview={true}
+                          isPreview={false}
                        />
                      </div>
                    </div>
