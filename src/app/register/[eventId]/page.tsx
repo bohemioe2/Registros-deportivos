@@ -375,16 +375,27 @@ export default function RegisterFormPage() {
                  <p className="text-gray-200 font-bold uppercase tracking-widest text-lg mb-4">{registrationData.firstName} {registrationData.lastName}</p>
 
                  {/* CATEGORÍA DETECTADA */}
-                 {registrationData.detectedCategory && (
-                   <div className="mt-1 mb-4 flex flex-col items-center gap-2">
-                     <span className="text-[9px] font-black uppercase tracking-[0.35em] text-gray-500">Categoría</span>
-                     <div className="bg-gradient-to-r from-[#ff9500] to-[#ff5f6d] px-6 py-3 rounded-2xl shadow-[0_0_30px_rgba(255,149,0,0.4)]">
-                       <p className="text-white font-black text-2xl sm:text-3xl uppercase tracking-widest leading-none">
-                         {registrationData.detectedCategory}
-                       </p>
-                     </div>
-                   </div>
-                 )}
+                  {(() => {
+                    const displayCat =
+                      registrationData.detectedCategory ||
+                      detectCategory(
+                        parseInt(registrationData.age || "0", 10),
+                        registrationData.gender || "",
+                        eventData?.categories || []
+                      ) ||
+                      (registrationData.gender === "MALE" ? "Varonil" : registrationData.gender === "FEMALE" ? "Femenil" : "");
+                    if (!displayCat) return null;
+                    return (
+                      <div className="mt-1 mb-4 flex flex-col items-center gap-2">
+                        <span className="text-[9px] font-black uppercase tracking-[0.35em] text-gray-500">Categoría</span>
+                        <div className="bg-gradient-to-r from-[#ff9500] to-[#ff5f6d] px-6 py-3 rounded-2xl shadow-[0_0_30px_rgba(255,149,0,0.4)]">
+                          <p className="text-white font-black text-2xl sm:text-3xl uppercase tracking-widest leading-none">
+                            {displayCat}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })()}
                  
                  {registrationData.kitName && (
                    <div className="mt-6 bg-[#242636] border border-[#ffffff0a] rounded-xl p-4 inline-flex flex-col sm:flex-row items-center gap-2 max-w-full overflow-hidden">
