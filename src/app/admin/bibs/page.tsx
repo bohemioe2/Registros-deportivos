@@ -6,7 +6,7 @@ import { collection, onSnapshot, query, where, updateDoc, doc } from "firebase/f
 import { useAuth } from "@/components/admin/AuthProvider";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import { Tag, FolderArchive, Loader2, Save, CheckCircle2, Eye } from "lucide-react";
+import { Tag, FolderArchive, Loader2, Save, CheckCircle2, Download } from "lucide-react";
 
 const DEFAULT_BIB_CONFIG = {
   numberColor: "#000000",
@@ -193,6 +193,19 @@ export default function BibsPage() {
     finally { setIsGenerating(false); setProgress(""); }
   };
 
+  const handleSingleDownload = async (reg: any) => {
+    if (!selectedEvent) return;
+    const bibNumber = String(parseInt(reg.folio?.replace(/\D/g, '') || "0", 10));
+    try {
+      const dataUrl = await generateBibCanvas(reg, selectedEvent, config);
+      if (!dataUrl) return;
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `Dorsal_${bibNumber}_${(reg.firstName || "").toUpperCase()}_${(reg.lastName || "").toUpperCase()}.jpg`;
+      a.click();
+    } catch { alert("Error generando dorsal individual."); }
+  };
+
   const setC = (key: keyof BibConfig, value: string | number) =>
     setConfig(prev => ({ ...prev, [key]: value }));
 
@@ -349,12 +362,21 @@ export default function BibsPage() {
                 {registrations.map((reg) => {
                   const bibNum = String(parseInt(reg.folio?.replace(/\D/g, '') || "0", 10));
                   return (
-                    <div key={reg.id} className="flex items-center justify-between px-4 py-2.5 border-b border-[#ffffff05] last:border-0">
+                    <div key={reg.id} className="flex items-center justify-between px-4 py-2.5 border-b border-[#ffffff05] last:border-0 group hover:bg-white/[0.03] transition-colors">
                       <div className="flex items-center gap-3">
                         <span className="text-[#ff9500] font-mono font-bold text-sm w-6 text-right">{bibNum}</span>
                         <span className="text-gray-300 text-[12px] font-medium">{reg.firstName} {reg.lastName}</span>
                       </div>
-                      {reg.logoUrl && <span className="text-[9px] text-green-400 font-bold uppercase tracking-widest">+logo</span>}
+                      <div className="flex items-center gap-3">
+                        {reg.logoUrl && <span className="text-[9px] text-green-400 font-bold uppercase tracking-widest">+logo</span>}
+                        <button
+                          onClick={() => handleSingleDownload(reg)}
+                          title={`Descargar dorsal de ${reg.firstName}`}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg bg-[#ff9500]/10 hover:bg-[#ff9500]/30 text-[#ff9500] border border-[#ff9500]/20"
+                        >
+                          <Download className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
