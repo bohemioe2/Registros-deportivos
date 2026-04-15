@@ -82,12 +82,14 @@ export default function Home() {
                </div>
               
               <div className="p-8 sm:p-10 flex flex-col">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[#4b55f5]/20 flex items-center justify-center border border-[#4b55f5]/30">
-                     <Calendar className="w-5 h-5 text-[#4b55f5]" />
+                {evt.date && evt.date !== 'Por Definir' && (
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-[#4b55f5]/20 flex items-center justify-center border border-[#4b55f5]/30">
+                       <Calendar className="w-5 h-5 text-[#4b55f5]" />
+                    </div>
+                    <span className="text-[11px] font-black text-[#00d2ff] uppercase tracking-[0.2em]">{evt.date}</span>
                   </div>
-                  <span className="text-[11px] font-black text-[#00d2ff] uppercase tracking-[0.2em]">{evt.date || "Fecha por definir"}</span>
-                </div>
+                )}
                 
                 <h3 className="text-4xl sm:text-5xl font-black text-white mb-6 tracking-tighter uppercase leading-none italic group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-[#00d2ff] transition-all duration-500">
                    {evt.name}
