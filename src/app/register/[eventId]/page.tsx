@@ -281,6 +281,10 @@ export default function RegisterFormPage() {
   };
 
   if (registrationData) {
+    // Si el evento tiene activado "Omitir póster", ir directo al QR
+    if (eventData?.skipWelcomePoster && !showQrStep) {
+      setShowQrStep(true);
+    }
     return (
       <div className={`min-h-screen bg-[#1b1c27] flex flex-col items-center justify-center p-4 py-6 text-white`}>
          <div className={`bg-[#242636]/60 backdrop-blur-md max-w-lg w-full rounded-3xl p-4 sm:p-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-[#ffffff0a] mb-6 text-center transition-all duration-300`}>

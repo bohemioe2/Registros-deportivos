@@ -25,6 +25,7 @@ const DEFAULT_VALUES = {
   showFolioOnPoster: true,
   showStateOnPoster: true,
   showMuniOnPoster: false,
+  skipWelcomePoster: false,
   eventBanner: null,
   bibTemplate: null,
   bibNumberColor: "#000000",
@@ -538,6 +539,17 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
                 <div>
                   <span className="text-sm font-bold text-gray-200">Mostrar Municipio en Póster</span>
                   <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed">Ej: “DE: Tulancingo” — si activas ambos verás “DE: Hidalgo / Tulancingo”.</p>
+                </div>
+              </div>
+              {/* Toggle Saltar Póster de Bienvenida */}
+              <div className="flex items-center gap-3 bg-[#ff5f6d]/5 p-4 rounded-xl border border-[#ff5f6d]/20">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" {...register("skipWelcomePoster")} />
+                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff5f6d]"></div>
+                </label>
+                <div>
+                  <span className="text-sm font-bold text-gray-200">Omitir póster de bienvenida HD</span>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed">Al inscribirse, el atleta irá directo al QR. No se genera la foto personalizada.</p>
                 </div>
               </div>
             </div>
