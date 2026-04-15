@@ -79,14 +79,7 @@ export default function Home() {
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d0e14] via-transparent to-transparent opacity-60"></div>
                  
-                 {/* Floating Info Overlay */}
-                 <div className="absolute top-6 right-6">
-                    <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 flex items-center gap-2">
-                       <div className="w-2 h-2 bg-[#00ff88] rounded-full animate-pulse"></div>
-                       <span className="text-[10px] font-black uppercase tracking-widest text-white">Cupos Disponibles</span>
-                    </div>
-                 </div>
-              </div>
+               </div>
               
               <div className="p-8 sm:p-10 flex flex-col">
                 <div className="flex items-center gap-3 mb-6">
