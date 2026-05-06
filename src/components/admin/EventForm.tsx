@@ -137,12 +137,14 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
          let kitUrl = kitsToSave[i].imageUrl || "";
          if(kitsToSave[i].imageFile && kitsToSave[i].imageFile.length > 0) {
             try {
-              const fref = ref(storage, `kits/${Date.now()}_${kitsToSave[i].imageFile[0].name}`);
-              await uploadBytes(fref, kitsToSave[i].imageFile[0]);
+              const file = kitsToSave[i].imageFile[0];
+              const fref = ref(storage, `kits/${Date.now()}_${file.name}`);
+              await uploadBytes(fref, file);
               kitUrl = await getDownloadURL(fref);
+              kitsToSave[i].mediaType = file.type.startsWith('video/') ? 'video' : 'image';
             } catch(e) {
-              console.error("Error cargando imagen de Kit:", e);
-              alert("Hubo un error cargando la foto promocional del Paquete " + kitsToSave[i].name + ". El paquete se guardará sin la foto.");
+              console.error("Error cargando media de Kit:", e);
+              alert("Hubo un error cargando el archivo promocional del Paquete " + kitsToSave[i].name + ". El paquete se guardará sin la media.");
             }
          }
          kitsToSave[i].imageUrl = kitUrl;
@@ -349,10 +351,11 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
                        <input {...register(`kits.${idx}.description` as const, { required: true })} className="w-full bg-[#242636] border border-[#ffffff10] text-gray-300 rounded-lg text-xs px-4 py-2.5 focus:outline-none focus:border-green-500 transition-all" placeholder="Jersey Oficial, Medalla 3D Finisher, Calcetas, Hidratación Libre." />
                      </div>
                      <div className="sm:col-span-12">
-                       <label className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-2">🔗 Foto Promocional del Paquete <span className="text-gray-500 font-normal lowercase">(Opcional)</span></label>
+                       <label className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-2">🔗 Media Promocional (Imagen, GIF o Video corto) <span className="text-gray-500 font-normal lowercase">(Opcional)</span></label>
+                       <p className="text-[9px] text-yellow-500/80 uppercase tracking-widest mb-3">Recomendación: Si subes video, máximo 10 seg. y menos de 5MB para no trabar el formulario público.</p>
                        <div className="flex flex-col sm:flex-row gap-3">
-                          <input type="file" accept="image/*" {...register(`kits.${idx}.imageFile` as const)} className="w-full bg-[#1c1d29] border border-[#ffffff10] text-gray-300 rounded-lg text-[10px] file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[9px] file:font-bold file:uppercase file:bg-green-500/20 file:text-green-400 hover:file:bg-green-500/30 transition-all" />
-                          {(field as any).imageUrl && <span className="text-[10px] text-green-400 font-bold mt-2 sm:mt-0 flex items-center shrink-0">✓ Imagen Pre-Cargada</span>}
+                          <input type="file" accept="image/*,video/mp4" {...register(`kits.${idx}.imageFile` as const)} className="w-full bg-[#1c1d29] border border-[#ffffff10] text-gray-300 rounded-lg text-[10px] file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[9px] file:font-bold file:uppercase file:bg-green-500/20 file:text-green-400 hover:file:bg-green-500/30 transition-all" />
+                          {(field as any).imageUrl && <span className="text-[10px] text-green-400 font-bold mt-2 sm:mt-0 flex items-center shrink-0">✓ Media Pre-Cargada</span>}
                        </div>
 
                       {/* ── CONTROLES DE VISIBILIDAD ── */}

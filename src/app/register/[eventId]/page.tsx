@@ -643,7 +643,11 @@ export default function RegisterFormPage() {
                        
                        {kit.imageUrl && (
                          <div className="w-full relative overflow-hidden bg-[#171821] border-b border-[#ffffff10] shrink-0 flex justify-center py-6">
-                           <img src={kit.imageUrl} alt={kit.name} className="w-1/2 h-auto object-contain group-hover:scale-110 transition-transform duration-500 filter drop-shadow-2xl" />
+                           {kit.mediaType === 'video' || kit.imageUrl.includes('.mp4') ? (
+                             <video src={kit.imageUrl} autoPlay loop muted playsInline className="w-1/2 h-auto object-contain group-hover:scale-110 transition-transform duration-500 filter drop-shadow-2xl" />
+                           ) : (
+                             <img src={kit.imageUrl} alt={kit.name} className="w-1/2 h-auto object-contain group-hover:scale-110 transition-transform duration-500 filter drop-shadow-2xl" />
+                           )}
                            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1c23] via-transparent to-transparent pointer-events-none"></div>
                          </div>
                        )}
