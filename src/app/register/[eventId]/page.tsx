@@ -138,6 +138,7 @@ export default function RegisterFormPage() {
   
   const selectedKitName = watch("kitSelection");
   const selectedKitDef = eventData?.kits?.find((k:any) => k.name === selectedKitName);
+  const selectedJerseyType = watch("jerseyType");
 
   // Filtrar kits visibles: excluir ocultos manualmente o con fecha límite vencida
   const visibleKits = (eventData?.kits || []).filter((kit: any) => {
@@ -696,6 +697,25 @@ export default function RegisterFormPage() {
                           </select>
                         </div>
                      </div>
+
+                     {/* Previsualización Dinámica de Prenda */}
+                     {selectedJerseyType && eventData?.jerseyMedia?.[selectedJerseyType] && (
+                        <div className="mt-8 border-t border-[#ffffff10] pt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                           <div className="text-center mb-6">
+                              <span className="bg-[#ff5f6d]/10 text-[#ff5f6d] border border-[#ff5f6d]/20 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-inner">Vista Previa 3D / Diseño</span>
+                              <h4 className="text-white font-black mt-4 uppercase tracking-widest text-lg">{selectedJerseyType}</h4>
+                           </div>
+                           <div className="w-full max-w-sm mx-auto relative overflow-hidden bg-gradient-to-b from-[#1a1c23] to-[#121318] border border-[#ffffff10] rounded-3xl flex justify-center py-10 shadow-[0_20px_50px_rgba(0,0,0,0.7)] group">
+                             {eventData.jerseyMedia[selectedJerseyType].type === 'video' || eventData.jerseyMedia[selectedJerseyType].url.includes('.mp4') ? (
+                               <video src={eventData.jerseyMedia[selectedJerseyType].url} autoPlay loop muted playsInline className="w-4/5 h-auto object-contain group-hover:scale-110 transition-transform duration-700 filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)] relative z-10" />
+                             ) : (
+                               <img src={eventData.jerseyMedia[selectedJerseyType].url} alt={selectedJerseyType} className="w-4/5 h-auto object-contain group-hover:scale-110 transition-transform duration-700 filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)] relative z-10" />
+                             )}
+                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-[#ff5f6d]/20 blur-3xl rounded-full pointer-events-none"></div>
+                             <div className="absolute inset-0 bg-gradient-to-t from-[#121318] via-transparent to-transparent pointer-events-none z-20"></div>
+                           </div>
+                        </div>
+                     )}
                    </div>
                  )}
                </section>

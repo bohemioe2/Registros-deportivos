@@ -48,6 +48,7 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
   const categoriesEnabled = watch("categoriesEnabled");
   const kitsEnabled = watch("kitsEnabled");
   const kitsWatch = watch("kits");
+  const selectedJerseyTypes = watch("jerseyTypes");
   
   const posterTemplateList = watch("posterTemplate");
   const posterFontFamily = watch("posterFontFamily");
@@ -151,6 +152,27 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
          delete kitsToSave[i].imageFile;
       }
       cleanData.kits = kitsToSave;
+
+      let jerseyMediaToSave = initialData?.jerseyMedia || {};
+      if (data.jerseyMediaFiles) {
+         for (const type of cleanData.jerseyTypes || []) {
+            const fileList = data.jerseyMediaFiles[type];
+            if (fileList && fileList.length > 0) {
+               try {
+                 const file = fileList[0];
+                 const fref = ref(storage, `jerseyMedia/${Date.now()}_${file.name}`);
+                 await uploadBytes(fref, file);
+                 const mediaUrl = await getDownloadURL(fref);
+                 const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+                 jerseyMediaToSave[type] = { url: mediaUrl, type: mediaType };
+               } catch(e) {
+                 console.error("Error cargando media de prenda:", e);
+               }
+            }
+         }
+      }
+      cleanData.jerseyMedia = jerseyMediaToSave;
+      delete cleanData.jerseyMediaFiles;
 
       if (initialData?.id) {
          await updateDoc(doc(db, "events", initialData.id), {
@@ -323,6 +345,27 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
                        </div>
                      </div>
                      
+                     {selectedJerseyTypes && selectedJerseyTypes.length > 0 && (
+                       <div className="space-y-4 mt-4 border-t border-[#ffffff10] pt-6 sm:col-span-2">
+                          <div>
+                            <label className="text-[12px] text-green-400 font-bold uppercase tracking-[0.2em] flex items-center gap-2 mb-1">
+                              📸 Media por Tipo de Prenda
+                            </label>
+                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-4 leading-relaxed">Sube fotos o videos cortos para cada prenda seleccionada. Se mostrarán al atleta dinámicamente.</p>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {selectedJerseyTypes.map((type: string) => (
+                              <div key={type} className="bg-[#242636] p-4 rounded-xl border border-[#ffffff05]">
+                                <h4 className="text-[11px] font-bold text-white uppercase tracking-widest mb-2 truncate" title={type}>{type}</h4>
+                                <div className="flex flex-col gap-2">
+                                  <input type="file" accept="image/*,video/mp4" {...register(`jerseyMediaFiles.${type}` as any)} className="w-full bg-[#1c1d29] border border-[#ffffff10] text-gray-300 rounded-lg text-[10px] file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[9px] file:font-bold file:uppercase file:bg-green-500/20 file:text-green-400 hover:file:bg-green-500/30 transition-all" />
+                                  {initialData?.jerseyMedia?.[type] && <span className="text-[9px] text-green-400 font-bold mt-1">✓ Media Actual Cargada</span>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                       </div>
+                     )}
                   </div>
                )}
 
