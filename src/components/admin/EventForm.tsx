@@ -174,9 +174,30 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
       cleanData.jerseyMedia = jerseyMediaToSave;
       delete cleanData.jerseyMediaFiles;
 
+      // Firestore rechaza valores "undefined", limpiamos el objeto antes de guardarlo
+      const removeUndefined = (obj: any): any => {
+        if (obj === undefined) return null;
+        if (obj === null || typeof obj !== 'object') return obj;
+        if (obj.constructor.name !== 'Object' && obj.constructor.name !== 'Array') return obj;
+        
+        if (Array.isArray(obj)) {
+          return obj.map(removeUndefined);
+        }
+        
+        const res: any = {};
+        for (const key in obj) {
+          if (obj[key] !== undefined) {
+            res[key] = removeUndefined(obj[key]);
+          }
+        }
+        return res;
+      };
+
+      const finalCleanData = removeUndefined(cleanData);
+
       if (initialData?.id) {
          await updateDoc(doc(db, "events", initialData.id), {
-           ...cleanData,
+           ...finalCleanData,
            posterTemplateUrl,
            eventBannerUrl,
            bibTemplateUrl
@@ -185,7 +206,7 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
          if (onCancelEdit) onCancelEdit();
       } else {
          await addDoc(collection(db, "events"), {
-           ...cleanData,
+           ...finalCleanData,
            status: "ABIERTO",
            date: "Por Definir",
            posterTemplateUrl,
@@ -196,9 +217,9 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
          alert("¡Operación Evento sincronizada exitosamente en tu Base de Datos!");
          reset();
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert("Error publicando el nodo del evento");
+      alert("Error publicando el nodo del evento: " + (e?.message || "Error desconocido"));
     } finally {
       setIsSaving(false);
     }
