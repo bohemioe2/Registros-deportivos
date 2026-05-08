@@ -140,6 +140,11 @@ export default function RegisterFormPage() {
   const selectedKitDef = eventData?.kits?.find((k:any) => k.name === selectedKitName);
   const selectedJerseyType = watch("jerseyType");
 
+  const jerseyTypesArray = Array.isArray(eventData?.jerseyTypes) 
+    ? eventData.jerseyTypes 
+    : (eventData?.jerseyTypes || "").split(",").map((t: string) => t.trim()).filter((t:string) => t !== "");
+
+
   // Filtrar kits visibles: excluir ocultos manualmente o con fecha límite vencida
   const visibleKits = (eventData?.kits || []).filter((kit: any) => {
     if (kit.hidden) return false;
@@ -677,16 +682,18 @@ export default function RegisterFormPage() {
                        <Award className="w-5 h-5 text-[#ff5f6d]" />
                        <h3 className="text-sm uppercase tracking-[0.2em] font-bold text-white">Configuración Textil Oficial</h3>
                      </div>
-                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                        <div className="space-y-3">
-                          <label className="text-xs uppercase tracking-widest font-bold text-gray-500 block">Tipo/Diseño de Jersey <span className="text-[#ff5f6d]">*</span></label>
-                          <select {...register("jerseyType", { required: true })} className="w-full bg-[#242636] border border-[#ffffff10] text-gray-200 rounded-xl p-4 text-xs font-bold uppercase tracking-widest focus:ring-1 focus:ring-[#ff5f6d] focus:border-[#ff5f6d] appearance-none custom-select shadow-inner transition-colors">
-                            <option value="">-- Elige el Diseño --</option>
-                            {(Array.isArray(eventData.jerseyTypes) ? eventData.jerseyTypes : (eventData.jerseyTypes || "").split(",").map((t: string) => t.trim()).filter((t:string) => t !== "")).map((type: string) => (
-                               <option key={type} value={type}>{type}</option>
-                            ))}
-                          </select>
-                        </div>
+                     <div className={`grid grid-cols-1 ${jerseyTypesArray.length > 0 ? 'sm:grid-cols-2' : ''} gap-8`}>
+                        {jerseyTypesArray.length > 0 && (
+                          <div className="space-y-3">
+                            <label className="text-xs uppercase tracking-widest font-bold text-gray-500 block">Tipo/Diseño de Jersey <span className="text-[#ff5f6d]">*</span></label>
+                            <select {...register("jerseyType", { required: true })} className="w-full bg-[#242636] border border-[#ffffff10] text-gray-200 rounded-xl p-4 text-xs font-bold uppercase tracking-widest focus:ring-1 focus:ring-[#ff5f6d] focus:border-[#ff5f6d] appearance-none custom-select shadow-inner transition-colors">
+                              <option value="">-- Elige el Diseño --</option>
+                              {jerseyTypesArray.map((type: string) => (
+                                 <option key={type} value={type}>{type}</option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
                         <div className="space-y-3">
                           <label className="text-xs uppercase tracking-widest font-bold text-gray-500 block">Talla Física <span className="text-[#ff5f6d]">*</span></label>
                           <select {...register("jerseySize", { required: true })} className="w-full bg-[#242636] border border-[#ffffff10] text-gray-200 rounded-xl p-4 text-xs font-bold uppercase tracking-widest focus:ring-1 focus:ring-[#ff5f6d] focus:border-[#ff5f6d] appearance-none custom-select shadow-inner transition-colors">
