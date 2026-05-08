@@ -340,7 +340,16 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
                          <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-4 leading-relaxed">Selecciona los cortes y prendas que ofrecerás a la venta globalmente.</p>
                        </div>
                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                         {["Chamarra", "Sudadera", "Rompe vientos", "Playera manga corta", "Playera manga larga", "Jersey ajustado con bolsas", "Jersey enduro (Holgado)"].map((t) => (
+                         {[
+                           "Chamarra", 
+                           "Sudadera", 
+                           "Rompe vientos", 
+                           "Playera manga corta", 
+                           "Playera manga larga", 
+                           "Jersey ajustado con bolsas (Manga Corta)", 
+                           "Jersey ajustado con bolsas (Manga Larga)", 
+                           "Jersey enduro holgado (Manga Larga)"
+                         ].map((t) => (
                            <label key={t} className="flex items-start gap-3 bg-[#242636] px-4 py-3.5 rounded-xl border border-[#ffffff05] cursor-pointer hover:bg-[#303348] hover:border-[#00d2ff]/30 transition-all group">
                              <div className="pt-0.5 shrink-0"><input type="checkbox" value={t} {...register("jerseyTypes")} className="w-4 h-4 accent-[#00d2ff] bg-black border-[#ffffff30] cursor-pointer" /></div>
                              <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest group-hover:text-white transition-colors leading-tight">{t}</span>
