@@ -414,7 +414,7 @@ export default function RegisterFormPage() {
                </div>
                
                {/* ACTION BUTTONS GRID */}
-               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
                  
                  {/* === DESCARGAR === */}
                  <button onClick={async () => {
@@ -452,31 +452,6 @@ export default function RegisterFormPage() {
                     <span className="text-[9px] uppercase font-bold tracking-widest font-mono">Compartir WhatsApp</span>
                  </button>
                  
-                 {/* === IMPRIMIR === */}
-                 <button onClick={() => {
-                   const url = getQrDataUrl();
-                   if (!url) return alert("QR aún cargando, intenta en un segundo.");
-                   const kitBadge = registrationData.kitName ? `<div style="margin-top:12px;background:#4b55f5;color:white;display:inline-block;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase">${registrationData.kitName}</div>` : "";
-                   const newWin = window.open("", "_blank");
-                   newWin?.document.write(`
-                     <html><head><title>Gafete QR — ${registrationData.folio}</title>
-                     <style>@page{margin:10mm} body{font-family:'Helvetica Neue',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;min-height:100vh;margin:0;padding:20px;color:#111;text-align:center}</style></head>
-                     <body>
-                       <div style="border:2px solid #000;border-radius:20px;padding:30px 40px;max-width:360px;width:100%">
-                         <p style="font-size:10px;font-weight:800;letter-spacing:0.3em;text-transform:uppercase;color:#666;margin:0 0 12px">${eventData?.name || "Evento"}</p>
-                         <img src="${url}" style="width:220px;height:220px;display:block;margin:0 auto 16px" />
-                         <p style="font-size:26px;font-weight:900;letter-spacing:0.15em;color:#000;margin:0">${registrationData.folio}</p>
-                         <p style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#333;margin:8px 0 0">${registrationData.firstName} ${registrationData.lastName}</p>
-                         ${kitBadge}
-                       </div>
-                       <script>window.onload=()=>{setTimeout(()=>{window.print();window.close()},300)}<\/script>
-                     </body></html>
-                   `);
-                   newWin?.document.close();
-                 }} className="bg-[#242636] hover:bg-[#2c2f42] border border-[#ffffff10] py-4 rounded-2xl flex flex-col items-center justify-center gap-2 group transition-all text-white">
-                    <Printer className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    <span className="text-[9px] uppercase font-bold tracking-widest font-mono">Imprimir Gafete</span>
-                 </button>
                </div>
                               
                 {/* BOTÓN FINAL DE ORO */}
