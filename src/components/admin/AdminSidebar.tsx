@@ -16,7 +16,7 @@ const navItems = [
   { name: "Entrega Medallas", href: "/admin/medals", icon: Award, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Dorsales", href: "/admin/bibs", icon: Tag, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Kits / Textiles", href: "/admin/kits", icon: Shirt, roles: ["SUPERADMIN", "ORGANIZER"] },
-  { name: "Organizadores", href: "/admin/organizers", icon Briefcase, roles: ["SUPERADMIN"] },
+  { name: "Organizadores", href: "/admin/organizers", icon: Briefcase, roles: ["SUPERADMIN"] },
   { name: "Códigos Staff", href: "/admin/staff", icon: KeyRound, roles: ["SUPERADMIN", "ORGANIZER"] },
 ];
 
