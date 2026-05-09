@@ -215,7 +215,7 @@ export default function MedalsPage() {
   if (!isReady) return null;
 
   return (
-    <div className="min-h-screen bg-[#1b1c27] text-white p-6 pb-20 sm:p-10 font-sans">
+    <div className="h-full overflow-y-auto custom-scrollbar bg-[#1b1c27] text-white p-6 pb-20 sm:p-10 font-sans">
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="flex items-center justify-between border-b border-[#ffffff10] pb-6 flex-wrap gap-6">
           <div className="flex items-center gap-4">

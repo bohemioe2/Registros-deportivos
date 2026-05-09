@@ -78,7 +78,7 @@ export default function ScannerPage() {
   if (!isReady) return null;
 
   return (
-    <div className="min-h-screen bg-[#1b1c27] text-white p-6 pb-20 sm:p-10 font-sans">
+    <div className="h-full overflow-y-auto custom-scrollbar bg-[#1b1c27] text-white p-6 pb-20 sm:p-10 font-sans">
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="flex items-center gap-4 border-b border-[#ffffff10] pb-6">
           <div className="w-12 h-12 bg-gradient-to-tr from-[#00d2ff] to-[#4b55f5] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(75,85,245,0.4)]">
