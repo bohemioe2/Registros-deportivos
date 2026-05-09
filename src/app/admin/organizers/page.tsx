@@ -27,7 +27,7 @@ export default function OrganizersPage() {
   useEffect(() => {
     // Escuchar organizadores
     const unsubUsers = onSnapshot(collection(db, "users"), (snapshot) => {
-      const orgs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(u => u.role === "ORGANIZER");
+      const orgs = snapshot.docs.map(d => ({ id: d.id, ...(d.data() as any) })).filter(u => u.role === "ORGANIZER");
       setOrganizers(orgs);
     });
 

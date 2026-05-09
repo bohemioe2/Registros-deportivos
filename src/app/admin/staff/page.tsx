@@ -34,7 +34,7 @@ export default function StaffPage() {
 
     // Escuchar staff
     const unsubUsers = onSnapshot(collection(db, "users"), (snapshot) => {
-      let stf = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(u => u.role === "STAFF");
+      let stf = snapshot.docs.map(d => ({ id: d.id, ...(d.data() as any) })).filter(u => u.role === "STAFF");
       if (role === "ORGANIZER" && assignedEventId) {
         stf = stf.filter(u => u.assignedEventId === assignedEventId);
       }
