@@ -42,26 +42,13 @@ export default function EventsPage() {
         </div>
       </div>
 
-      <div className="shrink-0 bg-[#242636]/60 backdrop-blur-md rounded-3xl border border-[#ffffff0a] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.3)]">
-        <h3 className="text-[11px] font-bold tracking-[0.2em] text-[#00d2ff] uppercase mb-8 flex items-center gap-3">
-          {editingEvent ? <><Edit2 className="w-4 h-4" /> Editando: {editingEvent.name}</> : <><Settings className="w-4 h-4" /> Configurar Nuevo Evento Base</>}
-        </h3>
-        <EventForm 
-           initialData={editingEvent} 
-           onCancelEdit={() => {
-             setEditingEvent(null);
-             window.scrollTo({ top: 0, behavior: 'smooth' });
-           }} 
-        />
-      </div>
-      
-      <div className="shrink-0 mt-8 pb-12">
+      <div className="shrink-0 mt-2">
         <h3 className="text-[12px] font-bold tracking-[0.25em] text-gray-500 uppercase mb-6 border-b border-[#ffffff0a] pb-4">
           Mis Eventos Activos (Base de Datos)
         </h3>
         {events.length === 0 ? (
           <div className="text-[11px] font-bold tracking-widest uppercase text-gray-500 bg-[#171821] p-12 rounded-2xl border border-[#ffffff0a] text-center shadow-inner">
-            No hay operaciones creadas en el servidor. Empieza configurando una arriba.
+            No hay operaciones creadas en el servidor. Empieza configurando una abajo.
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -87,7 +74,7 @@ export default function EventsPage() {
                   <button 
                     onClick={() => {
                       setEditingEvent(ev);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      setTimeout(() => document.getElementById('event-form')?.scrollIntoView({ behavior: 'smooth' }), 50);
                     }} 
                     className="flex items-center justify-center gap-2 bg-[#00d2ff]/10 hover:bg-[#00d2ff] text-[#00d2ff] hover:text-[#171821] px-5 py-3 rounded-xl transition-all border border-[#00d2ff]/20 shadow-sm text-[10px] font-bold uppercase tracking-widest"
                   >
@@ -101,6 +88,19 @@ export default function EventsPage() {
             ))}
           </div>
         )}
+      </div>
+
+      <div id="event-form" className="shrink-0 bg-[#242636]/60 backdrop-blur-md rounded-3xl border border-[#ffffff0a] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.3)] mb-12 mt-8">
+        <h3 className="text-[11px] font-bold tracking-[0.2em] text-[#00d2ff] uppercase mb-8 flex items-center gap-3">
+          {editingEvent ? <><Edit2 className="w-4 h-4" /> Editando: {editingEvent.name}</> : <><Settings className="w-4 h-4" /> Configurar Nuevo Evento Base</>}
+        </h3>
+        <EventForm 
+           initialData={editingEvent} 
+           onCancelEdit={() => {
+             setEditingEvent(null);
+             window.scrollTo({ top: 0, behavior: 'smooth' });
+           }} 
+        />
       </div>
     </div>
   );
