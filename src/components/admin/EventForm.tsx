@@ -31,7 +31,7 @@ const DEFAULT_VALUES = {
   bibNumberColor: "#000000",
   bibNameColor: "#000000",
   kitsEnabled: false,
-  kits: [{ name: "Kit Básico", description: "Medalla e Hidratación", price: 500, includesJersey: false }],
+  kits: [{ name: "Kit Básico", description: "Medalla e Hidratación", price: 500, includesJersey: false, includesMedal: true }],
   jerseyTypes: ["Playera manga corta"],
   jerseySizes: ["Extra Chica", "Chica", "Mediana", "Grande", "Extra Grande"],
   enabledDocs: ["payment", "photo", "logo", "id"]
@@ -413,10 +413,14 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
                        <label className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-1.5 block">Precio / Costo ($)</label>
                        <input type="number" {...register(`kits.${idx}.price` as const, { required: true })} className="w-full bg-[#242636] border border-[#ffffff10] text-[#00d2ff] rounded-lg font-mono text-sm px-4 py-2.5 focus:outline-none focus:border-[#00d2ff] transition-all" placeholder="850" />
                      </div>
-                     <div className="sm:col-span-4 flex items-center">
-                       <label className="flex items-center gap-3 mt-4 sm:mt-6 bg-[#242636] border border-[#ffffff10] px-4 py-2.5 rounded-lg w-full cursor-pointer hover:bg-[#303348] transition-colors">
-                         <input type="checkbox" {...register(`kits.${idx}.includesJersey` as const)} className="w-4 h-4 accent-green-400 cursor-pointer" />
+                     <div className="sm:col-span-4 flex flex-col gap-2 mt-4 sm:mt-6">
+                       <label className="flex items-center gap-3 bg-[#242636] border border-[#ffffff10] px-4 py-2.5 rounded-lg w-full cursor-pointer hover:bg-[#303348] transition-colors">
+                         <input type="checkbox" {...register(`kits.${idx}.includesJersey` as const)} className="w-4 h-4 accent-green-400 cursor-pointer shrink-0" />
                          <span className="text-[10px] uppercase font-bold text-gray-300 tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis">Incluye Prenda (Tallas)</span>
+                       </label>
+                       <label className="flex items-center gap-3 bg-[#242636] border border-[#ffffff10] px-4 py-2.5 rounded-lg w-full cursor-pointer hover:bg-[#303348] transition-colors">
+                         <input type="checkbox" {...register(`kits.${idx}.includesMedal` as const)} className="w-4 h-4 accent-[#ffc371] cursor-pointer shrink-0" />
+                         <span className="text-[10px] uppercase font-bold text-gray-300 tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis">Incluye Medalla</span>
                        </label>
                      </div>
                      <div className="sm:col-span-12">
@@ -461,7 +465,7 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
                  </div>
                ))}
                
-               <button type="button" onClick={() => kitAppend({ name: "Nuevo Kit", description: "Básico", price: 0, includesJersey: false, imageUrl: "" })} className="flex items-center gap-2 text-green-400 text-xs font-bold px-5 py-3 rounded-xl border border-dashed border-green-500/50 hover:bg-green-500/10 transition-all w-full justify-center tracking-widest uppercase mt-4">
+               <button type="button" onClick={() => kitAppend({ name: "Nuevo Kit", description: "Básico", price: 0, includesJersey: false, includesMedal: true, imageUrl: "" })} className="flex items-center gap-2 text-green-400 text-xs font-bold px-5 py-3 rounded-xl border border-dashed border-green-500/50 hover:bg-green-500/10 transition-all w-full justify-center tracking-widest uppercase mt-4">
                  <Plus className="w-4 h-4" /> Agregar Nuevo Paquete Económico
                </button>
              </div>

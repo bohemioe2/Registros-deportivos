@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Users, Settings, LogOut, Target, Tag, Shirt, Briefcase, KeyRound } from "lucide-react";
+import { Activity, Users, Settings, LogOut, Target, Tag, Shirt, Briefcase, KeyRound, Award } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 import { useAuth } from "@/components/admin/AuthProvider";
@@ -12,6 +12,7 @@ const navItems = [
   { name: "Eventos", href: "/admin/events", icon: Settings, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Registros", href: "/admin/registrations", icon: Users, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Audit. Mesa (Scan)", href: "/admin/scanner", icon: Target, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
+  { name: "Entrega Medallas", href: "/admin/medals", icon: Award, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Dorsales", href: "/admin/bibs", icon: Tag, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Kits / Textiles", href: "/admin/kits", icon: Shirt, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Organizadores", href: "/admin/organizers", icon: Briefcase, roles: ["SUPERADMIN"] },
