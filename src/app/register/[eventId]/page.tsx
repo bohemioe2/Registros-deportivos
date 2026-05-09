@@ -493,19 +493,9 @@ export default function RegisterFormPage() {
         {/* Contenedor Principal Absoluto */}
         <div className="bg-[#242636]/90 backdrop-blur-md rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-[#ffffff0a] overflow-hidden">
           
-          {/* Header Hero Section Exclusiva */}
-          <div className="relative overflow-hidden flex flex-col justify-end min-h-[400px]">
-            {/* Arte Fotográfico Embebido */}
-            <div className="absolute inset-0 z-0 bg-[#1b1c27]">
-               <img 
-                 src="/emtb-hero.png" 
-                 alt="Event Hero" 
-                 className="w-full h-full object-cover mix-blend-screen opacity-60 scale-105 transition-opacity duration-700" 
-               />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#242636] via-[#242636]/40 to-transparent"></div>
-            </div>
-            
-            <div className="p-8 sm:p-12 sm:pt-40 relative z-10 w-full h-full">
+          {/* Header Compacto */}
+          <div className="relative overflow-hidden flex flex-col justify-end">
+            <div className="p-8 sm:p-10 relative z-10 w-full h-full">
               <span className="bg-[#4b55f5]/20 border border-[#4b55f5]/50 text-[#00d2ff] text-[11px] lg:text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-widest mb-6 inline-block shadow-[0_0_15px_rgba(75,85,245,0.4)]">
                 <span className="inline-block w-2 h-2 bg-[#00d2ff] rounded-full mr-2 animate-pulse"></span>
                 Inscripción Abierta
