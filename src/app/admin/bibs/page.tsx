@@ -23,7 +23,7 @@ const DEFAULT_BIB_CONFIG = {
 type BibConfig = typeof DEFAULT_BIB_CONFIG;
 
 export default function BibsPage() {
-  const { user } = useAuth();
+  const { role, assignedEventId } = useAuth();
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -35,16 +35,28 @@ export default function BibsPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [config, setConfig] = useState<BibConfig>(DEFAULT_BIB_CONFIG);
-  const isSuperAdmin = user?.email === "eder.beltran.acosta@gmail.com";
+  const isSuperAdmin = role === "SUPERADMIN";
 
   // Load events
   useEffect(() => {
-    if (!user) return;
-    const q = isSuperAdmin
-      ? collection(db, "events")
-      : query(collection(db, "events"), where("organizerEmail", "==", user.email));
-    return onSnapshot(q, snap => setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-  }, [user, isSuperAdmin]);
+    if (!role) return;
+    
+    const unsub = onSnapshot(collection(db, "events"), (snapshot) => {
+      let evs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      
+      if (role === "ORGANIZER" && assignedEventId) {
+        evs = evs.filter(e => e.id === assignedEventId);
+      }
+      
+      setEvents(evs);
+
+      if (role === "ORGANIZER" && assignedEventId && selectedEventId === "") {
+         setSelectedEventId(assignedEventId);
+      }
+    });
+
+    return () => unsub();
+  }, [role, assignedEventId, selectedEventId]);
 
   // When event is selected, load its saved config
   useEffect(() => {

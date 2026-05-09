@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { QrCode, CheckCircle2, AlertTriangle, User, Award, CheckCircle, Loader2 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
+import { useAuth } from "@/components/admin/AuthProvider";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 export default function ScannerPage() {
+  const { role, assignedEventId } = useAuth();
   const [scannedId, setScannedId] = useState<string | null>(null);
   const [participantInfo, setParticipantInfo] = useState<any | null>(null);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
@@ -30,6 +32,13 @@ export default function ScannerPage() {
 
       if (snap.exists()) {
         const data = snap.data();
+        
+        // Bloqueo de seguridad: El organizador solo puede escanear su evento
+        if (role === "ORGANIZER" && data.eventId !== assignedEventId) {
+          setErrorStatus(`ERROR DE SEGURIDAD: Este atleta pertenece a otro evento. No tienes permisos para escanearlo.`);
+          setLoading(false);
+          return;
+        }
         
         // --- VALIDACIÓN DE SEGURIDAD DOBLE REGISTRO ---
         if (data.checkedInAt) {

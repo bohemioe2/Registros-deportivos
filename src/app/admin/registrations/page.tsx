@@ -10,7 +10,7 @@ import { useAuth } from "@/components/admin/AuthProvider";
 import WelcomePoster from "@/components/public/WelcomePoster";
 
 export default function RegistrationsPage() {
-  const { user } = useAuth();
+  const { user, role, assignedEventId } = useAuth();
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>("ALL");
@@ -27,41 +27,45 @@ export default function RegistrationsPage() {
   const [batchStart, setBatchStart] = useState("");
   const [batchEnd, setBatchEnd] = useState("");
 
-  const isSuperAdmin = user?.email === "eder.beltran.acosta@gmail.com";
+  const isSuperAdmin = role === "SUPERADMIN";
 
   // 1. Obtener los eventos correspondientes al Rol
   useEffect(() => {
-    if (!user) return;
+    if (!role) return;
     
-    let q;
-    if (isSuperAdmin) {
-      q = collection(db, "events");
-    } else {
-      q = query(collection(db, "events"), where("organizerEmail", "==", user.email));
-    }
-
-    const unsub = onSnapshot(q, (snapshot) => {
-      const evs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    const unsub = onSnapshot(collection(db, "events"), (snapshot) => {
+      let evs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      
+      if (role === "ORGANIZER" && assignedEventId) {
+        evs = evs.filter(e => e.id === assignedEventId);
+      }
+      
       setEvents(evs);
+
+      if (role === "ORGANIZER" && assignedEventId && selectedEventId === "ALL") {
+         setSelectedEventId(assignedEventId);
+      }
     });
 
     return () => unsub();
-  }, [user, isSuperAdmin]);
+  }, [role, assignedEventId, selectedEventId]);
 
   // 2. Obtener inscripciones filtradas por Evento
   useEffect(() => {
-    if (!user) return;
+    if (!role) return;
 
     let q;
-    if (selectedEventId === "ALL") {
-       if (isSuperAdmin) {
-           q = collection(db, "registrations");
-       } else {
+    const baseColl = collection(db, "registrations");
+
+    if (isSuperAdmin && selectedEventId === "ALL") {
+       q = baseColl;
+    } else {
+       const targetEventId = isSuperAdmin ? selectedEventId : assignedEventId;
+       if (!targetEventId || targetEventId === "ALL") {
            setRegistrations([]);
            return;
        }
-    } else {
-       q = query(collection(db, "registrations"), where("eventId", "==", selectedEventId));
+       q = query(baseColl, where("eventId", "==", targetEventId));
     }
 
     const unsub = onSnapshot(q, (snapshot) => {
@@ -70,7 +74,7 @@ export default function RegistrationsPage() {
     });
 
     return () => unsub();
-  }, [selectedEventId, user, isSuperAdmin]);
+  }, [selectedEventId, role, assignedEventId, isSuperAdmin]);
 
   const formatTimestamp = (ts: any) => {
     if (!ts) return "Pendiente";

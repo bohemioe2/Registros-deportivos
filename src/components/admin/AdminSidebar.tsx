@@ -2,21 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Users, Settings, LogOut, FileText, Target, Tag, Shirt } from "lucide-react";
+import { Activity, Users, Settings, LogOut, Target, Tag, Shirt, Briefcase, KeyRound } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
+import { useAuth } from "@/components/admin/AuthProvider";
 
 const navItems = [
-  { name: "Dashboard", href: "/admin", icon: Activity },
-  { name: "Eventos", href: "/admin/events", icon: Settings },
-  { name: "Registros", href: "/admin/registrations", icon: Users },
-  { name: "Audit. Mesa (Scan)", href: "/admin/scanner", icon: Target },
-  { name: "Dorsales", href: "/admin/bibs", icon: Tag },
-  { name: "Kits / Textiles", href: "/admin/kits", icon: Shirt },
+  { name: "Dashboard", href: "/admin", icon: Activity, roles: ["SUPERADMIN", "ORGANIZER"] },
+  { name: "Eventos", href: "/admin/events", icon: Settings, roles: ["SUPERADMIN", "ORGANIZER"] },
+  { name: "Registros", href: "/admin/registrations", icon: Users, roles: ["SUPERADMIN", "ORGANIZER"] },
+  { name: "Audit. Mesa (Scan)", href: "/admin/scanner", icon: Target, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
+  { name: "Dorsales", href: "/admin/bibs", icon: Tag, roles: ["SUPERADMIN", "ORGANIZER"] },
+  { name: "Kits / Textiles", href: "/admin/kits", icon: Shirt, roles: ["SUPERADMIN", "ORGANIZER"] },
+  { name: "Organizadores", href: "/admin/organizers", icon: Briefcase, roles: ["SUPERADMIN"] },
+  { name: "Códigos Staff", href: "/admin/staff", icon: KeyRound, roles: ["SUPERADMIN", "ORGANIZER"] },
 ];
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { role } = useAuth();
+
+  // Si no hay rol todavía (cargando) o no tiene permisos, mostramos sidebar vacío o limitado
+  const visibleItems = navItems.filter(item => role && item.roles.includes(role));
 
   return (
     <aside className="w-[220px] bg-[#171821] border-r border-[#ffffff0a] flex flex-col justify-between text-gray-400 shrink-0">
@@ -28,10 +35,12 @@ export default function AdminSidebar() {
           </span>
         </div>
         <div className="px-6 mt-1 mb-3">
-          <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Principal</span>
+          <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+            {role === "SUPERADMIN" ? "Administrador" : "Organizador"}
+          </span>
         </div>
         <nav className="px-5 space-y-2">
-          {navItems.map((item) => {
+          {visibleItems.map((item) => {
             const isActive = pathname === item.href || (item.name !== "Dashboard" && pathname.startsWith(item.href + '/'));
             return (
               <Link

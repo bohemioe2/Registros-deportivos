@@ -7,8 +7,8 @@ import { useAuth } from "@/components/admin/AuthProvider";
 import { Shirt, Download, Filter, Users, Loader2 } from "lucide-react";
 
 export default function KitsPage() {
-  const { user } = useAuth();
-  const isSuperAdmin = user?.email === "eder.beltran.acosta@gmail.com";
+  const { role, assignedEventId } = useAuth();
+  const isSuperAdmin = role === "SUPERADMIN";
 
   const [events, setEvents] = useState<any[]>([]);
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -17,17 +17,25 @@ export default function KitsPage() {
 
   // Cargar eventos
   useEffect(() => {
-    if (!user) return;
-    const q = isSuperAdmin
-      ? collection(db, "events")
-      : query(collection(db, "events"), where("organizerEmail", "==", user.email));
-    const unsub = onSnapshot(q, (snap) => {
-      const evts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    if (!role) return;
+    
+    const unsub = onSnapshot(collection(db, "events"), (snap) => {
+      let evts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      
+      if (role === "ORGANIZER" && assignedEventId) {
+        evts = evts.filter(e => e.id === assignedEventId);
+      }
+      
       setEvents(evts);
-      if (evts.length > 0 && !selectedEventId) setSelectedEventId(evts[0].id);
+
+      if (role === "ORGANIZER" && assignedEventId && !selectedEventId) {
+         setSelectedEventId(assignedEventId);
+      } else if (evts.length > 0 && !selectedEventId) {
+         setSelectedEventId(evts[0].id);
+      }
     });
     return () => unsub();
-  }, [user, isSuperAdmin]);
+  }, [role, assignedEventId, selectedEventId]);
 
   // Cargar registros del evento seleccionado
   useEffect(() => {

@@ -8,7 +8,7 @@ import { Clock, Activity as ActivityIcon, Target, Award, MapPin, TrendingUp, Spa
 import Link from "next/link";
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
+  const { user, role, assignedEventId } = useAuth();
   const [stats, setStats] = useState({
     total: 0,
     daily: [] as { name: string; count: number }[],
@@ -17,34 +17,44 @@ export default function AdminDashboard() {
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>("ALL");
   const [loading, setLoading] = useState(true);
-  const isSuperAdmin = user?.email === "eder.beltran.acosta@gmail.com";
+  const isSuperAdmin = role === "SUPERADMIN";
 
   // 1. Obtener Eventos para el selector
   useEffect(() => {
-    if (!user) return;
-    let q;
-    if (isSuperAdmin) {
-      q = collection(db, "events");
-    } else {
-      q = query(collection(db, "events"), where("organizerEmail", "==", user.email));
-    }
-    const unsub = onSnapshot(q, (snapshot) => {
-      setEvents(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    if (!user || !role) return;
+    
+    const unsub = onSnapshot(collection(db, "events"), (snapshot) => {
+      let evs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      
+      if (role === "ORGANIZER" && assignedEventId) {
+        evs = evs.filter(e => e.id === assignedEventId);
+      }
+      
+      setEvents(evs);
+
+      if (role === "ORGANIZER" && assignedEventId && selectedEventId === "ALL") {
+         setSelectedEventId(assignedEventId);
+      }
     });
     return () => unsub();
-  }, [user, isSuperAdmin]);
+  }, [user, role, assignedEventId, selectedEventId]);
 
   // 2. Obtener Estadísticas Filtradas
   useEffect(() => {
-    if (!user) return;
+    if (!user || !role) return;
     setLoading(true);
     let q;
     const baseColl = collection(db, "registrations");
     
-    if (selectedEventId === "ALL") {
+    if (isSuperAdmin && selectedEventId === "ALL") {
       q = query(baseColl, orderBy("createdAt", "asc"));
     } else {
-      q = query(baseColl, where("eventId", "==", selectedEventId), orderBy("createdAt", "asc"));
+      const targetEventId = isSuperAdmin ? selectedEventId : assignedEventId;
+      if (!targetEventId || targetEventId === "ALL") {
+         q = query(baseColl, orderBy("createdAt", "asc"));
+      } else {
+         q = query(baseColl, where("eventId", "==", targetEventId), orderBy("createdAt", "asc"));
+      }
     }
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -54,10 +64,6 @@ export default function AdminDashboard() {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (!isSuperAdmin) {
-          const belongsToOwnEvent = events.some(e => e.id === data.eventId);
-          if (!belongsToOwnEvent) return;
-        }
         allDocs.push({ id: doc.id, ...data });
         
         if (data.createdAt) {

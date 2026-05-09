@@ -5,18 +5,24 @@ import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase/config";
 import { collection, onSnapshot, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Trash2, EyeOff, Eye, Settings, Edit2 } from "lucide-react";
+import { useAuth } from "@/components/admin/AuthProvider";
 
 export default function EventsPage() {
+  const { role, assignedEventId } = useAuth();
   const [events, setEvents] = useState<any[]>([]);
   const [editingEvent, setEditingEvent] = useState<any>(null);
 
   useEffect(() => {
+    if (!role) return;
     const unsubscribe = onSnapshot(collection(db, "events"), (snapshot) => {
-      const eVs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      let eVs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (role === "ORGANIZER" && assignedEventId) {
+        eVs = eVs.filter(e => e.id === assignedEventId);
+      }
       setEvents(eVs);
     });
     return () => unsubscribe();
-  }, []);
+  }, [role, assignedEventId]);
 
   const toggleStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "ABIERTO" ? "OCULTO" : "ABIERTO";
@@ -80,9 +86,11 @@ export default function EventsPage() {
                   >
                     <Edit2 className="w-4 h-4" /> Editar
                   </button>
-                  <button onClick={() => deleteEvent(ev.id, ev.name)} className="flex items-center justify-center bg-[#ff5f6d]/10 hover:bg-[#ff5f6d] text-[#ff5f6d] hover:text-white px-5 py-3 rounded-xl transition-all border border-[#ff5f6d]/20 group/del shadow-sm">
-                    <Trash2 className="w-4 h-4 group-hover/del:scale-110 transition-transform" />
-                  </button>
+                  {role === "SUPERADMIN" && (
+                    <button onClick={() => deleteEvent(ev.id, ev.name)} className="flex items-center justify-center bg-[#ff5f6d]/10 hover:bg-[#ff5f6d] text-[#ff5f6d] hover:text-white px-5 py-3 rounded-xl transition-all border border-[#ff5f6d]/20 group/del shadow-sm">
+                      <Trash2 className="w-4 h-4 group-hover/del:scale-110 transition-transform" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -90,18 +98,20 @@ export default function EventsPage() {
         )}
       </div>
 
-      <div id="event-form" className="shrink-0 bg-[#242636]/60 backdrop-blur-md rounded-3xl border border-[#ffffff0a] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.3)] mb-12 mt-8">
-        <h3 className="text-[11px] font-bold tracking-[0.2em] text-[#00d2ff] uppercase mb-8 flex items-center gap-3">
-          {editingEvent ? <><Edit2 className="w-4 h-4" /> Editando: {editingEvent.name}</> : <><Settings className="w-4 h-4" /> Configurar Nuevo Evento Base</>}
-        </h3>
-        <EventForm 
-           initialData={editingEvent} 
-           onCancelEdit={() => {
-             setEditingEvent(null);
-             window.scrollTo({ top: 0, behavior: 'smooth' });
-           }} 
-        />
-      </div>
+      {(role === "SUPERADMIN" || (role === "ORGANIZER" && editingEvent)) && (
+        <div id="event-form" className="shrink-0 bg-[#242636]/60 backdrop-blur-md rounded-3xl border border-[#ffffff0a] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.3)] mb-12 mt-8">
+          <h3 className="text-[11px] font-bold tracking-[0.2em] text-[#00d2ff] uppercase mb-8 flex items-center gap-3">
+            {editingEvent ? <><Edit2 className="w-4 h-4" /> Editando: {editingEvent.name}</> : <><Settings className="w-4 h-4" /> Configurar Nuevo Evento Base</>}
+          </h3>
+          <EventForm 
+             initialData={editingEvent} 
+             onCancelEdit={() => {
+               setEditingEvent(null);
+               window.scrollTo({ top: 0, behavior: 'smooth' });
+             }} 
+          />
+        </div>
+      )}
     </div>
   );
 }
