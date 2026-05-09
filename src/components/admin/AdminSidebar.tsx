@@ -8,11 +8,11 @@ import { signOut } from "firebase/auth";
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: Activity },
+  { name: "Eventos", href: "/admin/events", icon: Settings },
   { name: "Registros", href: "/admin/registrations", icon: Users },
   { name: "Audit. Mesa (Scan)", href: "/admin/scanner", icon: Target },
   { name: "Dorsales", href: "/admin/bibs", icon: Tag },
   { name: "Kits / Textiles", href: "/admin/kits", icon: Shirt },
-  { name: "Eventos", href: "/admin/events", icon: Settings },
 ];
 
 export default function AdminSidebar() {
