@@ -214,10 +214,6 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       ctx.font = `italic ${fontWeight} ${fs}px ${posterFontFamily || 'Impact, sans-serif'}`;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      // Apply letter spacing if supported by browser
-      if ('letterSpacing' in ctx) {
-        (ctx as any).letterSpacing = letterSpacing;
-      }
       
       const tx = (rect.width * xPercent * scaleFactor) + (offsetX * scaleFactor);
       const ty = (rect.height * yPercent * scaleFactor) + (offsetY * scaleFactor);
@@ -226,9 +222,10 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       ctx.fillStyle = "rgba(0,0,0,0.8)";
       ctx.fillText(text, tx + (3 * scaleFactor), ty + (3 * scaleFactor));
       
-      // 2. Stroke
+      // 2. Stroke (thicker to match DOM visibility when half is covered by fill)
       ctx.strokeStyle = "black";
-      ctx.lineWidth = 1.5 * scaleFactor;
+      ctx.lineWidth = 2.5 * scaleFactor;
+      ctx.lineJoin = "round"; // Ensures sharp corners don't spike out
       ctx.strokeText(text, tx, ty);
       
       // 3. Fill
