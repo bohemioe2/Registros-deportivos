@@ -177,7 +177,22 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     }
 
     if (templateImg) {
-      ctx.drawImage(templateImg, 0, 0, W, H);
+      const containerAspect = W / H;
+      const imgAspect = templateImg.width / templateImg.height;
+      
+      let renderW, renderH;
+      if (imgAspect > containerAspect) {
+        renderH = H;
+        renderW = H * imgAspect;
+      } else {
+        renderW = W;
+        renderH = W / imgAspect;
+      }
+      
+      const dx = (W - renderW) / 2;
+      const dy = (H - renderH) / 2;
+      
+      ctx.drawImage(templateImg, dx, dy, renderW, renderH);
     }
 
     if (logoImg) {
@@ -203,13 +218,16 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       const tx = (rect.width * xPercent * scaleFactor) + (offsetX * scaleFactor);
       const ty = (rect.height * yPercent * scaleFactor) + (offsetY * scaleFactor);
 
+      // 1. Shadow
+      ctx.fillStyle = "rgba(0,0,0,0.8)";
+      ctx.fillText(text.toUpperCase(), tx + (3 * scaleFactor), ty + (3 * scaleFactor));
+      
+      // 2. Stroke
       ctx.strokeStyle = "black";
       ctx.lineWidth = 1.5 * scaleFactor;
       ctx.strokeText(text.toUpperCase(), tx, ty);
       
-      ctx.fillStyle = "rgba(0,0,0,0.8)";
-      ctx.fillText(text.toUpperCase(), tx + (3 * scaleFactor), ty + (3 * scaleFactor));
-      
+      // 3. Fill
       ctx.fillStyle = color;
       ctx.fillText(text.toUpperCase(), tx, ty);
     };
@@ -217,18 +235,21 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     if (posterTemplateUrl) {
       drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff', welcomeScale);
       
+      const baseNameOffset = showFolioOnPoster !== false ? 36 : 32;
+      const baseStateOffset = baseNameOffset + 56;
+
       if (showFolioOnPoster !== false) {
         drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale);
       }
       
-      drawStyledText(name, 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale);
+      drawStyledText(name, 0, 0.48, 32 + namePos.x, namePos.y + baseNameOffset, 24, posterColorName || '#ffffff', nameScale);
 
       // Build location text based on flags
       const locationParts: string[] = [];
       if (showStateOnPoster !== false && originState) locationParts.push(originState);
       if (showMuniOnPoster && originMuni) locationParts.push(originMuni);
       if (locationParts.length > 0) {
-        drawStyledText(`DE: ${locationParts.join(' / ')}`, 0, 0.48, 32 + statePos.x, statePos.y, 24, posterColorState || '#ccff00', stateScale);
+        drawStyledText(`DE: ${locationParts.join(' / ')}`, 0, 0.48, 32 + statePos.x, statePos.y + baseStateOffset, 24, posterColorState || '#ccff00', stateScale);
       }
     }
 
