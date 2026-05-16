@@ -58,10 +58,10 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
   const [folioPos, setFolioPos] = useState({ x: 0, y: 0 });
   const [folioScale, setFolioScale] = useState(1);
 
-  const [namePos, setNamePos] = useState({ x: 0, y: 40 });
+  const [namePos, setNamePos] = useState({ x: 0, y: 76 });
   const [nameScale, setNameScale] = useState(1);
 
-  const [statePos, setStatePos] = useState({ x: 0, y: 70 });
+  const [statePos, setStatePos] = useState({ x: 0, y: 162 });
   const [stateScale, setStateScale] = useState(1);
 
   const interactRef = useRef({
@@ -235,21 +235,18 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     if (posterTemplateUrl) {
       drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff', welcomeScale);
       
-      const baseNameOffset = showFolioOnPoster !== false ? 36 : 32;
-      const baseStateOffset = baseNameOffset + 56;
-
       if (showFolioOnPoster !== false) {
         drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale);
       }
       
-      drawStyledText(name, 0, 0.48, 32 + namePos.x, namePos.y + baseNameOffset, 24, posterColorName || '#ffffff', nameScale);
+      drawStyledText(name, 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale);
 
       // Build location text based on flags
       const locationParts: string[] = [];
       if (showStateOnPoster !== false && originState) locationParts.push(originState);
       if (showMuniOnPoster && originMuni) locationParts.push(originMuni);
       if (locationParts.length > 0) {
-        drawStyledText(`DE: ${locationParts.join(' / ')}`, 0, 0.48, 32 + statePos.x, statePos.y + baseStateOffset, 24, posterColorState || '#ccff00', stateScale);
+        drawStyledText(`DE: ${locationParts.join(' / ')}`, 0, 0.48, 32 + statePos.x, statePos.y, 24, posterColorState || '#ccff00', stateScale);
       }
     }
 
@@ -544,9 +541,9 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                ))}
             </div>
 
-            <div className="absolute top-[48%] left-0 w-full px-8 z-30 flex flex-col items-start">
+            <div className="absolute top-[48%] left-0 w-full px-8 z-30">
               {showFolioOnPoster !== false && (
-                 <div className="mb-1">{renderBoundingBox('folio', folioPos, folioScale, (
+                 renderBoundingBox('folio', folioPos, folioScale, (
                   <span 
                     className="text-4xl italic tracking-tighter leading-none shadow-lg block whitespace-nowrap"
                     style={{ 
@@ -558,10 +555,10 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                   >
                     #{folio.slice(-3)}
                   </span>
-                ))}</div>
+                ))
               )}
               
-              <div className="mt-8 mb-0">{renderBoundingBox('name', namePos, nameScale, (
+              {renderBoundingBox('name', namePos, nameScale, (
                 <h2  
                   className="text-2xl italic tracking-tighter uppercase leading-none break-words text-left block"
                   style={{ 
@@ -573,7 +570,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                 >
                   {name}
                 </h2>
-              ))}</div>
+              ))}
               
               {/* Dynamic location text based on event config */}
               {(() => {
@@ -581,8 +578,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                 if (showStateOnPoster !== false && originState) parts.push(originState);
                 if (showMuniOnPoster && originMuni) parts.push(originMuni);
                 if (parts.length === 0) return null;
-                return (
-                  <div className="mt-14">{renderBoundingBox('state', statePos, stateScale, (
+                return renderBoundingBox('state', statePos, stateScale, (
                     <span 
                       className="text-2xl italic tracking-tighter leading-none block whitespace-nowrap"
                       style={{ 
@@ -594,8 +590,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                     >
                       DE: {parts.join(' / ')}
                     </span>
-                  ))}</div>
-                );
+                  ));
               })()}
            </div>
           </>
