@@ -627,6 +627,46 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
               </div>
             )}
 
+            {/* CONTROLES DE TAMAÑO DE TEXTOS */}
+            {posterTemplateUrl && (
+              <div className="border-t border-white/5 pt-5">
+                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                    <div className="space-y-3">
+                       <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-white/80">
+                          <span>Tamaño Bienvenida</span>
+                          <span>x{welcomeScale.toFixed(2)}</span>
+                       </div>
+                       <input type="range" step="0.01" min="0.5" max="3" value={welcomeScale} onChange={(e) => setWelcomeScale(parseFloat(e.target.value))} className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-white" />
+                    </div>
+                    {showFolioOnPoster !== false && (
+                      <div className="space-y-3">
+                         <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-[#00ffcc]">
+                            <span>Tamaño Folio</span>
+                            <span>x{folioScale.toFixed(2)}</span>
+                         </div>
+                         <input type="range" step="0.01" min="0.5" max="3" value={folioScale} onChange={(e) => setFolioScale(parseFloat(e.target.value))} className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-[#00ffcc]" />
+                      </div>
+                    )}
+                    <div className="space-y-3">
+                       <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-white/80">
+                          <span>Tamaño Nombre</span>
+                          <span>x{nameScale.toFixed(2)}</span>
+                       </div>
+                       <input type="range" step="0.01" min="0.5" max="3" value={nameScale} onChange={(e) => setNameScale(parseFloat(e.target.value))} className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-white" />
+                    </div>
+                    {(showStateOnPoster !== false || showMuniOnPoster) && (
+                      <div className="space-y-3">
+                         <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-[#ccff00]">
+                            <span>Tamaño Procedencia</span>
+                            <span>x{stateScale.toFixed(2)}</span>
+                         </div>
+                         <input type="range" step="0.01" min="0.5" max="3" value={stateScale} onChange={(e) => setStateScale(parseFloat(e.target.value))} className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-[#ccff00]" />
+                      </div>
+                    )}
+                 </div>
+              </div>
+            )}
+
             <button 
               onClick={() => setIsRemovingBg(!isRemovingBg)}
               className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${isRemovingBg ? 'bg-[#4b55f5] text-white border-[#4b55f5]' : 'bg-transparent text-gray-400 border-white/10'}`}
