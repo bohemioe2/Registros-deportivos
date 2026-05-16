@@ -208,12 +208,16 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       ctx.drawImage(logoImg, finalX, finalY, lw, lh);
     }
 
-    const drawStyledText = (text: string, xPercent: number, yPercent: number, offsetX: number, offsetY: number, fontSize: number, color: string, textScale: number = 1) => {
+    const drawStyledText = (text: string, xPercent: number, yPercent: number, offsetX: number, offsetY: number, fontSize: number, color: string, textScale: number = 1, fontWeight: string = 'normal', letterSpacing: string = '-0.05em') => {
       const fs = (fontSize * textScale) * scaleFactor;
       
-      ctx.font = `italic 900 ${fs}px ${posterFontFamily || 'Impact, sans-serif'}`;
+      ctx.font = `italic ${fontWeight} ${fs}px ${posterFontFamily || 'Impact, sans-serif'}`;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
+      // Apply letter spacing if supported by browser
+      if ('letterSpacing' in ctx) {
+        (ctx as any).letterSpacing = letterSpacing;
+      }
       
       const tx = (rect.width * xPercent * scaleFactor) + (offsetX * scaleFactor);
       const ty = (rect.height * yPercent * scaleFactor) + (offsetY * scaleFactor);
@@ -233,20 +237,20 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     };
 
     if (posterTemplateUrl) {
-      drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff', welcomeScale);
+      drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff', welcomeScale, '900', '0.1em');
       
       if (showFolioOnPoster !== false) {
-        drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale);
+        drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale, 'normal', '-0.05em');
       }
       
-      drawStyledText(name.toUpperCase(), 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale);
+      drawStyledText(name.toUpperCase(), 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale, 'normal', '-0.05em');
 
       // Build location text based on flags
       const locationParts: string[] = [];
       if (showStateOnPoster !== false && originState) locationParts.push(originState);
       if (showMuniOnPoster && originMuni) locationParts.push(originMuni);
       if (locationParts.length > 0) {
-        drawStyledText(`DE: ${locationParts.join(' / ')}`, 0, 0.48, 32 + statePos.x, statePos.y, 24, posterColorState || '#ccff00', stateScale);
+        drawStyledText(`DE: ${locationParts.join(' / ')}`, 0, 0.48, 32 + statePos.x, statePos.y, 24, posterColorState || '#ccff00', stateScale, 'normal', '-0.05em');
       }
     }
 
