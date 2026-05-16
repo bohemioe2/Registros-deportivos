@@ -165,7 +165,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     setFinalizing(true);
     try {
       const dataUrl = await buildStaticPosterCanvas();
-      if (!dataUrl) throw new Error("Canvas Error");
+      if (!dataUrl) throw new Error("Generación de imagen falló (dataUrl nulo).");
       
       const res = await fetch(dataUrl);
       const blob = await res.blob();
@@ -186,7 +186,8 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         alert("✅ Diseño guardado exitosamente. Los cambios ahora son oficiales para el usuario.");
       }
     } catch (err: any) {
-      alert(`Error al guardar diseño.`);
+      console.error(err);
+      alert(`Error al guardar diseño: ${err.message || err}`);
     } finally {
       setFinalizing(false);
     }
@@ -398,9 +399,8 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
            <div className="absolute top-[60%] left-[30%] z-20">
              {renderBoundingBox('logo', logoPos, logoScale, (
                <img 
-                 src={processedLogo} 
+                 src={getProxyUrl(processedLogo)} 
                  alt="Team Logo" 
-                 {...(!processedLogo.startsWith('data:') ? { crossOrigin: "anonymous" } : {})}
                  draggable={false}
                  className="object-contain select-none"
                  style={{ width: `150px` }} 
