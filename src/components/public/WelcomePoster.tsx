@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { toJpeg } from "html-to-image";
+import html2canvas from "html2canvas";
 import { useRouter } from "next/navigation";
 import { db, storage } from "@/lib/firebase/config";
 import { updateDoc, doc } from "firebase/firestore";
@@ -115,30 +115,26 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     return `/api/proxy-image?url=${encodeURIComponent(url)}`;
   };
 
+  // Construye la imagen estática final usando html2canvas para garantizar que sea idéntica a la vista web
   const buildStaticPosterCanvas = async (): Promise<string | null> => {
-    if (!posterRef.current) return null;
-
     const container = posterRef.current;
-    
-    try {
-      // Calculate pixelRatio to upscale the DOM node to 1080px width
-      const targetWidth = 1080;
-      const pixelRatio = targetWidth / container.offsetWidth;
+    if (!container) return null;
 
-      // Use html-to-image to perfectly capture the DOM node as seen by the user
-      const dataUrl = await toJpeg(container, {
-        quality: 0.95,
-        pixelRatio: pixelRatio,
-        cacheBust: true, // Prevents using cached, potentially tainted images
-        style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left'
-        }
+    try {
+      // Calculamos la proporción necesaria para llegar a los 1080px de ancho deseados
+      const targetWidth = 1080;
+      const scale = targetWidth / container.offsetWidth;
+
+      const canvas = await html2canvas(container, {
+        scale: scale,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#000000"
       });
       
-      return dataUrl;
+      return canvas.toDataURL("image/jpeg", 0.95);
     } catch (err) {
-      console.error("Error generating image with html-to-image:", err);
+      console.error("Error generating image with html2canvas:", err);
       return null;
     }
   };
