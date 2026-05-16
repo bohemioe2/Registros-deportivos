@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import html2canvas from "html2canvas";
 import { useRouter } from "next/navigation";
 import { db, storage } from "@/lib/firebase/config";
 import { updateDoc, doc } from "firebase/firestore";
@@ -115,28 +114,146 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     return `/api/proxy-image?url=${encodeURIComponent(url)}`;
   };
 
-  // Construye la imagen estática final usando html2canvas para garantizar que sea idéntica a la vista web
   const buildStaticPosterCanvas = async (): Promise<string | null> => {
+    if (!posterRef.current) return null;
+
     const container = posterRef.current;
-    if (!container) return null;
+    const rect = container.getBoundingClientRect();
+    const W = 1080; 
+    const H = 1350; 
+    const scaleFactor = W / rect.width;
 
-    try {
-      // Calculamos la proporción necesaria para llegar a los 1080px de ancho deseados
-      const targetWidth = 1080;
-      const scale = targetWidth / container.offsetWidth;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
 
-      const canvas = await html2canvas(container, {
-        scale: scale,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: "#000000"
+    const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+      return new Promise((resolve) => {
+        if (!src) return resolve(null);
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = src;
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
       });
+    };
+
+    const [bgImg, templateImg, logoImg] = await Promise.all([
+      loadImage(getProxyUrl(photoUrl)),
+      loadImage(getProxyUrl(posterTemplateUrl)),
+      loadImage(processedLogo ? processedLogo : "")
+    ]);
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, H);
+
+    if (bgImg) {
+      const containerAspect = W / H;
+      const imgAspect = bgImg.width / bgImg.height;
       
-      return canvas.toDataURL("image/jpeg", 0.95);
-    } catch (err) {
-      console.error("Error generating image with html2canvas:", err);
-      return null;
+      let renderW, renderH;
+      if (imgAspect > containerAspect) {
+        // Image is wider than container
+        renderH = H;
+        renderW = H * imgAspect;
+      } else {
+        // Image is taller than container
+        renderW = W;
+        renderH = W / imgAspect;
+      }
+
+      const bw = renderW * bgScale;
+      const bh = renderH * bgScale;
+      
+      const bx = bgPos.x * scaleFactor;
+      const by = bgPos.y * scaleFactor;
+      
+      const dx = (W - bw) / 2 + bx;
+      const dy = (H - bh) / 2 + by;
+      
+      ctx.drawImage(bgImg, dx, dy, bw, bh);
     }
+
+    if (templateImg) {
+      const containerAspect = W / H;
+      const imgAspect = templateImg.width / templateImg.height;
+      
+      let renderW, renderH;
+      if (imgAspect > containerAspect) {
+        renderH = H;
+        renderW = H * imgAspect;
+      } else {
+        renderW = W;
+        renderH = W / imgAspect;
+      }
+      
+      const dx = (W - renderW) / 2;
+      const dy = (H - renderH) / 2;
+      
+      ctx.drawImage(templateImg, dx, dy, renderW, renderH);
+    }
+
+    if (logoImg) {
+      const lw = (150 * logoScale) * scaleFactor;
+      const lh = (logoImg.height * lw / logoImg.width);
+      
+      const uiStartX = rect.width * 0.3;
+      const uiStartY = rect.height * 0.6;
+      
+      const finalX = (uiStartX * scaleFactor) + (logoPos.x * scaleFactor);
+      const finalY = (uiStartY * scaleFactor) + (logoPos.y * scaleFactor);
+      
+      ctx.drawImage(logoImg, finalX, finalY, lw, lh);
+    }
+
+    const drawStyledText = (text: string, xPercent: number, yPercent: number, offsetX: number, offsetY: number, fontSize: number, color: string, textScale: number = 1, fontWeight: string = 'normal', letterSpacing: string = '-0.05em') => {
+      const fs = (fontSize * textScale) * scaleFactor;
+      
+      ctx.font = `italic ${fontWeight} ${fs}px ${posterFontFamily || 'Impact, sans-serif'}`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      
+      const tx = (rect.width * xPercent * scaleFactor) + (offsetX * scaleFactor);
+      const ty = (rect.height * yPercent * scaleFactor) + (offsetY * scaleFactor);
+
+      // 1. Shadow
+      ctx.fillStyle = "rgba(0,0,0,0.8)";
+      ctx.fillText(text, tx + (3 * scaleFactor), ty + (3 * scaleFactor));
+      
+      // 2. Stroke (thicker to match DOM visibility when half is covered by fill)
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2.5 * scaleFactor;
+      ctx.lineJoin = "round"; // Ensures sharp corners don't spike out
+      ctx.strokeText(text, tx, ty);
+      
+      // 3. Fill
+      ctx.fillStyle = color;
+      ctx.fillText(text, tx, ty);
+    };
+
+    if (posterTemplateUrl) {
+      drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff', welcomeScale, '900', '0.1em');
+      
+      if (showFolioOnPoster !== false) {
+        drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale, 'normal', '-0.05em');
+      }
+      
+      drawStyledText(name.toUpperCase(), 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale, 'normal', '-0.05em');
+
+      // Build location text based on flags
+      const locationParts: string[] = [];
+      if (showStateOnPoster !== false && originState) locationParts.push(originState);
+      if (showMuniOnPoster && originMuni) locationParts.push(originMuni);
+      if (locationParts.length > 0) {
+        locationParts.forEach((part, index) => {
+          drawStyledText(part, 0, 0.48, 32 + statePos.x, statePos.y + (index * 24 * stateScale), 24, posterColorState || '#ccff00', stateScale, 'normal', '-0.05em');
+        });
+      }
+    }
+
+    return canvas.toDataURL("image/jpeg", 0.9);
   };
 
   const handleDownload = async () => {
@@ -397,7 +514,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
 
         {processedLogo && (
            <div className="absolute top-[60%] left-[30%] z-20">
-             {renderBoundingBox('logo', logoPos, logoScale, (
+              {renderBoundingBox('logo', logoPos, logoScale, (
                <img 
                  src={getProxyUrl(processedLogo)} 
                  alt="Team Logo" 
