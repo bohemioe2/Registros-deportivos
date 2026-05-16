@@ -247,7 +247,9 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       if (showStateOnPoster !== false && originState) locationParts.push(originState);
       if (showMuniOnPoster && originMuni) locationParts.push(originMuni);
       if (locationParts.length > 0) {
-        drawStyledText(`DE: ${locationParts.join(' / ')}`, 0, 0.48, 32 + statePos.x, statePos.y, 24, posterColorState || '#ccff00', stateScale, 'normal', '-0.05em');
+        locationParts.forEach((part, index) => {
+          drawStyledText(part, 0, 0.48, 32 + statePos.x, statePos.y + (index * 24 * stateScale), 24, posterColorState || '#ccff00', stateScale, 'normal', '-0.05em');
+        });
       }
     }
 
@@ -580,8 +582,8 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                 if (showMuniOnPoster && originMuni) parts.push(originMuni);
                 if (parts.length === 0) return null;
                 return renderBoundingBox('state', statePos, stateScale, (
-                    <span 
-                      className="text-2xl italic tracking-tighter leading-none block whitespace-nowrap"
+                    <div 
+                      className="flex flex-col items-start"
                       style={{ 
                         fontFamily: posterFontFamily || 'Impact, sans-serif',
                         color: posterColorState || '#ccff00',
@@ -589,8 +591,12 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                         textShadow: '3px 3px 0px rgba(0,0,0,0.8)' 
                       }}
                     >
-                      DE: {parts.join(' / ')}
-                    </span>
+                      {parts.map((part, idx) => (
+                        <span key={idx} className="text-2xl italic tracking-tighter leading-none block whitespace-nowrap">
+                          {part}
+                        </span>
+                      ))}
+                    </div>
                   ));
               })()}
            </div>
