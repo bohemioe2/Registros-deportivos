@@ -220,16 +220,16 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
 
       // 1. Shadow
       ctx.fillStyle = "rgba(0,0,0,0.8)";
-      ctx.fillText(text.toUpperCase(), tx + (3 * scaleFactor), ty + (3 * scaleFactor));
+      ctx.fillText(text, tx + (3 * scaleFactor), ty + (3 * scaleFactor));
       
       // 2. Stroke
       ctx.strokeStyle = "black";
       ctx.lineWidth = 1.5 * scaleFactor;
-      ctx.strokeText(text.toUpperCase(), tx, ty);
+      ctx.strokeText(text, tx, ty);
       
       // 3. Fill
       ctx.fillStyle = color;
-      ctx.fillText(text.toUpperCase(), tx, ty);
+      ctx.fillText(text, tx, ty);
     };
 
     if (posterTemplateUrl) {
@@ -239,7 +239,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale);
       }
       
-      drawStyledText(name, 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale);
+      drawStyledText(name.toUpperCase(), 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale);
 
       // Build location text based on flags
       const locationParts: string[] = [];
