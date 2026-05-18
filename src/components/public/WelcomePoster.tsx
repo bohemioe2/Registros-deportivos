@@ -516,8 +516,9 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
            <div className="absolute top-[60%] left-[30%] z-20">
               {renderBoundingBox('logo', logoPos, logoScale, (
                <img 
-                 src={getProxyUrl(processedLogo)} 
+                 src={processedLogo} 
                  alt="Team Logo" 
+                 {...(!processedLogo.startsWith('data:') ? { crossOrigin: "anonymous" } : {})}
                  draggable={false}
                  className="object-contain select-none"
                  style={{ width: `150px` }} 
