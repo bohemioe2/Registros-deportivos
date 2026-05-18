@@ -237,10 +237,10 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff', welcomeScale, '900', '0.1em');
       
       if (showFolioOnPoster !== false) {
-        drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale, 'normal', '-0.05em');
+        drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale, '900', '-0.05em');
       }
       
-      drawStyledText(name.toUpperCase(), 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale, 'normal', '-0.05em');
+      drawStyledText(name.toUpperCase(), 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale, '900', '-0.05em');
 
       // Build location text based on flags
       const locationParts: string[] = [];
@@ -248,7 +248,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       if (showMuniOnPoster && originMuni) locationParts.push(originMuni);
       if (locationParts.length > 0) {
         locationParts.forEach((part, index) => {
-          drawStyledText(part, 0, 0.48, 32 + statePos.x, statePos.y + (index * 24 * stateScale), 24, posterColorState || '#ccff00', stateScale, 'normal', '-0.05em');
+          drawStyledText(part, 0, 0.48, 32 + statePos.x, statePos.y + (index * 24 * stateScale), 24, posterColorState || '#ccff00', stateScale, '900', '-0.05em');
         });
       }
     }
@@ -549,7 +549,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
               {showFolioOnPoster !== false && (
                  renderBoundingBox('folio', folioPos, folioScale, (
                   <span 
-                    className="text-4xl italic tracking-tighter leading-none shadow-lg block whitespace-nowrap"
+                    className="text-4xl italic font-black tracking-tighter leading-none shadow-lg block whitespace-nowrap"
                     style={{ 
                       fontFamily: posterFontFamily || 'Impact, sans-serif',
                       color: posterColorFolio || '#00ffcc',
@@ -564,7 +564,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
               
               {renderBoundingBox('name', namePos, nameScale, (
                 <h2  
-                  className="text-2xl italic tracking-tighter uppercase leading-none break-words text-left block"
+                  className="text-2xl italic font-black tracking-tighter uppercase leading-none whitespace-nowrap text-left block"
                   style={{ 
                     fontFamily: posterFontFamily || 'Impact, sans-serif',
                     color: posterColorName || '#ffffff',
@@ -593,7 +593,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                       }}
                     >
                       {parts.map((part, idx) => (
-                        <span key={idx} className="text-2xl italic tracking-tighter leading-none block whitespace-nowrap">
+                        <span key={idx} className="text-2xl italic font-black tracking-tighter leading-none block whitespace-nowrap">
                           {part}
                         </span>
                       ))}
