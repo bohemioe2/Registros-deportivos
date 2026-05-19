@@ -67,6 +67,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
   const interactRef = useRef({
     isDragging: false,
     isResizing: false,
+    corner: 'br',
     target: '',
     startX: 0,
     startY: 0,
@@ -357,7 +358,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     }
   };
 
-  const handleSelect = (e: React.MouseEvent | React.TouchEvent, id: string, pos: {x:number, y:number}, scale: number, isResize: boolean = false) => {
+  const handleSelect = (e: React.MouseEvent | React.TouchEvent, id: string, pos: {x:number, y:number}, scale: number, isResize: boolean = false, corner: string = 'br') => {
     if (isFinalized) return;
     setActiveElement(id);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -366,6 +367,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     interactRef.current = {
       isDragging: !isResize,
       isResizing: isResize,
+      corner,
       target: id,
       startX: clientX,
       startY: clientY,
@@ -400,8 +402,15 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       else if (target === 'state') setStatePos(newPos);
     } else if (isResizing) {
       const deltaX = clientX - startX;
-      const deltaY = startY - clientY;
-      const factor = (deltaX + deltaY) * 0.005; 
+      const deltaY = clientY - startY;
+      
+      let factor = 0;
+      const { corner } = interactRef.current;
+      if (corner === 'br') factor = (deltaX + deltaY) * 0.005;
+      else if (corner === 'tl') factor = (-deltaX - deltaY) * 0.005;
+      else if (corner === 'tr') factor = (deltaX - deltaY) * 0.005;
+      else if (corner === 'bl') factor = (-deltaX + deltaY) * 0.005;
+      
       let newScale = Math.max(0.1, startScale + factor);
       
       if (target === 'bg') { newScale = Math.max(0.5, startScale + factor); setBgScale(newScale); }
@@ -429,12 +438,32 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       >
         {children}
         {isActive && !isFinalized && (
-          <div 
-            className="absolute -bottom-3 -right-3 w-8 h-8 bg-[#00d2ff] border-4 border-[#1b1c27] rounded-full flex items-center justify-center cursor-nwse-resize shadow-[0_0_15px_rgba(0,210,255,0.6)] touch-none"
-            style={{ transform: `scale(${1/scale})` }}
-            onMouseDown={(e) => handleSelect(e, id, pos, scale, true)}
-            onTouchStart={(e) => handleSelect(e, id, pos, scale, true)}
-          />
+          <>
+            <div 
+              className="absolute -top-3 -left-3 w-6 h-6 bg-[#00d2ff] border-2 border-[#1b1c27] rounded-full flex items-center justify-center cursor-nwse-resize shadow-[0_0_10px_rgba(0,210,255,0.6)] touch-none"
+              style={{ transform: `scale(${1/scale})` }}
+              onMouseDown={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'tl'); }}
+              onTouchStart={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'tl'); }}
+            />
+            <div 
+              className="absolute -top-3 -right-3 w-6 h-6 bg-[#00d2ff] border-2 border-[#1b1c27] rounded-full flex items-center justify-center cursor-nesw-resize shadow-[0_0_10px_rgba(0,210,255,0.6)] touch-none"
+              style={{ transform: `scale(${1/scale})` }}
+              onMouseDown={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'tr'); }}
+              onTouchStart={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'tr'); }}
+            />
+            <div 
+              className="absolute -bottom-3 -left-3 w-6 h-6 bg-[#00d2ff] border-2 border-[#1b1c27] rounded-full flex items-center justify-center cursor-nesw-resize shadow-[0_0_10px_rgba(0,210,255,0.6)] touch-none"
+              style={{ transform: `scale(${1/scale})` }}
+              onMouseDown={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'bl'); }}
+              onTouchStart={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'bl'); }}
+            />
+            <div 
+              className="absolute -bottom-3 -right-3 w-6 h-6 bg-[#00d2ff] border-2 border-[#1b1c27] rounded-full flex items-center justify-center cursor-nwse-resize shadow-[0_0_10px_rgba(0,210,255,0.6)] touch-none"
+              style={{ transform: `scale(${1/scale})` }}
+              onMouseDown={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'br'); }}
+              onTouchStart={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'br'); }}
+            />
+          </>
         )}
       </div>
     );
