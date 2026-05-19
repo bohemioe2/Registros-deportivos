@@ -447,25 +447,21 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
           <>
             <div 
               className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#00d2ff] border border-[#1b1c27] rounded-full flex items-center justify-center cursor-nwse-resize shadow-[0_0_10px_rgba(0,210,255,0.6)] touch-none"
-              style={{ transform: `scale(${1/scale})` }}
               onMouseDown={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'tl'); }}
               onTouchStart={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'tl'); }}
             />
             <div 
               className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#00d2ff] border border-[#1b1c27] rounded-full flex items-center justify-center cursor-nesw-resize shadow-[0_0_10px_rgba(0,210,255,0.6)] touch-none"
-              style={{ transform: `scale(${1/scale})` }}
               onMouseDown={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'tr'); }}
               onTouchStart={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'tr'); }}
             />
             <div 
               className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#00d2ff] border border-[#1b1c27] rounded-full flex items-center justify-center cursor-nesw-resize shadow-[0_0_10px_rgba(0,210,255,0.6)] touch-none"
-              style={{ transform: `scale(${1/scale})` }}
               onMouseDown={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'bl'); }}
               onTouchStart={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'bl'); }}
             />
             <div 
               className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#00d2ff] border border-[#1b1c27] rounded-full flex items-center justify-center cursor-nwse-resize shadow-[0_0_10px_rgba(0,210,255,0.6)] touch-none"
-              style={{ transform: `scale(${1/scale})` }}
               onMouseDown={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'br'); }}
               onTouchStart={(e) => { e.stopPropagation(); handleSelect(e, id, pos, scale, true, 'br'); }}
             />
