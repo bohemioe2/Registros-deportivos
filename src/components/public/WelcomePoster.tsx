@@ -114,70 +114,163 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
     return `/api/proxy-image?url=${encodeURIComponent(url)}`;
   };
 
-  const [b64Photo, setB64Photo] = useState<string>('');
-  const [b64Template, setB64Template] = useState<string>('');
-  const [b64Logo, setB64Logo] = useState<string>('');
-
-  const fetchB64 = async (url: string | undefined | null, setter: (val: string) => void) => {
-    if (!url) {
-      setter('');
-      return;
-    }
-    if (url.startsWith('data:')) {
-      setter(url);
-      return;
-    }
-    try {
-      const res = await fetch(getProxyUrl(url));
-      const blob = await res.blob();
-      const reader = new FileReader();
-      reader.onloadend = () => setter(reader.result as string);
-      reader.readAsDataURL(blob);
-    } catch (e) {
-      console.error("Failed to load image as B64", url, e);
-    }
-  };
-
-  useEffect(() => {
-    fetchB64(photoUrl, setB64Photo);
-  }, [photoUrl]);
-
-  useEffect(() => {
-    fetchB64(posterTemplateUrl, setB64Template);
-  }, [posterTemplateUrl]);
-
-  useEffect(() => {
-    fetchB64(processedLogo, setB64Logo);
-  }, [processedLogo]);
-
   const buildStaticPosterCanvas = async (): Promise<string | null> => {
+    if (!posterRef.current) return null;
+
     const container = posterRef.current;
-    if (!container) return null;
+    const rect = container.getBoundingClientRect();
+    const W = 1080; 
+    const H = 1350; 
+    const scaleFactor = W / rect.width;
 
-    try {
-      const targetWidth = 1080;
-      const rect = container.getBoundingClientRect();
-      const pixelRatio = targetWidth / rect.width;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
 
-      // Because ALL images in the container are now Base64 data URIs, html-to-image 
-      // will not perform any external fetch and will bypass Safari's SecurityErrors perfectly.
-      const dataUrl = await toJpeg(container, {
-        quality: 0.95,
-        pixelRatio: pixelRatio,
-        width: rect.width,
-        height: rect.height,
-        cacheBust: false, // Not needed since everything is B64
-        style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left'
-        }
+    const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+      return new Promise((resolve) => {
+        if (!src) return resolve(null);
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = src;
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
       });
+    };
+
+    const [bgImg, templateImg, logoImg] = await Promise.all([
+      loadImage(getProxyUrl(photoUrl)),
+      loadImage(getProxyUrl(posterTemplateUrl)),
+      loadImage(processedLogo ? processedLogo : "")
+    ]);
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, H);
+
+    if (bgImg) {
+      const containerAspect = W / H;
+      const imgAspect = bgImg.width / bgImg.height;
       
-      return dataUrl;
-    } catch (err) {
-      console.error("Error generating image with toJpeg:", err);
-      return null;
+      let renderW, renderH;
+      if (imgAspect > containerAspect) {
+        // Image is wider than container
+        renderH = H;
+        renderW = H * imgAspect;
+      } else {
+        // Image is taller than container
+        renderW = W;
+        renderH = W / imgAspect;
+      }
+
+      const bw = renderW * bgScale;
+      const bh = renderH * bgScale;
+      
+      const bx = bgPos.x * scaleFactor;
+      const by = bgPos.y * scaleFactor;
+      
+      const dx = (W - bw) / 2 + bx;
+      const dy = (H - bh) / 2 + by;
+      
+      ctx.drawImage(bgImg, dx, dy, bw, bh);
     }
+
+    if (templateImg) {
+      const containerAspect = W / H;
+      const imgAspect = templateImg.width / templateImg.height;
+      
+      let renderW, renderH;
+      if (imgAspect > containerAspect) {
+        renderH = H;
+        renderW = H * imgAspect;
+      } else {
+        renderW = W;
+        renderH = W / imgAspect;
+      }
+      
+      const dx = (W - renderW) / 2;
+      const dy = (H - renderH) / 2;
+      
+      ctx.drawImage(templateImg, dx, dy, renderW, renderH);
+    }
+
+    if (logoImg) {
+      const lw = (150 * logoScale) * scaleFactor;
+      const lh = (logoImg.height * lw / logoImg.width);
+      
+      const uiStartX = rect.width * 0.3;
+      const uiStartY = rect.height * 0.6;
+      
+      const finalX = (uiStartX * scaleFactor) + (logoPos.x * scaleFactor);
+      const finalY = (uiStartY * scaleFactor) + (logoPos.y * scaleFactor);
+      
+      ctx.drawImage(logoImg, finalX, finalY, lw, lh);
+    }
+
+    const drawStyledText = (text: string, xPercent: number, yPercent: number, offsetX: number, offsetY: number, fontSize: number, color: string, textScale: number = 1, fontWeight: string = 'normal', letterSpacing: string = '-0.05em', maxWidth?: number) => {
+      const fs = (fontSize * textScale) * scaleFactor;
+      
+      ctx.font = `italic ${fontWeight} ${fs}px ${posterFontFamily || 'Impact, sans-serif'}`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      
+      const tx = (rect.width * xPercent * scaleFactor) + (offsetX * scaleFactor);
+      const ty = (rect.height * yPercent * scaleFactor) + (offsetY * scaleFactor);
+
+      // 1. Shadow
+      ctx.fillStyle = "rgba(0,0,0,0.8)";
+      if (maxWidth) {
+        ctx.fillText(text, tx + (3 * scaleFactor), ty + (3 * scaleFactor), maxWidth);
+      } else {
+        ctx.fillText(text, tx + (3 * scaleFactor), ty + (3 * scaleFactor));
+      }
+      
+      // 2. Stroke (thicker to match DOM visibility when half is covered by fill)
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2.5 * scaleFactor;
+      ctx.lineJoin = "round"; // Ensures sharp corners don't spike out
+      if (maxWidth) {
+        ctx.strokeText(text, tx, ty, maxWidth);
+      } else {
+        ctx.strokeText(text, tx, ty);
+      }
+      
+      // 3. Fill
+      ctx.fillStyle = color;
+      if (maxWidth) {
+        ctx.fillText(text, tx, ty, maxWidth);
+      } else {
+        ctx.fillText(text, tx, ty);
+      }
+    };
+
+    if (posterTemplateUrl) {
+      const getDOMWidth = (id: string, scale: number) => {
+        const node = container.querySelector(`#${id}`) as HTMLElement;
+        return node ? (node.offsetWidth * scale * scaleFactor) : undefined;
+      };
+
+      drawStyledText(gender === 'FEMALE' ? 'BIENVENIDA' : 'BIENVENIDO', 0, 0.4, 32 + welcomePos.x, welcomePos.y, 36, posterColorWelcome || '#ffffff', welcomeScale, '900', '0.1em', getDOMWidth('poster-welcome-text', welcomeScale));
+      
+      if (showFolioOnPoster !== false) {
+        drawStyledText(`#${folio.slice(-3)}`, 0, 0.48, 32 + folioPos.x, folioPos.y, 36, posterColorFolio || '#00ffcc', folioScale, 'normal', '-0.05em', getDOMWidth('poster-folio-text', folioScale));
+      }
+      
+      drawStyledText(name.toUpperCase(), 0, 0.48, 32 + namePos.x, namePos.y, 24, posterColorName || '#ffffff', nameScale, 'normal', '-0.05em', getDOMWidth('poster-name-text', nameScale));
+
+      // Build location text based on flags
+      const locationParts: string[] = [];
+      if (showStateOnPoster !== false && originState) locationParts.push(originState);
+      if (showMuniOnPoster && originMuni) locationParts.push(originMuni);
+      if (locationParts.length > 0) {
+        locationParts.forEach((part, index) => {
+          drawStyledText(part, 0, 0.48, 32 + statePos.x, statePos.y + (index * 24 * stateScale), 24, posterColorState || '#ccff00', stateScale, 'normal', '-0.05em', getDOMWidth(`poster-state-text-${index}`, stateScale));
+        });
+      }
+    }
+
+    return canvas.toDataURL("image/jpeg", 0.9);
   };
 
   const handleDownload = async () => {
@@ -386,14 +479,10 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
              }
           }}
           className={`relative w-full aspect-[4/5] overflow-hidden bg-black text-white flex flex-col items-center justify-between z-10 select-none ${isFinalized ? 'pointer-events-none' : 'cursor-default touch-none'} m-0`}
-          style={{
-            textRendering: 'geometricPrecision',
-            WebkitFontSmoothing: 'antialiased'
-          }}
         >
         <div className="absolute inset-0 z-0 bg-black">
            <img 
-             src={b64Photo || photoUrl || ''}
+             src={photoUrl || ''}
              alt="Background" 
              draggable={false}
              className="w-full h-full object-cover transition-transform duration-[50ms]" 
@@ -405,7 +494,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
         
         {posterTemplateUrl && (
           <img 
-            src={b64Template || posterTemplateUrl} 
+            src={posterTemplateUrl} 
             alt="Template" 
             className="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none" 
           />
@@ -444,9 +533,8 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
            <div className="absolute top-[60%] left-[30%] z-20">
               {renderBoundingBox('logo', logoPos, logoScale, (
                <img 
-                 src={b64Logo || processedLogo} 
+                 src={getProxyUrl(processedLogo)} 
                  alt="Team Logo" 
-                 {...(!processedLogo.startsWith('data:') ? { crossOrigin: "anonymous" } : {})}
                  draggable={false}
                  className="object-contain select-none"
                  style={{ width: `150px` }} 
@@ -460,6 +548,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
             <div className="absolute top-[40%] left-0 w-full px-8 z-30">
                {renderBoundingBox('welcome', welcomePos, welcomeScale, (
                   <h1 
+                    id="poster-welcome-text"
                     className="text-4xl italic font-black uppercase tracking-widest leading-none drop-shadow-2xl whitespace-nowrap"
                     style={{ 
                       fontFamily: posterFontFamily || 'Impact, sans-serif',
@@ -477,7 +566,8 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
               {showFolioOnPoster !== false && (
                  renderBoundingBox('folio', folioPos, folioScale, (
                   <span 
-                    className="text-4xl italic font-black tracking-tighter leading-none shadow-lg block whitespace-nowrap"
+                    id="poster-folio-text"
+                    className="text-4xl italic tracking-tighter leading-none shadow-lg block whitespace-nowrap"
                     style={{ 
                       fontFamily: posterFontFamily || 'Impact, sans-serif',
                       color: posterColorFolio || '#00ffcc',
@@ -492,6 +582,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
               
               {renderBoundingBox('name', namePos, nameScale, (
                 <h2  
+                  id="poster-name-text"
                   className="text-2xl italic font-black tracking-tighter uppercase leading-none whitespace-nowrap text-left block"
                   style={{ 
                     fontFamily: posterFontFamily || 'Impact, sans-serif',
@@ -521,7 +612,7 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
                       }}
                     >
                       {parts.map((part, idx) => (
-                        <span key={idx} className="text-2xl italic font-black tracking-tighter leading-none block whitespace-nowrap">
+                        <span key={idx} id={`poster-state-text-${idx}`} className="text-2xl italic tracking-tighter leading-none block whitespace-nowrap">
                           {part}
                         </span>
                       ))}
