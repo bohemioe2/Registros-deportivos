@@ -156,13 +156,16 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
 
     try {
       const targetWidth = 1080;
-      const pixelRatio = targetWidth / container.offsetWidth;
+      const rect = container.getBoundingClientRect();
+      const pixelRatio = targetWidth / rect.width;
 
       // Because ALL images in the container are now Base64 data URIs, html-to-image 
       // will not perform any external fetch and will bypass Safari's SecurityErrors perfectly.
       const dataUrl = await toJpeg(container, {
         quality: 0.95,
         pixelRatio: pixelRatio,
+        width: rect.width,
+        height: rect.height,
         cacheBust: false, // Not needed since everything is B64
         style: {
           transform: 'scale(1)',
@@ -383,6 +386,10 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
              }
           }}
           className={`relative w-full aspect-[4/5] overflow-hidden bg-black text-white flex flex-col items-center justify-between z-10 select-none ${isFinalized ? 'pointer-events-none' : 'cursor-default touch-none'} m-0`}
+          style={{
+            textRendering: 'geometricPrecision',
+            WebkitFontSmoothing: 'antialiased'
+          }}
         >
         <div className="absolute inset-0 z-0 bg-black">
            <img 
