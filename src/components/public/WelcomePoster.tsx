@@ -360,6 +360,12 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
 
   const handleSelect = (e: React.MouseEvent | React.TouchEvent, id: string, pos: {x:number, y:number}, scale: number, isResize: boolean = false, corner: string = 'br') => {
     if (isFinalized) return;
+    
+    // Prevent native drag/drop or text selection from hijacking the mousemove events
+    if (e.cancelable) {
+       e.preventDefault();
+    }
+
     setActiveElement(id);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
