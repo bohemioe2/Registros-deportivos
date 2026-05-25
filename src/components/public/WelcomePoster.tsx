@@ -134,7 +134,9 @@ export default function WelcomePoster({ folio, name, eventName, category, photoU
       return new Promise((resolve) => {
         if (!src) return resolve(null);
         const img = new Image();
-        img.crossOrigin = "anonymous";
+        if (!src.startsWith('data:')) {
+          img.crossOrigin = "anonymous";
+        }
         img.src = src;
         img.onload = () => resolve(img);
         img.onerror = () => resolve(null);
