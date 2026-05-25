@@ -96,25 +96,24 @@ export default function MedalsPage() {
       return;
     }
 
-    // --- VALIDACIÓN DE MEDALLA ENTREGADA ---
-    if (data.medalDeliveredAt) {
-      setErrorStatus(`⚠️ ALERTA DE SEGURIDAD: DOBLE ENTREGA DETECTADA. Esta medalla YA fue entregada el ${new Date(data.medalDeliveredAt).toLocaleString()}.`);
+    // --- VALIDACIÓN DE MEDALLA ENTREGADA O LLEGADA ---
+    if (data.finishedAt || data.medalDeliveredAt) {
+      setErrorStatus(`⚠️ ALERTA: LLEGADA YA REGISTRADA PREVIAMENTE EL ${new Date(data.finishedAt || data.medalDeliveredAt).toLocaleString()}.`);
       setLoading(false);
       return;
     }
 
-    // --- VALIDACIÓN DE KIT CON MEDALLA ---
+    // --- VERIFICAR DERECHO A MEDALLA ---
     const eventConfig = eventsData[data.eventId];
+    let hasRightToMedal = true;
     if (eventConfig) {
       const kitConfig = eventConfig.kits?.find((k: any) => k.name === data.kitName);
       if (kitConfig && kitConfig.includesMedal === false) {
-         setErrorStatus(`❌ ATENCIÓN: ESTE CORREDOR COMPRÓ UN KIT SIN MEDALLA (${data.kitName}). NO SE LE DEBE ENTREGAR MEDALLA.`);
-         setLoading(false);
-         return;
+         hasRightToMedal = false;
       }
     }
 
-    setParticipantInfo({ ...data, id: docId });
+    setParticipantInfo({ ...data, id: docId, hasRightToMedal });
     setLoading(false);
   };
 
@@ -198,16 +197,19 @@ export default function MedalsPage() {
     await processParticipant(result, result.id);
   };
 
-  const markMedalAsDelivered = async () => {
+  const markAsFinished = async () => {
     if (!participantInfo?.id) return;
     setLoading(true);
     try {
-      await updateDoc(doc(db, "registrations", participantInfo.id), {
-        medalDeliveredAt: new Date().toISOString()
-      });
-      setParticipantInfo({ ...participantInfo, medalDeliveredAt: new Date().toISOString() });
+      const now = new Date().toISOString();
+      const updates: any = { finishedAt: now };
+      if (participantInfo.hasRightToMedal) {
+         updates.medalDeliveredAt = now;
+      }
+      await updateDoc(doc(db, "registrations", participantInfo.id), updates);
+      setParticipantInfo({ ...participantInfo, ...updates });
     } catch (e) {
-      alert("Error registrando la entrega de la medalla en la nube.");
+      alert("Error registrando la llegada a meta en la nube.");
     }
     setLoading(false);
   };
@@ -223,8 +225,8 @@ export default function MedalsPage() {
               <Award className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-light tracking-tight">Scanner de <span className="font-bold text-[#ffc371]">Medallas</span></h1>
-              <p className="text-gray-400 text-xs sm:text-sm font-medium mt-1 uppercase tracking-widest">Control estricto de entregables en meta</p>
+              <h1 className="text-2xl sm:text-3xl font-light tracking-tight">Scanner de <span className="font-bold text-[#ffc371]">Meta / Medallas</span></h1>
+              <p className="text-gray-400 text-xs sm:text-sm font-medium mt-1 uppercase tracking-widest">Registra llegadas y controla entregables</p>
             </div>
           </div>
 
@@ -308,7 +310,7 @@ export default function MedalsPage() {
 
           {/* Lado de Resultados */}
           <div className="bg-[#242636]/60 backdrop-blur-md p-6 sm:p-8 rounded-3xl border border-[#ffffff0a] shadow-[0_10px_40px_rgba(0,0,0,0.3)] min-h-[500px] flex flex-col">
-            <h2 className="text-[12px] uppercase font-bold text-gray-400 tracking-[0.2em] mb-6 border-b border-[#ffffff10] pb-4">Auditoría de Medalla</h2>
+            <h2 className="text-[12px] uppercase font-bold text-gray-400 tracking-[0.2em] mb-6 border-b border-[#ffffff10] pb-4">Auditoría de Llegada</h2>
             
             {loading ? (
               <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
@@ -341,27 +343,42 @@ export default function MedalsPage() {
                 </div>
                 
                 {/* === DETALLE DEL KIT Y MEDALLA === */}
-                <div className="bg-[#171821] border border-[#ffc371]/30 p-5 rounded-2xl relative overflow-hidden group mb-6 flex-1">
-                   <div className="absolute top-0 right-0 w-32 h-32 bg-[#ffc371]/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                   <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#ffc371] flex items-center gap-2 mb-3">
-                     <Medal className="w-4 h-4" /> Derecho a Medalla Comprobado
-                   </p>
-                   <p className="font-bold text-white text-xl uppercase tracking-widest mb-2">
-                     {participantInfo.kitName || "Kit Básico / General"}
-                   </p>
-                   <p className="text-gray-400 text-xs uppercase tracking-widest leading-relaxed">
-                     Este corredor adquirió un paquete con derecho a medalla de finalista.
-                   </p>
-                </div>
+                {participantInfo.hasRightToMedal ? (
+                   <div className="bg-[#171821] border border-[#ffc371]/30 p-5 rounded-2xl relative overflow-hidden group mb-6 flex-1">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#ffc371]/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#ffc371] flex items-center gap-2 mb-3">
+                        <Medal className="w-4 h-4" /> Derecho a Medalla Comprobado
+                      </p>
+                      <p className="font-bold text-white text-xl uppercase tracking-widest mb-2">
+                        {participantInfo.kitName || "Kit Básico / General"}
+                      </p>
+                      <p className="text-gray-400 text-xs uppercase tracking-widest leading-relaxed">
+                        Este corredor adquirió un paquete con derecho a medalla de finalista. ENTREGAR MEDALLA.
+                      </p>
+                   </div>
+                ) : (
+                   <div className="bg-[#171821] border border-[#ff5f6d]/50 p-5 rounded-2xl relative overflow-hidden group mb-6 flex-1">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff5f6d]/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#ff5f6d] flex items-center gap-2 mb-3">
+                        <AlertTriangle className="w-4 h-4" /> Finalista Sin Medalla
+                      </p>
+                      <p className="font-bold text-white text-xl uppercase tracking-widest mb-2">
+                        {participantInfo.kitName || "Kit Sin Medalla"}
+                      </p>
+                      <p className="text-[#ff5f6d] text-xs uppercase tracking-widest font-bold leading-relaxed">
+                        ATENCIÓN: Este atleta cruzó la meta pero NO tiene derecho a medalla. Registrar llegada únicamente.
+                      </p>
+                   </div>
+                )}
                 
                 <div className="mt-auto pt-4 border-t border-[#ffffff0a]">
-                   {participantInfo.medalDeliveredAt ? (
+                   {participantInfo.finishedAt || participantInfo.medalDeliveredAt ? (
                      <button disabled className="w-full bg-green-500/10 text-green-500 border border-green-500/30 text-xs font-bold uppercase tracking-widest py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-not-allowed">
-                       <CheckCircle2 className="w-4 h-4" /> Medalla Entregada ({new Date(participantInfo.medalDeliveredAt).toLocaleTimeString()})
+                       <CheckCircle2 className="w-4 h-4" /> Llegada Registrada ({new Date(participantInfo.finishedAt || participantInfo.medalDeliveredAt).toLocaleTimeString()})
                      </button>
                    ) : (
-                     <button onClick={markMedalAsDelivered} className="w-full bg-gradient-to-r from-[#ffc371] to-[#ff5f6d] text-white text-xs font-bold uppercase tracking-widest py-4 rounded-xl transition-transform hover:scale-105 shadow-[0_0_20px_rgba(255,95,109,0.4)] flex items-center justify-center gap-2">
-                       Marcar Medalla como Entregada
+                     <button onClick={markAsFinished} className={`w-full text-white text-xs font-bold uppercase tracking-widest py-4 rounded-xl transition-transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 ${participantInfo.hasRightToMedal ? 'bg-gradient-to-r from-[#ffc371] to-[#ff5f6d] shadow-[0_0_20px_rgba(255,95,109,0.4)]' : 'bg-[#1c1d29] border border-[#ffffff20] hover:bg-[#242636]'}`}>
+                       {participantInfo.hasRightToMedal ? 'Registrar Llegada y Entregar Medalla' : 'Registrar Llegada a Meta (Sin Medalla)'}
                      </button>
                    )}
                 </div>
