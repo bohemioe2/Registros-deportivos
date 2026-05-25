@@ -6,7 +6,8 @@ import { collection, onSnapshot, query, where, updateDoc, doc } from "firebase/f
 import { useAuth } from "@/components/admin/AuthProvider";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import { Tag, FolderArchive, Loader2, Save, CheckCircle2, Download } from "lucide-react";
+import { Tag, FolderArchive, Loader2, Save, CheckCircle2, Download, QrCode } from "lucide-react";
+import QRCode from "qrcode";
 
 const DEFAULT_BIB_CONFIG = {
   numberColor: "#000000",
@@ -18,6 +19,10 @@ const DEFAULT_BIB_CONFIG = {
   logoXPct: 3,      // % desde izquierda
   logoYPct: 76,     // % desde arriba
   logoSizePct: 15,  // % del ancho total del dorsal
+  showQr: false,    // Mostrar u ocultar el QR
+  qrXPct: 85,       // % desde izquierda
+  qrYPct: 76,       // % desde arriba
+  qrSizePct: 15,    // % del tamaño del QR
 };
 
 type BibConfig = typeof DEFAULT_BIB_CONFIG;
@@ -118,6 +123,16 @@ export default function BibsPage() {
       reg.logoUrl ? loadImage(getProxyUrl(reg.logoUrl)) : Promise.resolve(null),
     ]);
 
+    let qrImg: HTMLImageElement | null = null;
+    if (cfg.showQr && reg.id) {
+      try {
+        const qrDataUrl = await QRCode.toDataURL(reg.id, { margin: 1, width: 400, color: { dark: '#000000FF', light: '#FFFFFFFF' } });
+        qrImg = await loadImage(qrDataUrl);
+      } catch (e) {
+        console.error("Error generating QR for bib", e);
+      }
+    }
+
     // LAYER 0: White background
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, W, H);
@@ -158,6 +173,24 @@ export default function BibsPage() {
       const scale = maxW / logoImg.width;
       const lw = logoImg.width * scale, lh = logoImg.height * scale;
       ctx.drawImage(logoImg, W * (cfg.logoXPct / 100), H * (cfg.logoYPct / 100), lw, lh);
+    }
+
+    // LAYER 5: QR Code
+    if (qrImg && cfg.showQr) {
+      const qw = W * (cfg.qrSizePct / 100);
+      const qh = qw; // QR is always square
+      
+      // Optional: Add a white rounded background behind the QR so it is always scannable
+      const qx = W * (cfg.qrXPct / 100);
+      const qy = H * (cfg.qrYPct / 100);
+      const padding = qw * 0.08; // 8% padding
+      
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.roundRect(qx - padding, qy - padding, qw + padding * 2, qh + padding * 2, qw * 0.1);
+      ctx.fill();
+      
+      ctx.drawImage(qrImg, qx, qy, qw, qh);
     }
 
     return canvas.toDataURL("image/jpeg", 0.92);
@@ -327,6 +360,26 @@ export default function BibsPage() {
               <SliderRow label="Horizontal (X)" configKey="logoXPct" />
               <SliderRow label="Vertical (Y)" configKey="logoYPct" />
               <SliderRow label="Tamaño" configKey="logoSizePct" min={5} max={60} />
+            </div>
+
+            <div className={`bg-[#242636]/60 border border-[#ffffff0a] rounded-2xl p-5 space-y-4 transition-all ${config.showQr ? 'border-[#ff5f6d]/50 shadow-[0_0_15px_rgba(255,95,109,0.1)]' : ''}`}>
+              <div className="flex items-center justify-between mb-2">
+                 <h3 className="text-[10px] font-black uppercase tracking-widest text-[#ff5f6d] flex items-center gap-2">
+                   <QrCode className="w-3 h-3" /> Código QR (Medallas)
+                 </h3>
+                 <label className="flex items-center gap-2 cursor-pointer">
+                   <span className="text-[9px] uppercase font-bold text-gray-400">{config.showQr ? 'Visible' : 'Oculto'}</span>
+                   <input type="checkbox" checked={config.showQr as boolean} onChange={(e) => setC("showQr", e.target.checked as unknown as string)} className="w-4 h-4 rounded bg-[#171821] border-[#ffffff20] text-[#ff5f6d] focus:ring-[#ff5f6d]" />
+                 </label>
+              </div>
+              
+              {config.showQr && (
+                 <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <SliderRow label="Horizontal (X)" configKey="qrXPct" />
+                    <SliderRow label="Vertical (Y)" configKey="qrYPct" />
+                    <SliderRow label="Tamaño" configKey="qrSizePct" min={5} max={40} />
+                 </div>
+              )}
             </div>
 
             {/* Save Button */}
