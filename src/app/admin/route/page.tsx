@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, MapPin, Phone, AlertCircle, HeartPulse, Activity, UserCheck, Flag, Users } from "lucide-react";
+import { Search, MapPin, Phone, AlertCircle, HeartPulse, Activity, UserCheck, Flag, Users, CheckCircle2 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useAuth } from "@/components/admin/AuthProvider";
@@ -49,7 +49,7 @@ export default function RouteMonitoringPage() {
     }
 
     const unsub = onSnapshot(q, (snapshot) => {
-      const regs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.status === "APPROVED");
+      const regs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter((r: any) => r.status === "APPROVED");
       setRegistrations(regs);
     });
 
