@@ -34,6 +34,7 @@ export default function BibsPage() {
   const [configSaved, setConfigSaved] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [previewRegistrationIndex, setPreviewRegistrationIndex] = useState(0);
   const [config, setConfig] = useState<BibConfig>(DEFAULT_BIB_CONFIG);
   const isSuperAdmin = role === "SUPERADMIN";
 
@@ -65,6 +66,7 @@ export default function BibsPage() {
     setSelectedEvent(ev || null);
     setPreviewUrl(null);
     setConfigSaved(false);
+    setPreviewRegistrationIndex(0);
     // Restore saved bibConfig or use defaults
     if (ev?.bibConfig) {
       setConfig({ ...DEFAULT_BIB_CONFIG, ...ev.bibConfig });
@@ -82,9 +84,9 @@ export default function BibsPage() {
     if (previewTimer.current) clearTimeout(previewTimer.current);
     previewTimer.current = setTimeout(() => {
       generatePreview();
-    }, 600);
+    }, 300);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config, registrations, selectedEvent]);
+  }, [config, registrations, selectedEvent, previewRegistrationIndex]);
 
   const getProxyUrl = (url?: string) => {
     if (!url) return "";
@@ -163,14 +165,17 @@ export default function BibsPage() {
 
   const generatePreview = useCallback(async () => {
     if (!registrations.length || !selectedEvent) return;
+    const regToPreview = registrations[previewRegistrationIndex] || registrations[0];
+    if (!regToPreview) return;
+    
     setIsPreviewLoading(true);
     try {
-      const url = await generateBibCanvas(registrations[0], selectedEvent, config);
+      const url = await generateBibCanvas(regToPreview, selectedEvent, config);
       setPreviewUrl(url);
     } catch { /* silent */ }
     finally { setIsPreviewLoading(false); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [registrations, selectedEvent, config]);
+  }, [registrations, selectedEvent, config, previewRegistrationIndex]);
 
   const handleSaveConfig = async () => {
     if (!selectedEventId) return;
@@ -363,7 +368,7 @@ export default function BibsPage() {
                 </div>
               )}
               <p className="text-[9px] text-gray-600 uppercase tracking-widest font-bold text-center">
-                Se actualiza automáticamente al mover los controles · Participante: {registrations[0]?.firstName || "—"}
+                Se actualiza automáticamente al mover los controles · Participante: {registrations[previewRegistrationIndex]?.firstName || registrations[0]?.firstName || "—"}
               </p>
             </div>
 
@@ -371,13 +376,19 @@ export default function BibsPage() {
             <div className="bg-[#242636]/60 border border-[#ffffff0a] rounded-2xl p-5 space-y-3">
               <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Participantes en este Lote</h3>
               <div className="bg-[#171821] rounded-xl border border-[#ffffff0a] max-h-48 overflow-y-auto custom-scrollbar">
-                {registrations.map((reg) => {
+                {registrations.map((reg, idx) => {
                   const bibNum = String(parseInt(reg.folio?.replace(/\D/g, '') || "0", 10));
+                  const isPreviewing = previewRegistrationIndex === idx;
                   return (
-                    <div key={reg.id} className="flex items-center justify-between px-4 py-2.5 border-b border-[#ffffff05] last:border-0 group hover:bg-white/[0.03] transition-colors">
+                    <div 
+                      key={reg.id} 
+                      onMouseEnter={() => setPreviewRegistrationIndex(idx)}
+                      onClick={() => setPreviewRegistrationIndex(idx)}
+                      className={`flex items-center justify-between px-4 py-2.5 border-b border-[#ffffff05] last:border-0 group transition-colors cursor-pointer ${isPreviewing ? 'bg-white/[0.08]' : 'hover:bg-white/[0.03]'}`}
+                    >
                       <div className="flex items-center gap-3">
                         <span className="text-[#ff9500] font-mono font-bold text-sm w-6 text-right">{bibNum}</span>
-                        <span className="text-gray-300 text-[12px] font-medium">{reg.firstName} {reg.lastName}</span>
+                        <span className={`text-[12px] font-medium ${isPreviewing ? 'text-white font-bold' : 'text-gray-300'}`}>{reg.firstName} {reg.lastName}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         {reg.logoUrl && <span className="text-[9px] text-green-400 font-bold uppercase tracking-widest">+logo</span>}
