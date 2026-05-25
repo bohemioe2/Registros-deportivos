@@ -157,14 +157,14 @@ export default function AdminDashboard() {
                 <div className="space-y-6 text-center sm:text-left">
                   <h3 className="text-[10px] font-black tracking-[0.4em] text-[#00d2ff] uppercase flex items-center gap-4 justify-center sm:justify-start">
                      <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff] animate-ping"></span>
-                     FLUJO DE OPERACIONES ACTUAL
+                     TOTAL DE PARTICIPANTES INSCRITOS
                   </h3>
                   <div className="flex flex-col sm:flex-row items-baseline gap-6 justify-center sm:justify-start">
                      <span className="text-8xl lg:text-[140px] font-black text-white tracking-tighter leading-none italic select-none">
                         {loading ? "..." : stats.total}
                      </span>
                      <div className="text-gray-500 font-extrabold uppercase text-[12px] tracking-[0.3em] leading-relaxed">
-                        Atletas <br/> <span className="text-white/40">Inscritos</span>
+                        Personas <br/> <span className="text-white/40">Inscritas</span>
                      </div>
                   </div>
                 </div>
@@ -229,7 +229,7 @@ export default function AdminDashboard() {
            {/* 3. CHART: CONCENTRACIÓN GEOGRÁFICA */}
            <div className="bg-[#171821]/40 backdrop-blur-2xl rounded-[40px] p-10 border border-white/5 flex flex-col min-h-[480px] transition-all duration-700 hover:border-[#884af0]/30">
              <div className="flex items-center justify-between mb-12">
-                <h3 className="text-[11px] font-black tracking-[0.35em] text-gray-500 uppercase">Impacto Territorial</h3>
+                <h3 className="text-[11px] font-black tracking-[0.35em] text-gray-500 uppercase">Concentracion de Procedencia</h3>
                 <div className="bg-white/5 px-4 py-2 rounded-full border border-white/10">
                    <MapPin className="w-3.5 h-3.5 text-[#884af0]" />
                 </div>
@@ -267,7 +267,7 @@ export default function AdminDashboard() {
                          <div className="absolute inset-4 bg-[#0d0e14]/90 rounded-full flex flex-col items-center justify-center border border-white/5 backdrop-blur-sm">
                             <Target className="w-6 h-6 text-white/50 mb-1" />
                             <span className="text-xl font-black text-white">{stats.total}</span>
-                            <span className="text-[7px] font-black text-gray-500 uppercase tracking-widest">Atletas</span>
+                            <span className="text-[7px] font-black text-gray-500 uppercase tracking-widest">Personas</span>
                          </div>
                       </div>
 
