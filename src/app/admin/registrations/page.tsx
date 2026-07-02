@@ -469,7 +469,7 @@ export default function RegistrationsPage() {
                           <span className="text-gray-500 font-mono text-sm tracking-widest group relative flex items-center">
                              {liveUser.folio}
                              {(isSuperAdmin || role === "ORGANIZER") && (
-                                <button onClick={() => { setIsEditingFolio(true); setNewFolio(liveUser.folio); }} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-[#00d2ff] hover:text-white text-xs" title="Editar Folio">✏️</button>
+                                <button onClick={() => { setIsEditingFolio(true); setNewFolio(liveUser.folio); }} className="ml-2 text-[#00d2ff] hover:text-white text-xs bg-[#171821] border border-[#00d2ff]/30 hover:bg-[#00d2ff]/20 px-1.5 py-0.5 rounded transition-all" title="Editar Folio">✏️</button>
                              )}
                           </span>
                        )}
