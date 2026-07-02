@@ -19,6 +19,8 @@ export default function RegistrationsPage() {
   const [isRegeneratingPoster, setIsRegeneratingPoster] = useState(false);
   const [ignoreUserLogo, setIgnoreUserLogo] = useState(false);
   const [registrationToDelete, setRegistrationToDelete] = useState<{id: string, folio: string} | null>(null);
+  const [isEditingFolio, setIsEditingFolio] = useState(false);
+  const [newFolio, setNewFolio] = useState("");
   
   const [isDownloadingBatch, setIsDownloadingBatch] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState("");
@@ -102,6 +104,17 @@ export default function RegistrationsPage() {
       alert("Ocurrió un error al intentar eliminar el registro.");
     } finally {
       setRegistrationToDelete(null);
+    }
+  };
+
+  const saveFolioEdit = async () => {
+    if (!selectedUser || !newFolio.trim()) return;
+    try {
+      await updateDoc(doc(db, "registrations", selectedUser.id), { folio: newFolio.trim().toUpperCase() });
+      setSelectedUser((prev: any) => ({ ...prev, folio: newFolio.trim().toUpperCase() }));
+      setIsEditingFolio(false);
+    } catch(err) {
+      alert("Error al actualizar folio");
     }
   };
 
@@ -439,7 +452,28 @@ export default function RegistrationsPage() {
                  <div className="w-2 h-8 bg-gradient-to-b from-[#00d2ff] to-[#4b55f5] rounded-full"></div>
                  <div>
                     <h3 className="font-light text-2xl text-white tracking-tight">Expediente</h3>
-                    <span className="text-gray-500 font-mono text-sm tracking-widest">{liveUser.folio}</span>
+                    <div className="flex items-center gap-2">
+                       {isEditingFolio ? (
+                          <div className="flex items-center gap-2 mt-1">
+                             <input 
+                               type="text" 
+                               value={newFolio} 
+                               onChange={(e) => setNewFolio(e.target.value)} 
+                               className="bg-[#171821] text-gray-200 border border-[#00d2ff]/50 rounded-lg px-2 py-1 text-sm font-mono focus:outline-none w-32"
+                               autoFocus
+                             />
+                             <button onClick={saveFolioEdit} className="text-[#00ff88] hover:text-white bg-[#00ff88]/10 hover:bg-[#00ff88]/20 px-2 py-1 rounded border border-[#00ff88]/30 text-[10px] font-bold uppercase transition-all">Guardar</button>
+                             <button onClick={() => setIsEditingFolio(false)} className="text-gray-400 hover:text-white px-2 py-1 rounded border border-white/10 text-[10px] uppercase font-bold transition-all">Cancelar</button>
+                          </div>
+                       ) : (
+                          <span className="text-gray-500 font-mono text-sm tracking-widest group relative flex items-center">
+                             {liveUser.folio}
+                             {(isSuperAdmin || role === "ORGANIZER") && (
+                                <button onClick={() => { setIsEditingFolio(true); setNewFolio(liveUser.folio); }} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-[#00d2ff] hover:text-white text-xs" title="Editar Folio">✏️</button>
+                             )}
+                          </span>
+                       )}
+                    </div>
                  </div>
               </div>
               <button 

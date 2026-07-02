@@ -7,7 +7,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { useParams, useRouter } from "next/navigation";
 import WelcomePoster from "@/components/public/WelcomePoster";
 import { db, storage } from "@/lib/firebase/config";
-import { collection, addDoc, serverTimestamp, doc, getDoc, getCountFromServer, query, where } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, getDoc, getCountFromServer, query, where, runTransaction } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import heic2any from "heic2any";
 import mexicoDataRaw from "@/lib/mexico.json";
@@ -177,10 +177,30 @@ export default function RegisterFormPage() {
     
     setIsSubmitting(true);
     try {
-      // Cálculo del Folio Secuencial
-      const queryFolio = query(collection(db, "registrations"), where("eventId", "==", eventId));
-      const folioSnapshot = await getCountFromServer(queryFolio);
-      const folioNumber = folioSnapshot.data().count + 1;
+      // Cálculo del Folio Secuencial usando Transacciones para evitar duplicados
+      const counterRef = doc(db, "eventCounters", eventId);
+      let fallbackCount = 0;
+      try {
+         const counterSnap = await getDoc(counterRef);
+         if (!counterSnap.exists()) {
+             const queryFolio = query(collection(db, "registrations"), where("eventId", "==", eventId));
+             const folioSnapshot = await getCountFromServer(queryFolio);
+             fallbackCount = folioSnapshot.data().count;
+         }
+      } catch(e) {}
+
+      const folioNumber = await runTransaction(db, async (transaction) => {
+        const counterDoc = await transaction.get(counterRef);
+        let nextCount = 1;
+        if (counterDoc.exists()) {
+          nextCount = (counterDoc.data().count || 0) + 1;
+        } else {
+          nextCount = fallbackCount + 1;
+        }
+        transaction.set(counterRef, { count: nextCount }, { merge: true });
+        return nextCount;
+      });
+      
       const folio = `FOL-${String(folioNumber).padStart(3, '0')}`;
       
       // Función con límite de tiempo para evitar cuellos de botella infinitos en Firebase Storage
