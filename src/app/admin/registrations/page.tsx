@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Eye, Download, CheckCircle, X, FileText, Image as ImageIcon, CheckCircle2, Trash2, FolderArchive, ChevronDown } from "lucide-react";
+import { Search, Eye, Download, CheckCircle, X, FileText, Image as ImageIcon, CheckCircle2, Trash2, FolderArchive, ChevronDown, Save } from "lucide-react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { db } from "@/lib/firebase/config";
@@ -21,6 +21,8 @@ export default function RegistrationsPage() {
   const [registrationToDelete, setRegistrationToDelete] = useState<{id: string, folio: string} | null>(null);
   const [isEditingFolio, setIsEditingFolio] = useState(false);
   const [newFolio, setNewFolio] = useState("");
+  const [isEditingKit, setIsEditingKit] = useState(false);
+  const [editKitData, setEditKitData] = useState({ kitName: "", jerseyType: "", jerseySize: "", kitPricePaid: 0 });
   
   const [isDownloadingBatch, setIsDownloadingBatch] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState("");
@@ -115,6 +117,22 @@ export default function RegistrationsPage() {
       setIsEditingFolio(false);
     } catch(err) {
       alert("Error al actualizar folio");
+    }
+  };
+
+  const saveKitEdit = async () => {
+    if (!selectedUser) return;
+    try {
+      await updateDoc(doc(db, "registrations", selectedUser.id), {
+        kitName: editKitData.kitName,
+        jerseyType: editKitData.jerseyType,
+        jerseySize: editKitData.jerseySize,
+        kitPricePaid: editKitData.kitPricePaid
+      });
+      setSelectedUser((prev: any) => ({ ...prev, ...editKitData }));
+      setIsEditingKit(false);
+    } catch(err) {
+      alert("Error al actualizar paquete");
     }
   };
 
@@ -540,23 +558,115 @@ export default function RegistrationsPage() {
               
               {/* === INYECCIÓN KITS Y TEXTILES === */}
               {liveUser.kitName && (
-                 <div className="bg-[#242636]/60 border border-[#00d2ff]/20 rounded-2xl p-6 relative overflow-hidden flex flex-col sm:flex-row gap-6 justify-between items-center group">
+                 <div className="bg-[#242636]/60 border border-[#00d2ff]/20 rounded-2xl p-6 relative overflow-hidden flex flex-col group">
                    <div className="absolute top-0 left-0 w-2 h-full bg-[#00d2ff]"></div>
                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#00d2ff]/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-[#00d2ff]/10 transition-colors"></div>
                    
-                   <div className="pl-4">
-                      <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#00d2ff] mb-1">Kit de Competencia Designado</p>
-                      <p className="font-bold text-white text-xl uppercase tracking-widest">{liveUser.kitName}</p>
-                      <p className="font-mono text-gray-400 mt-2 text-sm bg-black/30 w-max px-3 py-1 rounded inline-flex border border-[#ffffff10]">Inversión Autorizada: <span className="text-[#00d2ff] ml-2 underline decoration-[#00d2ff]/50 decoration-dashed underline-offset-4">${liveUser.kitPricePaid} MXN</span></p>
-                   </div>
-                   
-                   {(liveUser.jerseyType && liveUser.jerseyType !== "N/A") && (
-                     <div className="bg-[#171821] border border-[#ff5f6d]/30 px-6 py-4 rounded-xl flex items-center gap-4 text-left shadow-inner shrink-0 w-full sm:w-auto">
-                        <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(255,95,109,0.5)]">🎽</span>
-                        <div>
-                          <p className="text-[9px] uppercase tracking-widest font-bold text-[#ff5f6d] mb-1">Registro Textil (Prenda Física)</p>
-                          <p className="text-gray-200 font-bold uppercase text-[11px] tracking-widest">Diseño: <span className="text-white">{liveUser.jerseyType}</span></p>
-                          <p className="text-gray-200 font-bold uppercase text-[11px] tracking-widest mt-0.5">Medida: <span className="bg-[#ff5f6d] text-black px-1.5 py-0.5 rounded text-[10px] ml-1">{liveUser.jerseySize}</span></p>
+                   {!isEditingKit ? (
+                     <div className="flex flex-col sm:flex-row justify-between items-center gap-6 w-full">
+                       <div className="pl-4">
+                          <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#00d2ff] mb-1">Kit de Competencia Designado</p>
+                          <p className="font-bold text-white text-xl uppercase tracking-widest">{liveUser.kitName}</p>
+                          <p className="font-mono text-gray-400 mt-2 text-sm bg-black/30 w-max px-3 py-1 rounded inline-flex border border-[#ffffff10]">Inversión Autorizada: <span className="text-[#00d2ff] ml-2 underline decoration-[#00d2ff]/50 decoration-dashed underline-offset-4">${liveUser.kitPricePaid} MXN</span></p>
+                       </div>
+                       
+                       <div className="flex items-center gap-4">
+                         {(liveUser.jerseyType && liveUser.jerseyType !== "N/A") && (
+                           <div className="bg-[#171821] border border-[#ff5f6d]/30 px-6 py-4 rounded-xl flex items-center gap-4 text-left shadow-inner shrink-0 w-full sm:w-auto">
+                              <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(255,95,109,0.5)]">🎽</span>
+                              <div>
+                                <p className="text-[9px] uppercase tracking-widest font-bold text-[#ff5f6d] mb-1">Registro Textil (Prenda Física)</p>
+                                <p className="text-gray-200 font-bold uppercase text-[11px] tracking-widest">Diseño: <span className="text-white">{liveUser.jerseyType}</span></p>
+                                <p className="text-gray-200 font-bold uppercase text-[11px] tracking-widest mt-0.5">Medida: <span className="bg-[#ff5f6d] text-black px-1.5 py-0.5 rounded text-[10px] ml-1">{liveUser.jerseySize}</span></p>
+                              </div>
+                           </div>
+                         )}
+                         {(isSuperAdmin || role === "ORGANIZER") && (
+                            <button onClick={() => { 
+                               setIsEditingKit(true); 
+                               setEditKitData({ 
+                                 kitName: liveUser.kitName, 
+                                 jerseyType: liveUser.jerseyType || "N/A", 
+                                 jerseySize: liveUser.jerseySize || "", 
+                                 kitPricePaid: liveUser.kitPricePaid || 0 
+                               }); 
+                            }} className="transition-opacity bg-[#00d2ff]/10 hover:bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/30 p-2 rounded-lg" title="Editar Paquete">
+                               ✏️
+                            </button>
+                         )}
+                       </div>
+                     </div>
+                   ) : (
+                     <div className="pl-4 relative z-10 w-full flex flex-col gap-4">
+                        <div className="flex justify-between items-center mb-2">
+                           <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#00d2ff]">Modificando Kit de Competencia</p>
+                           <button onClick={() => setIsEditingKit(false)} className="text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                           <div className="flex flex-col gap-1">
+                             <label className="text-xs text-gray-400 font-bold">Seleccionar Kit</label>
+                             <select 
+                               className="bg-[#171821] text-white text-sm p-2 rounded border border-[#ffffff10] outline-none focus:border-[#00d2ff]/50"
+                               value={editKitData.kitName}
+                               onChange={(e) => {
+                                  const selectedKit = currentEvent?.kits?.find((k: any) => k.name === e.target.value);
+                                  setEditKitData(prev => ({ ...prev, kitName: e.target.value, kitPricePaid: selectedKit?.price || 0 }));
+                               }}
+                             >
+                               {currentEvent?.kits?.map((k: any, i: number) => (
+                                 <option key={i} value={k.name}>{k.name} (${k.price} MXN)</option>
+                               ))}
+                             </select>
+                           </div>
+
+                           <div className="flex flex-col gap-1">
+                             <label className="text-xs text-gray-400 font-bold">Inversión (Manual)</label>
+                             <input 
+                               type="number"
+                               className="bg-[#171821] text-white text-sm p-2 rounded border border-[#ffffff10] outline-none focus:border-[#00d2ff]/50"
+                               value={editKitData.kitPricePaid}
+                               onChange={(e) => setEditKitData(prev => ({ ...prev, kitPricePaid: Number(e.target.value) }))}
+                             />
+                           </div>
+                           
+                           {currentEvent?.jerseyTypes?.length > 0 && (
+                             <div className="flex flex-col gap-1">
+                               <label className="text-xs text-gray-400 font-bold">Diseño de Jersey</label>
+                               <select 
+                                 className="bg-[#171821] text-white text-sm p-2 rounded border border-[#ffffff10] outline-none focus:border-[#ff5f6d]/50"
+                                 value={editKitData.jerseyType}
+                                 onChange={(e) => setEditKitData(prev => ({ ...prev, jerseyType: e.target.value }))}
+                               >
+                                 <option value="N/A">Sin Jersey (N/A)</option>
+                                 {currentEvent?.jerseyTypes?.map((jt: any, i: number) => (
+                                   <option key={i} value={jt.name}>{jt.name}</option>
+                                 ))}
+                               </select>
+                             </div>
+                           )}
+
+                           {currentEvent?.jerseySizes?.length > 0 && editKitData.jerseyType !== "N/A" && (
+                             <div className="flex flex-col gap-1">
+                               <label className="text-xs text-gray-400 font-bold">Talla</label>
+                               <select 
+                                 className="bg-[#171821] text-white text-sm p-2 rounded border border-[#ffffff10] outline-none focus:border-[#ff5f6d]/50"
+                                 value={editKitData.jerseySize}
+                                 onChange={(e) => setEditKitData(prev => ({ ...prev, jerseySize: e.target.value }))}
+                               >
+                                 <option value="">Selecciona Talla...</option>
+                                 {currentEvent?.jerseySizes?.map((s: string, i: number) => (
+                                   <option key={i} value={s}>{s}</option>
+                                 ))}
+                               </select>
+                             </div>
+                           )}
+                        </div>
+
+                        <div className="flex justify-end mt-2">
+                           <button onClick={saveKitEdit} className="bg-[#00ff88]/10 hover:bg-[#00ff88]/20 text-[#00ff88] border border-[#00ff88]/30 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
+                             <Save className="w-3.5 h-3.5" /> Guardar Paquete
+                           </button>
                         </div>
                      </div>
                    )}
