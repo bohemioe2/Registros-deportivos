@@ -247,6 +247,10 @@ export default function RegistrationsPage() {
     const fullName = `${r.firstName} ${r.lastName}`.toLowerCase();
     const folioStr = (r.folio || "").toLowerCase();
     return fullName.includes(search) || folioStr.includes(search);
+  }).sort((a, b) => {
+    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt || 0).getTime()));
+    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt || 0).getTime()));
+    return timeA - timeB;
   });
 
   return (
