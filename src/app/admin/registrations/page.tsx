@@ -614,10 +614,15 @@ export default function RegistrationsPage() {
                                className="bg-[#171821] text-white text-sm p-2 rounded border border-[#ffffff10] outline-none focus:border-[#00d2ff]/50"
                                value={editKitData.kitName}
                                onChange={(e) => {
+                                  if (e.target.value === "Plan Base") {
+                                    setEditKitData(prev => ({ ...prev, kitName: "Plan Base", kitPricePaid: 0 }));
+                                    return;
+                                  }
                                   const selectedKit = currentEvent?.kits?.find((k: any) => k.name === e.target.value);
                                   setEditKitData(prev => ({ ...prev, kitName: e.target.value, kitPricePaid: selectedKit?.price || 0 }));
                                }}
                              >
+                               <option value="Plan Base">Plan Base (Predeterminado)</option>
                                {currentEvent?.kits?.map((k: any, i: number) => (
                                  <option key={i} value={k.name}>{k.name} (${k.price} MXN)</option>
                                ))}
