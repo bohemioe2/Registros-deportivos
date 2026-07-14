@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Users, Settings, LogOut, Target, Tag, Shirt, Briefcase, KeyRound, Award, Menu, X, MapPin, Zap } from "lucide-react";
+import { Activity, Users, Settings, LogOut, Target, Tag, Shirt, Briefcase, KeyRound, Award, Menu, X, MapPin, Zap, Timer } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 import { useAuth } from "@/components/admin/AuthProvider";
@@ -15,6 +15,7 @@ const navItems = [
   { name: "Audit. Mesa (Scan)", href: "/admin/scanner", icon: Target, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Monitoreo Ruta", href: "/admin/route", icon: MapPin, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Meta / Medallas", href: "/admin/medals", icon: Award, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
+  { name: "Ranking Tiempos", href: "/admin/ranking", icon: Timer, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Dorsales", href: "/admin/bibs", icon: Tag, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Kits / Textiles", href: "/admin/kits", icon: Shirt, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Organizadores", href: "/admin/organizers", icon: Briefcase, roles: ["SUPERADMIN"] },
