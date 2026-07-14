@@ -5,11 +5,12 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { QrCode, CheckCircle2, AlertTriangle, User, Award, CheckCircle, Loader2 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { useAuth } from "@/components/admin/AuthProvider";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 export default function ScannerPage() {
   const { role, assignedEventId } = useAuth();
   const [scannedId, setScannedId] = useState<string | null>(null);
+  const [manualInput, setManualInput] = useState("");
   const [participantInfo, setParticipantInfo] = useState<any | null>(null);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,19 +21,41 @@ export default function ScannerPage() {
   }, []);
 
   const handleScan = async (result: string) => {
-    if (!result || scannedId === result || loading) return;
-    setScannedId(result);
+    if (!result || loading) return;
+    
+    // Normalize input to avoid issues with extra spaces
+    let cleanResult = result.trim();
+    if (!cleanResult) return;
+    
+    // Si el usuario ingresa solo números (ej: "2" o "002"), autocompletamos el prefijo FOL-
+    if (/^\d+$/.test(cleanResult)) {
+       cleanResult = `FOL-${String(cleanResult).padStart(3, '0')}`;
+    }
+    
+    setScannedId(cleanResult);
     setLoading(true);
     setParticipantInfo(null);
     setErrorStatus(null);
 
     try {
-      const docRef = doc(db, "registrations", result);
-      const snap = await getDoc(docRef);
+      // 1. First try by Document ID
+      const docRef = doc(db, "registrations", cleanResult);
+      let snap: any = await getDoc(docRef);
+      let data = snap.exists() ? snap.data() : null;
+      let actualId = snap.id;
 
-      if (snap.exists()) {
-        const data = snap.data();
-        
+      // 2. If not found, try searching by Folio
+      if (!data) {
+        const q = query(collection(db, "registrations"), where("folio", "==", cleanResult.toUpperCase()));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          snap = querySnapshot.docs[0];
+          data = snap.data();
+          actualId = snap.id;
+        }
+      }
+
+      if (data) {
         // Bloqueo de seguridad: El organizador solo puede escanear su evento
         if (role === "ORGANIZER" && data.eventId !== assignedEventId) {
           setErrorStatus(`ERROR DE SEGURIDAD: Este atleta pertenece a otro evento. No tienes permisos para escanearlo.`);
@@ -50,14 +73,15 @@ export default function ScannerPage() {
         if (data.status !== "APPROVED") {
            setErrorStatus(`ESTADO NO AUTORIZADO: El corredor tiene estado '${data.status}'. Cobrar o auditar en mesa.`);
         }
-        setParticipantInfo({ ...data, id: snap.id });
+        setParticipantInfo({ ...data, id: actualId });
       } else {
-        setErrorStatus("DOCUMENTO INEXISTENTE. El QR escaneado no pertenece a la base de datos.");
+        setErrorStatus("DOCUMENTO INEXISTENTE. El QR o Folio ingresado no pertenece a la base de datos.");
       }
     } catch (e) {
       setErrorStatus("Fallo en la conexión de escáner a la Nube.");
     } finally {
       setLoading(false);
+      setManualInput(""); // Clear manual input after searching
     }
   };
 
@@ -112,7 +136,29 @@ export default function ScannerPage() {
                </div>
              </div>
              
-             <button onClick={() => {setScannedId(null); setParticipantInfo(null); setErrorStatus(null);}} className="text-[#00d2ff] text-[10px] uppercase font-bold tracking-widest bg-[#00d2ff]/10 hover:bg-[#00d2ff]/20 px-6 py-3 rounded-xl transition-colors mt-8">
+             {/* Búsqueda manual */}
+             <div className="w-full max-w-sm mt-8 border-t border-[#ffffff10] pt-6 flex flex-col gap-3">
+                <p className="text-[10px] uppercase font-bold text-gray-500 tracking-widest">O Ingresa Folio Manualmente:</p>
+                <div className="flex gap-2">
+                   <input 
+                     type="text" 
+                     placeholder="Ej: 2 o FOL-002"
+                     value={manualInput}
+                     onChange={(e) => setManualInput(e.target.value.toUpperCase())}
+                     onKeyDown={(e) => e.key === 'Enter' && handleScan(manualInput)}
+                     className="flex-1 bg-[#1b1c27] border border-[#ffffff20] text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00d2ff] font-mono"
+                   />
+                   <button 
+                     onClick={() => handleScan(manualInput)}
+                     disabled={!manualInput.trim()}
+                     className="bg-[#00d2ff]/20 text-[#00d2ff] hover:bg-[#00d2ff]/30 disabled:opacity-50 disabled:cursor-not-allowed px-5 py-3 rounded-xl font-bold text-sm transition-colors"
+                   >
+                     Buscar
+                   </button>
+                </div>
+             </div>
+
+             <button onClick={() => {setScannedId(null); setParticipantInfo(null); setErrorStatus(null); setManualInput("");}} className="text-[#00d2ff] text-[10px] uppercase font-bold tracking-widest bg-[#00d2ff]/10 hover:bg-[#00d2ff]/20 px-6 py-3 rounded-xl transition-colors mt-6">
                Reiniciar Lente Manualmente
              </button>
           </div>

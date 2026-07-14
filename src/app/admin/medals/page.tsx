@@ -151,15 +151,20 @@ export default function MedalsPage() {
     setErrorStatus(null);
     setScannedId(null);
     
+    let parsedQuery = searchQuery.trim();
+    if (/^\d+$/.test(parsedQuery)) {
+       parsedQuery = `FOL-${String(parsedQuery).padStart(3, '0')}`;
+    }
+    
     try {
       const qByName = query(
         collection(db, "registrations"),
-        where("firstName", ">=", searchQuery),
-        where("firstName", "<=", searchQuery + '\uf8ff')
+        where("firstName", ">=", parsedQuery),
+        where("firstName", "<=", parsedQuery + '\uf8ff')
       );
       const qByFolio = query(
         collection(db, "registrations"),
-        where("folio", "==", searchQuery)
+        where("folio", "==", parsedQuery.toUpperCase())
       );
 
       const [snapName, snapFolio] = await Promise.all([getDocs(qByName), getDocs(qByFolio)]);
@@ -259,7 +264,7 @@ export default function MedalsPage() {
                    type="text" 
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
-                   placeholder="Buscar por Folio (Ej: CF-12345) o Nombre..."
+                   placeholder="Buscar por Folio (Ej: 2, 15 o CF-12345) o Nombre..."
                    className="w-full bg-[#242636] border border-[#ffffff10] text-white rounded-xl py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:border-[#ffc371] transition-all shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)]"
                  />
                  <button type="submit" disabled={isSearching} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#ffc371] transition-colors">
