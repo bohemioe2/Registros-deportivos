@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Users, Settings, LogOut, Target, Tag, Shirt, Briefcase, KeyRound, Award, Menu, X, MapPin } from "lucide-react";
+import { Activity, Users, Settings, LogOut, Target, Tag, Shirt, Briefcase, KeyRound, Award, Menu, X, MapPin, Zap } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 import { useAuth } from "@/components/admin/AuthProvider";
@@ -23,11 +23,16 @@ const navItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const { role } = useAuth();
+  const { role, assignedEventId } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
+  const dynamicNavItems = [
+    ...navItems,
+    { name: "Registro Express", href: `/register/${assignedEventId || 'Selecciona-Evento'}/express`, icon: Zap, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] }
+  ];
+
   // Si no hay rol todavía (cargando) o no tiene permisos, mostramos sidebar vacío o limitado
-  const visibleItems = navItems.filter(item => role && item.roles.includes(role));
+  const visibleItems = dynamicNavItems.filter(item => role && item.roles.includes(role));
 
   return (
     <>
