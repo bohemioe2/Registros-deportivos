@@ -32,6 +32,8 @@ export default function ScannerPage() {
        cleanResult = `FOL-${String(cleanResult).padStart(3, '0')}`;
     }
     
+    if (scannedId === cleanResult) return;
+    
     setScannedId(cleanResult);
     setLoading(true);
     setParticipantInfo(null);
