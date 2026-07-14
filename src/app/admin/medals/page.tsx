@@ -112,6 +112,11 @@ export default function MedalsPage() {
          hasRightToMedal = false;
       }
     }
+    
+    // Regla especial: Límite de 200 medallas físicas
+    if (data.folioNumber > 200) {
+      hasRightToMedal = false;
+    }
 
     setParticipantInfo({ ...data, id: docId, hasRightToMedal });
     setLoading(false);
