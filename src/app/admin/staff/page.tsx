@@ -57,22 +57,32 @@ export default function StaffPage() {
     setLoading(true);
     let isExistingUser = false;
     try {
-      // 1. Crear usuario en Auth de manera aislada (Secondary App) para no desloguear al Admin
-      const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
-      const secondaryAuth = getAuth(secondaryApp);
-      try {
-         await createUserWithEmailAndPassword(secondaryAuth, newEmail.trim().toLowerCase(), newPassword);
-         await signOut(secondaryAuth); // Deslogueamos el secondary app
-      } catch (authErr: any) {
-         if (authErr.code === "auth/email-already-in-use") {
-             // El usuario ya existe en Firebase Auth (quizá se registró antes o fue borrado solo de Firestore)
-             isExistingUser = true;
-         } else {
-             throw authErr; // Propagar otros errores (ej. contraseña débil)
-         }
+      // 1. Crear usuario vía REST API para no afectar la sesión actual del Admin
+      const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${firebaseConfig.apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: newEmail.trim().toLowerCase(),
+          password: newPassword,
+          returnSecureToken: false
+        })
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        if (data.error?.message === "EMAIL_EXISTS") {
+          isExistingUser = true;
+        } else if (data.error?.message === "WEAK_PASSWORD") {
+          alert("Error: La contraseña debe tener al menos 6 caracteres.");
+          setLoading(false);
+          return;
+        } else {
+          throw new Error(data.error?.message || "Error desconocido al crear cuenta");
+        }
       }
 
-      // 2. Guardar o Actualizar en Firestore
+      // 2. Guardar o Actualizar en Firestore (El Admin sigue logueado)
       await setDoc(doc(db, "users", newEmail.trim().toLowerCase()), {
         email: newEmail.trim().toLowerCase(),
         role: "STAFF",
@@ -92,11 +102,7 @@ export default function StaffPage() {
       }
     } catch (error: any) {
       console.error(error);
-      if (error.code === "auth/weak-password") {
-         alert("Error: La contraseña debe tener al menos 6 caracteres.");
-      } else {
-         alert("Error al agregar staff. Intenta de nuevo.");
-      }
+      alert(`Error al agregar staff: ${error.message || error}`);
     } finally {
       setLoading(false);
     }

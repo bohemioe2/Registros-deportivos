@@ -51,23 +51,30 @@ export default function OrganizersPage() {
     setLoading(true);
     let isExistingUser = false;
     try {
-      // 1. Crear usuario en Auth de manera aislada (Secondary App)
-      const { initializeApp } = await import("firebase/app");
-      const { getAuth, createUserWithEmailAndPassword, signOut } = await import("firebase/auth");
+      // 1. Crear usuario vía REST API para no afectar la sesión actual del Admin
       const { firebaseConfig } = await import("@/lib/firebase/config");
+      const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${firebaseConfig.apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: newEmail.trim().toLowerCase(),
+          password: newPassword,
+          returnSecureToken: false
+        })
+      });
 
-      const secondaryApp = initializeApp(firebaseConfig, "SecondaryAppOrg");
-      const secondaryAuth = getAuth(secondaryApp);
+      const data = await res.json();
       
-      try {
-         await createUserWithEmailAndPassword(secondaryAuth, newEmail.trim().toLowerCase(), newPassword);
-         await signOut(secondaryAuth);
-      } catch (authErr: any) {
-         if (authErr.code === "auth/email-already-in-use") {
-             isExistingUser = true;
-         } else {
-             throw authErr;
-         }
+      if (!res.ok) {
+        if (data.error?.message === "EMAIL_EXISTS") {
+          isExistingUser = true;
+        } else if (data.error?.message === "WEAK_PASSWORD") {
+          alert("Error: La contraseña debe tener al menos 6 caracteres.");
+          setLoading(false);
+          return;
+        } else {
+          throw new Error(data.error?.message || "Error desconocido al crear cuenta");
+        }
       }
 
       // 2. Guardar en Firestore
@@ -90,11 +97,7 @@ export default function OrganizersPage() {
       }
     } catch (error: any) {
       console.error(error);
-      if (error.code === "auth/weak-password") {
-         alert("Error: La contraseña debe tener al menos 6 caracteres.");
-      } else {
-         alert(`Error al agregar organizador: ${error.message || error}`);
-      }
+      alert(`Error al agregar organizador: ${error.message || error}`);
     } finally {
       setLoading(false);
     }
