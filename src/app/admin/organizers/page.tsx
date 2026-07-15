@@ -15,6 +15,7 @@ export default function OrganizersPage() {
   const [events, setEvents] = useState<any[]>([]);
   
   const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [selectedEventId, setSelectedEventId] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -45,22 +46,55 @@ export default function OrganizersPage() {
 
   const handleAddOrganizer = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newEmail || !selectedEventId) return;
+    if (!newEmail || !newPassword || !selectedEventId) return;
     
     setLoading(true);
+    let isExistingUser = false;
     try {
-      // El ID del documento será el email para cruzarlo cuando se registren
+      // 1. Crear usuario en Auth de manera aislada (Secondary App)
+      const { initializeApp } = await import("firebase/app");
+      const { getAuth, createUserWithEmailAndPassword, signOut } = await import("firebase/auth");
+      const { firebaseConfig } = await import("@/lib/firebase/config");
+
+      const secondaryApp = initializeApp(firebaseConfig, "SecondaryAppOrg");
+      const secondaryAuth = getAuth(secondaryApp);
+      
+      try {
+         await createUserWithEmailAndPassword(secondaryAuth, newEmail.trim().toLowerCase(), newPassword);
+         await signOut(secondaryAuth);
+      } catch (authErr: any) {
+         if (authErr.code === "auth/email-already-in-use") {
+             isExistingUser = true;
+         } else {
+             throw authErr;
+         }
+      }
+
+      // 2. Guardar en Firestore
       await setDoc(doc(db, "users", newEmail.trim().toLowerCase()), {
         email: newEmail.trim().toLowerCase(),
         role: "ORGANIZER",
         assignedEventId: selectedEventId,
+        passwordHint: isExistingUser ? "Contraseña anterior (Ya existía)" : newPassword,
         createdAt: new Date().toISOString()
       });
+      
       setNewEmail("");
+      setNewPassword("");
       setSelectedEventId("");
-    } catch (error) {
+      
+      if (isExistingUser) {
+         alert("Este correo ya estaba registrado. Se ha restaurado su acceso como Organizador. Dile que inicie sesión con la contraseña que usaba antes.");
+      } else {
+         alert("¡Usuario y contraseña de Organizador creados con éxito!");
+      }
+    } catch (error: any) {
       console.error(error);
-      alert("Error al agregar organizador.");
+      if (error.code === "auth/weak-password") {
+         alert("Error: La contraseña debe tener al menos 6 caracteres.");
+      } else {
+         alert(`Error al agregar organizador: ${error.message || error}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -102,6 +136,16 @@ export default function OrganizersPage() {
             />
           </div>
           <div className="flex-1">
+            <input 
+              type="text" 
+              required 
+              placeholder="Contraseña (Mín. 6)" 
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full bg-[#171821] border border-[#ffffff10] rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-[#00d2ff] focus:border-[#00d2ff] outline-none transition-all"
+            />
+          </div>
+          <div className="flex-1">
             <select 
               required
               value={selectedEventId}
@@ -119,11 +163,11 @@ export default function OrganizersPage() {
             disabled={loading}
             className="bg-[#00d2ff] hover:bg-[#00b8e6] text-black font-bold px-6 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm disabled:opacity-50 shrink-0"
           >
-            <Plus className="w-4 h-4" /> Autorizar
+            <Plus className="w-4 h-4" /> Crear Cuenta
           </button>
         </form>
         <p className="text-xs text-gray-500 mt-4">
-          Nota: Ingresa el correo de tu cliente. Después, dile que entre a <strong className="text-gray-400">hazdeporte.com/signup</strong> y cree su cuenta con ese mismo correo.
+          Nota: Esto creará automáticamente la cuenta para el Organizador. Solo dale el correo y la contraseña que inventaste y dile que inicie sesión en <strong className="text-gray-400">hazdeporte.com/login</strong>.
         </p>
       </div>
 
@@ -153,9 +197,17 @@ export default function OrganizersPage() {
                         <p className="text-[10px] text-[#4b55f5] font-bold uppercase tracking-widest mt-0.5">Rol: Organizador</p>
                       </div>
                     </div>
-                    <div className="bg-[#171821] rounded-xl p-3 border border-[#ffffff05] mt-4">
-                      <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Evento Asignado</p>
-                      <p className="text-xs text-gray-300 font-medium truncate">{assignedEventName}</p>
+                    <div className="bg-[#171821] rounded-xl p-3 border border-[#ffffff05] mt-4 space-y-2">
+                      <div>
+                        <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Evento Asignado</p>
+                        <p className="text-xs text-gray-300 font-medium truncate">{assignedEventName}</p>
+                      </div>
+                      {org.passwordHint && (
+                        <div>
+                           <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Contraseña Asignada</p>
+                           <p className="text-xs text-[#00d2ff] font-mono font-bold truncate">{org.passwordHint}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <button 
