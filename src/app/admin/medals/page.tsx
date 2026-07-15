@@ -172,13 +172,20 @@ export default function MedalsPage() {
         where("folio", "==", parsedQuery.toUpperCase())
       );
 
-      const [snapName, snapFolio] = await Promise.all([getDocs(qByName), getDocs(qByFolio)]);
+      const [snapName, snapFolio, snapDoc] = await Promise.all([
+        getDocs(qByName), 
+        getDocs(qByFolio),
+        getDoc(doc(db, "registrations", parsedQuery)) // Intentar buscar por ID de documento (QR escaneado en el buscador)
+      ]);
       
       let results: any[] = [];
       snapName.forEach(d => results.push({ id: d.id, ...d.data() }));
       snapFolio.forEach(d => {
         if (!results.find(r => r.id === d.id)) results.push({ id: d.id, ...d.data() });
       });
+      if (snapDoc.exists()) {
+        if (!results.find(r => r.id === snapDoc.id)) results.push({ id: snapDoc.id, ...snapDoc.data() });
+      }
 
       // Filtrar por evento si es organizador
       if (role === "ORGANIZER" && assignedEventId) {

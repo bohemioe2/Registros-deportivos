@@ -142,14 +142,14 @@ export default function ScannerPage() {
              <div className="w-full max-w-sm mt-8 border-t border-[#ffffff10] pt-6 flex flex-col gap-3">
                 <p className="text-[10px] uppercase font-bold text-gray-500 tracking-widest">O Ingresa Folio Manualmente:</p>
                 <div className="flex gap-2">
-                   <input 
-                     type="text" 
-                     placeholder="Ej: 2 o FOL-002"
-                     value={manualInput}
-                     onChange={(e) => setManualInput(e.target.value.toUpperCase())}
-                     onKeyDown={(e) => e.key === 'Enter' && handleScan(manualInput)}
-                     className="flex-1 bg-[#1b1c27] border border-[#ffffff20] text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00d2ff] font-mono"
-                   />
+                     <input 
+                       type="text" 
+                       placeholder="Ej: 2 o FOL-002"
+                       value={manualInput}
+                       onChange={(e) => setManualInput(e.target.value)}
+                       onKeyDown={(e) => e.key === 'Enter' && handleScan(manualInput)}
+                       className="flex-1 bg-[#1b1c27] border border-[#ffffff20] text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00d2ff] font-mono"
+                     />
                    <button 
                      onClick={() => handleScan(manualInput)}
                      disabled={!manualInput.trim()}
