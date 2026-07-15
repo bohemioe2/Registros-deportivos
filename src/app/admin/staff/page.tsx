@@ -87,7 +87,6 @@ export default function StaffPage() {
         email: newEmail.trim().toLowerCase(),
         role: "STAFF",
         assignedEventId: selectedEventId,
-        passwordHint: isExistingUser ? "Contraseña anterior (Ya existía)" : newPassword,
         createdAt: new Date().toISOString()
       });
 

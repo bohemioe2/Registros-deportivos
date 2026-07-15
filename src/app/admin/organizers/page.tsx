@@ -82,7 +82,6 @@ export default function OrganizersPage() {
         email: newEmail.trim().toLowerCase(),
         role: "ORGANIZER",
         assignedEventId: selectedEventId,
-        passwordHint: isExistingUser ? "Contraseña anterior (Ya existía)" : newPassword,
         createdAt: new Date().toISOString()
       });
       
