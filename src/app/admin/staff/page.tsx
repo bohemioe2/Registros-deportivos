@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase/config";
+import { db, firebaseConfig } from "@/lib/firebase/config";
 import { collection, onSnapshot, doc, setDoc, deleteDoc } from "firebase/firestore";
 import { Trash2, KeyRound, Plus, UserPlus } from "lucide-react";
 import { useAuth } from "@/components/admin/AuthProvider";
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 
 export default function StaffPage() {
   const { role, assignedEventId } = useAuth();
@@ -13,6 +15,7 @@ export default function StaffPage() {
   const [events, setEvents] = useState<any[]>([]);
   
   const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [selectedEventId, setSelectedEventId] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -49,22 +52,39 @@ export default function StaffPage() {
 
   const handleAddStaff = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newEmail || !selectedEventId) return;
+    if (!newEmail || !newPassword || !selectedEventId) return;
     
     setLoading(true);
     try {
-      // El ID del documento será el email para cruzarlo cuando se registren
+      // 1. Crear usuario en Auth de manera aislada (Secondary App) para no desloguear al Admin
+      const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+      const secondaryAuth = getAuth(secondaryApp);
+      await createUserWithEmailAndPassword(secondaryAuth, newEmail.trim().toLowerCase(), newPassword);
+      await signOut(secondaryAuth); // Deslogueamos el secondary app
+
+      // 2. Guardar en Firestore
       await setDoc(doc(db, "users", newEmail.trim().toLowerCase()), {
         email: newEmail.trim().toLowerCase(),
         role: "STAFF",
         assignedEventId: selectedEventId,
+        passwordHint: newPassword, // Guardar una pista para el admin
         createdAt: new Date().toISOString()
       });
+
       setNewEmail("");
+      setNewPassword("");
       if (role === "SUPERADMIN") setSelectedEventId("");
-    } catch (error) {
+      
+      alert("¡Usuario y contraseña creados con éxito! Ya pueden iniciar sesión.");
+    } catch (error: any) {
       console.error(error);
-      alert("Error al agregar staff.");
+      if (error.code === "auth/email-already-in-use") {
+         alert("Error: Este correo ya tiene una cuenta en la plataforma.");
+      } else if (error.code === "auth/weak-password") {
+         alert("Error: La contraseña debe tener al menos 6 caracteres.");
+      } else {
+         alert("Error al agregar staff. Intenta de nuevo.");
+      }
     } finally {
       setLoading(false);
     }
@@ -97,9 +117,19 @@ export default function StaffPage() {
             <input 
               type="email" 
               required 
-              placeholder="Correo electrónico del personal" 
+              placeholder="Correo del personal" 
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
+              className="w-full bg-[#171821] border border-[#ffffff10] rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-[#ff5f6d] focus:border-[#ff5f6d] outline-none transition-all"
+            />
+          </div>
+          <div className="flex-1">
+            <input 
+              type="text" 
+              required 
+              placeholder="Contraseña (Mín. 6)" 
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               className="w-full bg-[#171821] border border-[#ffffff10] rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-[#ff5f6d] focus:border-[#ff5f6d] outline-none transition-all"
             />
           </div>
@@ -111,7 +141,7 @@ export default function StaffPage() {
               disabled={role === "ORGANIZER"}
               className="w-full bg-[#171821] border border-[#ffffff10] rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-[#ff5f6d] focus:border-[#ff5f6d] outline-none transition-all appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <option value="">-- Asignar a un Evento --</option>
+              <option value="">-- Asignar Evento --</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>{ev.name}</option>
               ))}
@@ -122,11 +152,11 @@ export default function StaffPage() {
             disabled={loading}
             className="bg-[#ff5f6d] hover:bg-[#ff4b5a] text-white font-bold px-6 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm disabled:opacity-50 shrink-0"
           >
-            <Plus className="w-4 h-4" /> Autorizar
+            <Plus className="w-4 h-4" /> Crear Cuenta
           </button>
         </form>
         <p className="text-xs text-gray-500 mt-4">
-          Nota: Ingresa el correo de tu personal. Después, diles que entren a <strong className="text-gray-400">hazdeporte.com/signup</strong> y creen su cuenta con ese mismo correo. Solo podrán usar el Escáner.
+          Nota: Esto creará automáticamente la cuenta para tu personal. Solo dales el correo y la contraseña que inventaste y pídeles que inicien sesión directamente en <strong className="text-gray-400">hazdeporte.com/login</strong>. Solo tendrán acceso al Escáner de tu evento.
         </p>
       </div>
 
@@ -156,9 +186,17 @@ export default function StaffPage() {
                         <p className="text-[10px] text-[#ffc371] font-bold uppercase tracking-widest mt-0.5">Rol: STAFF</p>
                       </div>
                     </div>
-                    <div className="bg-[#171821] rounded-xl p-3 border border-[#ffffff05] mt-4">
-                      <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Evento Asignado</p>
-                      <p className="text-xs text-gray-300 font-medium truncate">{assignedEventName}</p>
+                    <div className="bg-[#171821] rounded-xl p-3 border border-[#ffffff05] mt-4 space-y-2">
+                      <div>
+                         <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Evento Asignado</p>
+                         <p className="text-xs text-gray-300 font-medium truncate">{assignedEventName}</p>
+                      </div>
+                      {stf.passwordHint && (
+                        <div>
+                           <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Contraseña Asignada</p>
+                           <p className="text-xs text-[#00ff88] font-mono font-bold truncate">{stf.passwordHint}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <button 
