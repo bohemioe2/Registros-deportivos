@@ -55,19 +55,29 @@ export default function StaffPage() {
     if (!newEmail || !newPassword || !selectedEventId) return;
     
     setLoading(true);
+    let isExistingUser = false;
     try {
       // 1. Crear usuario en Auth de manera aislada (Secondary App) para no desloguear al Admin
       const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
       const secondaryAuth = getAuth(secondaryApp);
-      await createUserWithEmailAndPassword(secondaryAuth, newEmail.trim().toLowerCase(), newPassword);
-      await signOut(secondaryAuth); // Deslogueamos el secondary app
+      try {
+         await createUserWithEmailAndPassword(secondaryAuth, newEmail.trim().toLowerCase(), newPassword);
+         await signOut(secondaryAuth); // Deslogueamos el secondary app
+      } catch (authErr: any) {
+         if (authErr.code === "auth/email-already-in-use") {
+             // El usuario ya existe en Firebase Auth (quizá se registró antes o fue borrado solo de Firestore)
+             isExistingUser = true;
+         } else {
+             throw authErr; // Propagar otros errores (ej. contraseña débil)
+         }
+      }
 
-      // 2. Guardar en Firestore
+      // 2. Guardar o Actualizar en Firestore
       await setDoc(doc(db, "users", newEmail.trim().toLowerCase()), {
         email: newEmail.trim().toLowerCase(),
         role: "STAFF",
         assignedEventId: selectedEventId,
-        passwordHint: newPassword, // Guardar una pista para el admin
+        passwordHint: isExistingUser ? "Contraseña anterior (Ya existía)" : newPassword,
         createdAt: new Date().toISOString()
       });
 
@@ -75,12 +85,14 @@ export default function StaffPage() {
       setNewPassword("");
       if (role === "SUPERADMIN") setSelectedEventId("");
       
-      alert("¡Usuario y contraseña creados con éxito! Ya pueden iniciar sesión.");
+      if (isExistingUser) {
+         alert("Este correo ya estaba registrado en la plataforma. Se ha restaurado su acceso al escáner. Dile que inicie sesión con la contraseña que ella usaba antes.");
+      } else {
+         alert("¡Usuario y contraseña creados con éxito! Ya pueden iniciar sesión.");
+      }
     } catch (error: any) {
       console.error(error);
-      if (error.code === "auth/email-already-in-use") {
-         alert("Error: Este correo ya tiene una cuenta en la plataforma.");
-      } else if (error.code === "auth/weak-password") {
+      if (error.code === "auth/weak-password") {
          alert("Error: La contraseña debe tener al menos 6 caracteres.");
       } else {
          alert("Error al agregar staff. Intenta de nuevo.");
