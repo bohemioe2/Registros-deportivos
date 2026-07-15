@@ -90,9 +90,14 @@ export default function RegistrationsPage() {
   };
 
   const approveRegistration = async (id: string) => {
-    await updateDoc(doc(db, "registrations", id), { status: "APPROVED" });
-    if(selectedUser?.id === id) {
-      setSelectedUser((prev: any) => ({ ...prev, status: "APPROVED" }));
+    try {
+      await updateDoc(doc(db, "registrations", id), { status: "APPROVED" });
+      if(selectedUser?.id === id) {
+        setSelectedUser((prev: any) => ({ ...prev, status: "APPROVED" }));
+      }
+    } catch (err: any) {
+      console.error("Error al aprobar:", err);
+      alert("Error al aprobar: " + (err.message || "Permisos insuficientes."));
     }
   };
 
@@ -101,9 +106,9 @@ export default function RegistrationsPage() {
     try {
       await deleteDoc(doc(db, "registrations", registrationToDelete.id));
       if (selectedUser?.id === registrationToDelete.id) setSelectedUser(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error al eliminar", err);
-      alert("Ocurrió un error al intentar eliminar el registro.");
+      alert("Ocurrió un error al intentar eliminar el registro: " + (err.message || "Permisos insuficientes."));
     } finally {
       setRegistrationToDelete(null);
     }
