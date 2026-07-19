@@ -59,6 +59,8 @@ export default function RouteMonitoringPage() {
   // Derived Stats
   const totalInscritos = registrations.length;
   const totalAsistieron = registrations.filter(r => r.checkedInAt).length;
+  const asistieronExpress = registrations.filter(r => r.checkedInAt && r.kitName === "Registro Express (Sitio)").length;
+  const asistieronNormal = totalAsistieron - asistieronExpress;
   const totalLlegaron = registrations.filter(r => r.finishedAt || r.medalDeliveredAt).length;
   const enRuta = registrations.filter(r => r.checkedInAt && !r.finishedAt && !r.medalDeliveredAt);
   
@@ -114,7 +116,13 @@ export default function RouteMonitoringPage() {
               <span className="text-[9px] uppercase font-bold tracking-widest text-[#00d2ff]">Asistieron (Check-in)</span>
               <UserCheck className="w-4 h-4 text-[#00d2ff]" />
            </div>
-           <p className="text-3xl font-mono text-[#00d2ff] font-bold">{totalAsistieron}</p>
+           <div className="flex items-center gap-3">
+             <p className="text-3xl font-mono text-[#00d2ff] font-bold">{totalAsistieron}</p>
+             <div className="flex flex-col text-[8px] sm:text-[9px] font-bold text-[#00d2ff]/70 tracking-widest leading-[1.2]">
+                <span>Norm: {asistieronNormal}</span>
+                <span>Expr: {asistieronExpress}</span>
+             </div>
+           </div>
         </div>
         <div className="bg-[#4b55f5]/10 border border-[#4b55f5]/20 p-5 rounded-2xl flex flex-col justify-between">
            <div className="flex justify-between items-start mb-2">
