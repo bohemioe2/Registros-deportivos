@@ -27,10 +27,10 @@ export default function AdminSidebar() {
   const { role, assignedEventId } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
-  const dynamicNavItems = [
-    ...navItems,
-    { name: "Registro Express", href: `/register/${assignedEventId || 'Selecciona-Evento'}/express`, icon: Zap, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] }
-  ];
+  const dynamicNavItems = [...navItems];
+  if (assignedEventId) {
+    dynamicNavItems.push({ name: "Registro Express", href: `/register/${assignedEventId}/express`, icon: Zap, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] });
+  }
 
   // Si no hay rol todavía (cargando) o no tiene permisos, mostramos sidebar vacío o limitado
   const visibleItems = dynamicNavItems.filter(item => role && item.roles.includes(role));
