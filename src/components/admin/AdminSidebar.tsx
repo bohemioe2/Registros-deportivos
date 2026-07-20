@@ -40,7 +40,7 @@ export default function AdminSidebar() {
       {/* Botón Hamburguesa para Móviles */}
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="md:hidden fixed top-4 right-4 z-[60] bg-[#242636] p-3 rounded-xl border border-[#ffffff10] shadow-xl text-white"
+        className="md:hidden print:hidden fixed top-4 right-4 z-[60] bg-[#242636] p-3 rounded-xl border border-[#ffffff10] shadow-xl text-white"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
@@ -48,13 +48,13 @@ export default function AdminSidebar() {
       {/* Overlay Oscuro para Móviles */}
       {isOpen && (
         <div 
-          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[40]" 
+          className="md:hidden print:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[40]" 
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar Principal */}
-      <aside className={`fixed inset-y-0 left-0 z-[50] w-[220px] bg-[#171821] border-r border-[#ffffff0a] flex flex-col justify-between text-gray-400 shrink-0 transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"} md:relative md:translate-x-0`}>
+      <aside className={`fixed inset-y-0 left-0 z-[50] w-[220px] bg-[#171821] border-r border-[#ffffff0a] flex flex-col justify-between text-gray-400 shrink-0 transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"} md:relative md:translate-x-0 print:hidden`}>
         <div>
           <div className="flex h-[80px] items-center px-6">
             <span className="text-[15px] font-black tracking-[0.15em] text-white uppercase flex items-center gap-2.5">

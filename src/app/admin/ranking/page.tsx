@@ -113,24 +113,24 @@ export default function RankingPage() {
   if (!isReady) return null;
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar bg-[#1b1c27] text-white p-6 pb-20 sm:p-10 font-sans">
+    <div className="h-full overflow-y-auto custom-scrollbar bg-[#1b1c27] print:bg-white text-white print:text-black p-6 pb-20 sm:p-10 font-sans">
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* HEADER */}
-        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#ffffff10] pb-6 gap-6">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#ffffff10] print:border-black/10 pb-6 gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-tr from-[#00d2ff] to-[#4b55f5] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(75,85,245,0.4)]">
-              <Trophy className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-gradient-to-tr from-[#00d2ff] to-[#4b55f5] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(75,85,245,0.4)] print:shadow-none print:border print:border-black">
+              <Trophy className="w-6 h-6 text-white print:text-black" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-light tracking-tight">Ranking de <span className="font-bold text-[#00d2ff]">Tiempos</span></h1>
-              <p className="text-gray-400 text-xs sm:text-sm font-medium mt-1 uppercase tracking-widest">Tiempos oficiales calculados al cruzar la meta</p>
+              <h1 className="text-2xl sm:text-3xl font-light tracking-tight">Ranking de <span className="font-bold text-[#00d2ff] print:text-black">Tiempos</span></h1>
+              <p className="text-gray-400 print:text-gray-600 text-xs sm:text-sm font-medium mt-1 uppercase tracking-widest">Tiempos oficiales calculados al cruzar la meta</p>
             </div>
           </div>
         </header>
 
         {/* CONFIGURACIÓN Y CONTROLES */}
-        <div className="bg-[#171821] p-6 sm:p-8 rounded-3xl border border-[#ffffff0a] shadow-inner relative overflow-hidden">
+        <div className="bg-[#171821] p-6 sm:p-8 rounded-3xl border border-[#ffffff0a] shadow-inner relative overflow-hidden print:hidden">
            <div className="absolute top-0 right-0 w-32 h-32 bg-[#4b55f5]/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
            
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
@@ -186,70 +186,88 @@ export default function RankingPage() {
         {rankings.length > 0 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-500 mt-8">
              
-             {/* Tabs */}
-             <div className="flex p-1 bg-[#171821] border border-[#ffffff0a] rounded-2xl w-max">
-                <button 
-                   onClick={() => setActiveTab("general")}
-                   className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all ${activeTab === 'general' ? 'bg-[#242636] text-[#00d2ff] shadow-sm' : 'text-gray-500 hover:text-white'}`}
-                >
-                   <Users className="w-4 h-4" /> General
-                </button>
-                <button 
-                   onClick={() => setActiveTab("male")}
-                   className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all ${activeTab === 'male' ? 'bg-[#242636] text-[#4b55f5] shadow-sm' : 'text-gray-500 hover:text-white'}`}
-                >
-                   <User className="w-4 h-4" /> Varonil
-                </button>
-                <button 
-                   onClick={() => setActiveTab("female")}
-                   className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all ${activeTab === 'female' ? 'bg-[#242636] text-[#ff5f6d] shadow-sm' : 'text-gray-500 hover:text-white'}`}
-                >
-                   <User className="w-4 h-4" /> Femenil
-                </button>
+             {/* Controles y Exportar */}
+             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
+               {/* Tabs */}
+               <div className="flex p-1 bg-[#171821] border border-[#ffffff0a] rounded-2xl w-max">
+                  <button 
+                     onClick={() => setActiveTab("general")}
+                     className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all ${activeTab === 'general' ? 'bg-[#242636] text-[#00d2ff] shadow-sm' : 'text-gray-500 hover:text-white'}`}
+                  >
+                     <Users className="w-4 h-4" /> General
+                  </button>
+                  <button 
+                     onClick={() => setActiveTab("male")}
+                     className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all ${activeTab === 'male' ? 'bg-[#242636] text-[#4b55f5] shadow-sm' : 'text-gray-500 hover:text-white'}`}
+                  >
+                     <User className="w-4 h-4" /> Varonil
+                  </button>
+                  <button 
+                     onClick={() => setActiveTab("female")}
+                     className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all ${activeTab === 'female' ? 'bg-[#242636] text-[#ff5f6d] shadow-sm' : 'text-gray-500 hover:text-white'}`}
+                  >
+                     <User className="w-4 h-4" /> Femenil
+                  </button>
+               </div>
+               
+               <button 
+                 onClick={() => window.print()}
+                 className="bg-gray-100 hover:bg-white text-gray-900 border border-transparent hover:border-gray-300 transition-all px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg"
+               >
+                 📄 Descargar PDF
+               </button>
+             </div>
+
+             {/* Título solo para impresión */}
+             <div className="hidden print:block mb-4">
+               <h2 className="text-xl font-bold uppercase tracking-widest text-black">
+                 Resultados - Categoría {activeTab === "general" ? "General" : activeTab === "male" ? "Varonil" : "Femenil"}
+               </h2>
+               <p className="text-sm text-gray-600">Evento: {selectedEventId} | Arranque: {new Date(startTime).toLocaleString('es-MX')}</p>
              </div>
              
              {/* Tabla de Resultados */}
-             <div className="bg-[#242636]/60 backdrop-blur-md rounded-3xl border border-[#ffffff0a] shadow-[0_10px_40px_rgba(0,0,0,0.3)] overflow-hidden">
+             <div className="bg-[#242636]/60 print:bg-white print:border-black/20 backdrop-blur-md rounded-3xl border border-[#ffffff0a] shadow-[0_10px_40px_rgba(0,0,0,0.3)] print:shadow-none overflow-hidden print:rounded-none">
                 <div className="overflow-x-auto">
-                   <table className="w-full text-left border-collapse">
+                   <table className="w-full text-left border-collapse print:text-black">
                       <thead>
-                         <tr className="bg-[#171821] border-b border-[#ffffff10]">
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] w-24 text-center">Posición</th>
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Folio</th>
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Atleta</th>
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Categoría / Edad</th>
-                            <th className="px-6 py-5 text-[10px] font-black text-[#00d2ff] uppercase tracking-[0.2em] text-right">Tiempo Oficial</th>
+                         <tr className="bg-[#171821] print:bg-gray-100 border-b border-[#ffffff10] print:border-black/30">
+                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] w-24 text-center">Posición</th>
+                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Folio</th>
+                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Atleta</th>
+                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Categoría / Edad</th>
+                            <th className="px-6 py-5 text-[10px] font-black text-[#00d2ff] print:text-black uppercase tracking-[0.2em] text-right">Tiempo Oficial</th>
                          </tr>
                       </thead>
                       <tbody>
                          {filteredRankings.length === 0 ? (
                            <tr>
-                              <td colSpan={5} className="px-6 py-12 text-center text-gray-500 text-sm font-medium">No hay llegadas registradas en esta categoría.</td>
+                              <td colSpan={5} className="px-6 py-12 text-center text-gray-500 print:text-black text-sm font-medium">No hay llegadas registradas en esta categoría.</td>
                            </tr>
                          ) : (
                            filteredRankings.map((participant, index) => {
                              const position = index + 1;
-                             let rowStyle = "hover:bg-[#ffffff05] border-b border-[#ffffff05] transition-colors";
-                             let posBadge = <span className="text-gray-400 font-bold">{position}</span>;
+                             let rowStyle = "hover:bg-[#ffffff05] border-b border-[#ffffff05] print:border-black/10 transition-colors";
+                             let posBadge = <span className="text-gray-400 print:text-black font-bold">{position}</span>;
                              
-                             if (position === 1) posBadge = <span className="bg-[#ffc371]/20 text-[#ffc371] border border-[#ffc371]/30 w-8 h-8 flex items-center justify-center rounded-full font-black mx-auto shadow-[0_0_15px_rgba(255,195,113,0.3)]">1</span>;
-                             else if (position === 2) posBadge = <span className="bg-[#d1d5db]/20 text-[#d1d5db] border border-[#d1d5db]/30 w-8 h-8 flex items-center justify-center rounded-full font-black mx-auto">2</span>;
-                             else if (position === 3) posBadge = <span className="bg-[#cd7f32]/20 text-[#cd7f32] border border-[#cd7f32]/30 w-8 h-8 flex items-center justify-center rounded-full font-black mx-auto">3</span>;
+                             if (position === 1) posBadge = <span className="bg-[#ffc371]/20 print:bg-transparent text-[#ffc371] print:text-black border border-[#ffc371]/30 print:border-black w-8 h-8 flex items-center justify-center rounded-full font-black mx-auto shadow-[0_0_15px_rgba(255,195,113,0.3)] print:shadow-none">1</span>;
+                             else if (position === 2) posBadge = <span className="bg-[#d1d5db]/20 print:bg-transparent text-[#d1d5db] print:text-black border border-[#d1d5db]/30 print:border-black w-8 h-8 flex items-center justify-center rounded-full font-black mx-auto">2</span>;
+                             else if (position === 3) posBadge = <span className="bg-[#cd7f32]/20 print:bg-transparent text-[#cd7f32] print:text-black border border-[#cd7f32]/30 print:border-black w-8 h-8 flex items-center justify-center rounded-full font-black mx-auto">3</span>;
 
                              return (
                                <tr key={participant.id} className={rowStyle}>
                                  <td className="px-6 py-4 text-center">{posBadge}</td>
-                                 <td className="px-6 py-4 font-mono text-sm text-[#00d2ff] font-bold">{participant.folio}</td>
+                                 <td className="px-6 py-4 font-mono text-sm text-[#00d2ff] print:text-black font-bold">{participant.folio}</td>
                                  <td className="px-6 py-4">
-                                    <div className="font-bold text-white text-sm">{participant.firstName} {participant.lastName}</div>
+                                    <div className="font-bold text-white print:text-black text-sm">{participant.firstName} {participant.lastName}</div>
                                  </td>
                                  <td className="px-6 py-4">
-                                    <div className="text-xs text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
-                                       {participant.gender === 'MALE' ? 'Varonil' : 'Femenil'} <span className="w-1 h-1 bg-gray-600 rounded-full"></span> {participant.age} Años
+                                    <div className="text-xs text-gray-400 print:text-black font-bold uppercase tracking-widest flex items-center gap-2">
+                                       {participant.gender === 'MALE' ? 'Varonil' : 'Femenil'} <span className="w-1 h-1 bg-gray-600 print:bg-black rounded-full"></span> {participant.age} Años
                                     </div>
                                  </td>
                                  <td className="px-6 py-4 text-right">
-                                    <div className="inline-block bg-[#171821] border border-[#ffffff10] px-4 py-1.5 rounded-lg text-[#00ff88] font-mono font-bold text-sm tracking-widest shadow-inner">
+                                    <div className="inline-block bg-[#171821] print:bg-transparent print:border-none border border-[#ffffff10] px-4 py-1.5 rounded-lg text-[#00ff88] print:text-black font-mono font-bold text-sm tracking-widest shadow-inner print:shadow-none">
                                        {formatTime(participant.elapsedMs)}
                                     </div>
                                  </td>
