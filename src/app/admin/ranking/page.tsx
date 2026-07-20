@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/components/admin/AuthProvider";
 import { db } from "@/lib/firebase/config";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { Timer, Trophy, Medal, Users, User, ArrowRight, Loader2, CalendarClock } from "lucide-react";
+import { Timer, Trophy, Medal, Users, User, ArrowRight, Loader2, CalendarClock, EyeOff } from "lucide-react";
 
 export default function RankingPage() {
   const { role, assignedEventId } = useAuth();
@@ -101,6 +101,10 @@ export default function RankingPage() {
       minutes.toString().padStart(2, '0'),
       seconds.toString().padStart(2, '0')
     ].join(':');
+  };
+
+  const omitParticipant = (id: string) => {
+    setRankings(prev => prev.filter(r => r.id !== id));
   };
 
   const filteredRankings = rankings.filter(r => {
@@ -237,6 +241,7 @@ export default function RankingPage() {
                             <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Atleta</th>
                             <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Categoría / Edad</th>
                             <th className="px-6 py-5 text-[10px] font-black text-[#00d2ff] print:text-black uppercase tracking-[0.2em] text-right">Tiempo Oficial</th>
+                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:hidden uppercase tracking-[0.2em] text-center w-16">Omitir</th>
                          </tr>
                       </thead>
                       <tbody>
@@ -270,6 +275,15 @@ export default function RankingPage() {
                                     <div className="inline-block bg-[#171821] print:bg-transparent print:border-none border border-[#ffffff10] px-4 py-1.5 rounded-lg text-[#00ff88] print:text-black font-mono font-bold text-sm tracking-widest shadow-inner print:shadow-none">
                                        {formatTime(participant.elapsedMs)}
                                     </div>
+                                 </td>
+                                 <td className="px-6 py-4 text-center print:hidden">
+                                    <button 
+                                      onClick={() => omitParticipant(participant.id)}
+                                      title="Omitir del reporte"
+                                      className="text-gray-500 hover:text-[#ff5f6d] hover:bg-[#ff5f6d]/10 p-2 rounded-lg transition-colors"
+                                    >
+                                      <EyeOff className="w-4 h-4" />
+                                    </button>
                                  </td>
                                </tr>
                              );
