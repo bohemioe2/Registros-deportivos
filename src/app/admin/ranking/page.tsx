@@ -113,7 +113,7 @@ export default function RankingPage() {
   if (!isReady) return null;
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar bg-[#1b1c27] print:bg-white text-white print:text-black p-6 pb-20 sm:p-10 font-sans">
+    <div className="h-full print:h-auto overflow-y-auto print:overflow-visible custom-scrollbar bg-[#1b1c27] print:bg-white text-white print:text-black p-6 pb-20 sm:p-10 font-sans">
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* HEADER */}
@@ -227,8 +227,8 @@ export default function RankingPage() {
              </div>
              
              {/* Tabla de Resultados */}
-             <div className="bg-[#242636]/60 print:bg-white print:border-black/20 backdrop-blur-md rounded-3xl border border-[#ffffff0a] shadow-[0_10px_40px_rgba(0,0,0,0.3)] print:shadow-none overflow-hidden print:rounded-none">
-                <div className="overflow-x-auto">
+             <div className="bg-[#242636]/60 print:bg-white print:border-black/20 backdrop-blur-md rounded-3xl border border-[#ffffff0a] shadow-[0_10px_40px_rgba(0,0,0,0.3)] print:shadow-none overflow-hidden print:overflow-visible print:rounded-none">
+                <div className="overflow-x-auto print:overflow-visible">
                    <table className="w-full text-left border-collapse print:text-black">
                       <thead>
                          <tr className="bg-[#171821] print:bg-gray-100 border-b border-[#ffffff10] print:border-black/30">
