@@ -4,7 +4,7 @@ import EventForm from "@/components/admin/EventForm";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase/config";
 import { collection, onSnapshot, doc, deleteDoc, updateDoc } from "firebase/firestore";
-import { Trash2, EyeOff, Eye, Settings, Edit2 } from "lucide-react";
+import { Trash2, EyeOff, Eye, Settings, Edit2, Link as LinkIcon, MonitorSmartphone } from "lucide-react";
 import { useAuth } from "@/components/admin/AuthProvider";
 
 export default function EventsPage() {
@@ -73,7 +73,31 @@ export default function EventsPage() {
                   <h4 className="font-light text-white text-2xl tracking-tight mb-2 group-hover:text-[#00d2ff] transition-colors">{ev.name}</h4>
                   <p className="text-[13px] text-gray-400 mt-2 font-medium line-clamp-2 leading-relaxed">{ev.description || "Sin descripción proporcionada."}</p>
                 </div>
-                <div className="mt-8 pt-6 border-t border-[#ffffff0a] flex gap-3 relative z-10 flex-wrap">
+
+                <div className="mt-4 flex flex-col gap-2 relative z-10">
+                   <button 
+                      onClick={() => {
+                         navigator.clipboard.writeText(`https://hazdeporte.com/register/${ev.id}/auto-inscripcion`);
+                         alert("¡Link de Kiosko copiado al portapapeles!");
+                      }}
+                      className="w-full text-[10px] text-orange-400 bg-orange-500/10 hover:bg-orange-500/20 px-4 py-2.5 rounded-xl border border-orange-500/30 font-bold uppercase tracking-widest flex items-center justify-between transition-colors shadow-sm group/btn"
+                   >
+                     <span className="flex items-center gap-2"><MonitorSmartphone className="w-3.5 h-3.5" /> Link de Auto-inscripción (Kiosko)</span>
+                     <LinkIcon className="w-3 h-3 opacity-50 group-hover/btn:opacity-100" />
+                   </button>
+                   <button 
+                      onClick={() => {
+                         navigator.clipboard.writeText(`https://hazdeporte.com/register/${ev.id}`);
+                         alert("¡Link Público Normal copiado al portapapeles!");
+                      }}
+                      className="w-full text-[10px] text-gray-300 bg-[#171821] hover:bg-[#1c1d29] px-4 py-2.5 rounded-xl border border-[#ffffff10] font-bold uppercase tracking-widest flex items-center justify-between transition-colors shadow-sm group/btn"
+                   >
+                     <span className="flex items-center gap-2"><LinkIcon className="w-3.5 h-3.5" /> Link de Registro Público (Normal)</span>
+                     <LinkIcon className="w-3 h-3 opacity-50 group-hover/btn:opacity-100" />
+                   </button>
+                </div>
+
+                <div className="mt-5 pt-5 border-t border-[#ffffff0a] flex gap-3 relative z-10 flex-wrap">
                   <button onClick={() => toggleStatus(ev.id, ev.status)} className="flex-1 flex items-center justify-center gap-2 bg-[#171821] hover:bg-[#1c1d29] text-gray-300 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors shadow-inner border border-[#ffffff05] hover:border-[#ffffff10]">
                     {ev.status === "ABIERTO" ? <><EyeOff className="w-3.5 h-3.5"/> Ocultar</> : <><Eye className="w-3.5 h-3.5"/> Publicar</>}
                   </button>
