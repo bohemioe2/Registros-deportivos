@@ -22,6 +22,7 @@ const DEFAULT_VALUES = {
   posterColorName: "#ffffff",
   posterColorState: "#ccff00",
   posterColorWelcome: "#ff007f",
+  responsivaAutoInscripcion: "",
   showFolioOnPoster: true,
   showStateOnPoster: true,
   showMuniOnPoster: false,
@@ -489,6 +490,17 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
             rows={2}
             className="w-full rounded-xl bg-[#171821] border border-[#ffffff10] text-[#00d2ff] font-mono px-4 py-3 text-[12px] focus:border-[#4b55f5] focus:outline-none focus:ring-1 focus:ring-[#4b55f5] transition-all shadow-inner custom-scrollbar"
             placeholder="Banco: XYZ | CLABE: 0123456789 | Nombre: Liga Nacional de Deportes" 
+          />
+        </div>
+
+        <div className="space-y-2 md:col-span-2 border-t border-[#ffffff0a] pt-6">
+          <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#ff9500]">Texto Responsiva (Kiosko / Auto-inscripción)</label>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Si dejas este campo en blanco, se usará un texto por defecto que dice que el comité no se hace responsable.</p>
+          <textarea 
+            {...register("responsivaAutoInscripcion")} 
+            rows={3}
+            className="w-full rounded-xl bg-[#171821] border border-[#ffffff10] text-gray-200 placeholder-gray-600 px-4 py-3 text-[13px] font-medium focus:border-[#ff9500] focus:outline-none focus:ring-1 focus:ring-[#ff9500] transition-all shadow-inner custom-scrollbar"
+            placeholder="El comité organizador de la RODADA REMEDIOS 2026 no se hace responsable por ningún daño o perjuicio..." 
           />
         </div>
 

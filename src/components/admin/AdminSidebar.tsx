@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Users, Settings, LogOut, Target, Tag, Shirt, Briefcase, KeyRound, Award, Menu, X, MapPin, Zap, Timer } from "lucide-react";
+import { Activity, Users, Settings, LogOut, Target, Tag, Shirt, Briefcase, KeyRound, Award, Menu, X, MapPin, Zap, Timer, MonitorSmartphone } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 import { useAuth } from "@/components/admin/AuthProvider";
@@ -30,6 +30,7 @@ export default function AdminSidebar() {
   const dynamicNavItems = [...navItems];
   if (assignedEventId) {
     dynamicNavItems.push({ name: "Registro Express", href: `/register/${assignedEventId}/express`, icon: Zap, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] });
+    dynamicNavItems.push({ name: "Auto-inscripción (Kiosko)", href: `/register/${assignedEventId}/auto-inscripcion`, icon: MonitorSmartphone, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] });
   }
 
   // Si no hay rol todavía (cargando) o no tiene permisos, mostramos sidebar vacío o limitado
