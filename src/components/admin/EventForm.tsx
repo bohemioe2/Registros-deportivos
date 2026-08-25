@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm, useFieldArray } from "react-hook-form";
-import { Plus, Trash2, Loader2, Sparkles, CheckCircle2, MapPin } from "lucide-react";
+import { Plus, Trash2, Loader2, Sparkles, CheckCircle2, MapPin, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { db, storage } from "@/lib/firebase/config";
 import { collection, addDoc, serverTimestamp, updateDoc, doc } from "firebase/firestore";
@@ -9,6 +9,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import WelcomePoster from "@/components/public/WelcomePoster";
 
 const DEFAULT_VALUES = {
+  isExpress: false,
   name: "",
   description: "",
   paymentMethods: "",
@@ -46,6 +47,7 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
   const { fields, append, remove } = useFieldArray({ control, name: "categories" });
   const { fields: kitFields, append: kitAppend, remove: kitRemove } = useFieldArray({ control, name: "kits" as any });
 
+  const isExpress = watch("isExpress");
   const categoriesEnabled = watch("categoriesEnabled");
   const kitsEnabled = watch("kitsEnabled");
   const kitsWatch = watch("kits");
@@ -176,6 +178,16 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
       delete cleanData.jerseyMediaFiles;
 
       // Firestore rechaza valores "undefined", limpiamos el objeto antes de guardarlo
+      if (cleanData.isExpress) {
+        cleanData.enabledDocs = [];
+        cleanData.categoriesEnabled = false;
+        cleanData.kitsEnabled = false;
+        cleanData.skipWelcomePoster = true;
+        cleanData.showFolioOnPoster = false;
+        cleanData.showStateOnPoster = false;
+        cleanData.showMuniOnPoster = false;
+      }
+
       const removeUndefined = (obj: any): any => {
         if (obj === undefined) return null;
         if (obj === null || typeof obj !== 'object') return obj;
@@ -228,10 +240,26 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-4xl">
+      <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-2xl p-6 shadow-inner flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-orange-400 font-bold uppercase tracking-widest text-sm flex items-center gap-2">
+            <Zap className="w-5 h-5" /> Modo Evento Express (Austero)
+          </h3>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 max-w-lg">
+            Oculta toda la configuración pesada (playeras, fotos, recibos). Ideal para rodadas de Kiosko donde solo requieres nombre y responsiva.
+          </p>
+        </div>
+        <label className="relative inline-flex items-center cursor-pointer shrink-0">
+          <input type="checkbox" className="sr-only peer" {...register("isExpress")} />
+          <div className="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-orange-500 peer-checked:to-red-500 shadow-xl"></div>
+        </label>
+      </div>
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="space-y-2 md:col-span-2 p-6 rounded-2xl bg-[#bb86fc]/10 border border-[#bb86fc]/30 shadow-inner mb-2">
-           <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#bb86fc]">Imagen de Portada (Banner Público Opcional)</label>
-           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Sube una fotografía ancha y de alta calidad (Landscape). Esta será la imagen principal que tus atletas verán al entrar a Mundo Deportivo.</p>
+        {!isExpress && (
+          <div className="space-y-2 md:col-span-2 p-6 rounded-2xl bg-[#bb86fc]/10 border border-[#bb86fc]/30 shadow-inner mb-2">
+            <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#bb86fc]">Imagen de Portada (Banner Público Opcional)</label>
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Sube una fotografía ancha y de alta calidad (Landscape). Esta será la imagen principal que tus atletas verán al entrar a Mundo Deportivo.</p>
            
            {bannerPreviewUrl && (
              <div className="mb-4 rounded-xl overflow-hidden border border-[#bb86fc]/30 shadow-lg h-32 w-full">
@@ -245,7 +273,8 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
              {...register("eventBanner")} 
              className="w-full text-[12px] file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-[#bb86fc] file:text-black hover:file:bg-[#bb86fc]/80 text-gray-300 font-mono"
            />
-        </div>
+          </div>
+        )}
         
         <div className="space-y-2">
           <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Nombre Oficial de la Operación</label>
@@ -256,9 +285,11 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
           />
         </div>
         
-        <div className="space-y-2">
-          <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Activación de Algoritmo de Categorías</label>
-          <div className="flex items-center h-12 bg-[#171821] border border-[#ffffff10] rounded-xl px-4 shadow-inner">
+        {!isExpress && (
+          <>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Activación de Algoritmo de Categorías</label>
+              <div className="flex items-center h-12 bg-[#171821] border border-[#ffffff10] rounded-xl px-4 shadow-inner">
             <input 
               type="checkbox" 
               {...register("categoriesEnabled")}
@@ -472,9 +503,12 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
              </div>
            )}
         </div>
+        </>
+        )}
 
-        <div className="space-y-2 md:col-span-2">
-          <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Descripción Pública (Datos para el Portal Web)</label>
+        {!isExpress && (
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Descripción Pública (Datos para el Portal Web)</label>
           <textarea 
             {...register("description")} 
             rows={3}
@@ -492,6 +526,7 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
             placeholder="Banco: XYZ | CLABE: 0123456789 | Nombre: Liga Nacional de Deportes" 
           />
         </div>
+        )}
 
         <div className="space-y-2 md:col-span-2 border-t border-[#ffffff0a] pt-6">
           <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#ff9500]">Texto Responsiva (Kiosko / Auto-inscripción)</label>
@@ -516,6 +551,8 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed relative z-10">Si anexas una cripto-identidad (correo) en este renglón, al momento de que esa credencial inicie sesión, su panel Dashboard quedará aislado, otorgándole visibilidad <b className="text-[#00d2ff]">SÓLO</b> a esta campaña. Tú ostentarás la visual de SuperAdministrador en todo momento.</p>
         </div>
 
+        {!isExpress && (
+        <>
         <div className="space-y-2 md:col-span-2 p-6 rounded-2xl bg-[#00d2ff]/10 border border-[#00d2ff]/30 shadow-inner">
            <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#00d2ff]">Diseño de Bienvenida HD (Frame PNG/Transparente)</label>
            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Sube el diseño gráfico transparente (.PNG) de tu evento. La app pondrá este diseño por encima de la foto del atleta, y estampará automáticamente el nombre, número y estado del participante según tu plantilla de referencia.</p>
@@ -734,6 +771,8 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
             placeholder="Dictamino que me hallo en capacidades bio-físicas intactas para atravesar la prueba..." 
           />
         </div>
+        </>
+        )}
       </div>
 
       <div className="flex justify-end border-t border-[#ffffff0a] pt-8 gap-4">
