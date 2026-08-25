@@ -507,6 +507,7 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
         )}
 
         {!isExpress && (
+          <>
           <div className="space-y-2 md:col-span-2">
             <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Descripción Pública (Datos para el Portal Web)</label>
           <textarea 
@@ -526,6 +527,7 @@ export default function EventForm({ initialData, onCancelEdit }: { initialData?:
             placeholder="Banco: XYZ | CLABE: 0123456789 | Nombre: Liga Nacional de Deportes" 
           />
         </div>
+        </>
         )}
 
         <div className="space-y-2 md:col-span-2 border-t border-[#ffffff0a] pt-6">
