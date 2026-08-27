@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import { QrCode, CheckCircle2, AlertTriangle, User, Award, CheckCircle, Loader2, Search, Medal } from "lucide-react";
+import { QrCode, CheckCircle2, AlertTriangle, User, Award, CheckCircle, Loader2, Search, Medal, Filter } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { useAuth } from "@/components/admin/AuthProvider";
 import { doc, getDoc, updateDoc, collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
@@ -11,6 +11,7 @@ export default function MedalsPage() {
   const { role, assignedEventId } = useAuth();
   const [scannedId, setScannedId] = useState<string | null>(null);
   const [participantInfo, setParticipantInfo] = useState<any | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string>("all");
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -45,7 +46,11 @@ export default function MedalsPage() {
     let q;
     const baseColl = collection(db, "registrations");
     if (role === "SUPERADMIN") {
-      q = baseColl; // Global
+      if (selectedEventId !== "all") {
+        q = query(baseColl, where("eventId", "==", selectedEventId));
+      } else {
+        q = baseColl; // Global
+      }
     } else if (assignedEventId) {
       q = query(baseColl, where("eventId", "==", assignedEventId));
     } else {
@@ -80,12 +85,18 @@ export default function MedalsPage() {
     });
 
     return () => unsubStats();
-  }, [role, assignedEventId, eventsData]);
+  }, [role, assignedEventId, eventsData, selectedEventId]);
 
   const processParticipant = async (data: any, docId: string) => {
     // Bloqueo de seguridad: El organizador solo puede escanear su evento
     if (role === "ORGANIZER" && data.eventId !== assignedEventId) {
       setErrorStatus(`ERROR DE SEGURIDAD: Este atleta pertenece a otro evento. No tienes permisos para escanearlo.`);
+      setLoading(false);
+      return;
+    }
+
+    if (role === "SUPERADMIN" && selectedEventId !== "all" && data.eventId !== selectedEventId) {
+      setErrorStatus(`ATLETA DE OTRO EVENTO: Este participante no pertenece al evento que tienes seleccionado actualmente.`);
       setLoading(false);
       return;
     }
@@ -197,9 +208,10 @@ export default function MedalsPage() {
         if (!results.find(r => r.id === snapDoc.id)) results.push({ id: snapDoc.id, ...snapDoc.data() });
       }
 
-      // Filtrar por evento si es organizador
       if (role === "ORGANIZER" && assignedEventId) {
         results = results.filter(r => r.eventId === assignedEventId);
+      } else if (role === "SUPERADMIN" && selectedEventId !== "all") {
+        results = results.filter(r => r.eventId === selectedEventId);
       }
 
       setSearchResults(results);
@@ -257,7 +269,36 @@ export default function MedalsPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-center">
+          <div className="flex items-center gap-4 text-center flex-wrap">
+            {role === "SUPERADMIN" && (
+              <div className="relative w-full sm:w-[220px]">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ffc371]">
+                  <Filter className="w-4 h-4" />
+                </div>
+                <select
+                  value={selectedEventId}
+                  onChange={(e) => {
+                     setSelectedEventId(e.target.value);
+                     setParticipantInfo(null);
+                     setSearchResults([]);
+                     setErrorStatus(null);
+                  }}
+                  className="w-full bg-[#1b1c27] border border-[#ffffff20] text-gray-300 rounded-xl text-[10px] font-bold uppercase tracking-widest pl-10 pr-8 py-3 focus:outline-none focus:border-[#ffc371] transition-all cursor-pointer appearance-none"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffc371' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "right 1rem center",
+                  }}
+                >
+                  <option value="all">Todos los Eventos</option>
+                  {Object.keys(eventsData).map((id) => (
+                    <option key={id} value={id}>
+                      {eventsData[id].name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="bg-[#242636] border border-[#ffffff10] rounded-xl px-4 py-2">
                <p className="text-[9px] uppercase tracking-widest text-gray-400">Entregadas</p>
                <p className="text-[#00d2ff] font-mono font-bold text-lg">{stats.delivered}</p>
