@@ -156,31 +156,41 @@ export default function MedalsPage() {
     setErrorStatus(null);
     setScannedId(null);
     
-    let parsedQuery = searchQuery.trim();
-    if (/^\d+$/.test(parsedQuery)) {
-       parsedQuery = `FOL-${String(parsedQuery).padStart(3, '0')}`;
+    let originalQuery = searchQuery.trim();
+    let parsedQuery = originalQuery;
+    let isNumeric = /^\d+$/.test(originalQuery);
+    if (isNumeric) {
+       parsedQuery = `FOL-${String(originalQuery).padStart(3, '0')}`;
     }
     
     try {
       const qByName = query(
         collection(db, "registrations"),
-        where("firstName", ">=", parsedQuery),
-        where("firstName", "<=", parsedQuery + '\uf8ff')
+        where("firstName", ">=", originalQuery),
+        where("firstName", "<=", originalQuery + '\uf8ff')
       );
-      const qByFolio = query(
+      const qByFolioLegacy = query(
         collection(db, "registrations"),
         where("folio", "==", parsedQuery.toUpperCase())
       );
+      const qByFolioOriginal = query(
+        collection(db, "registrations"),
+        where("folio", "==", originalQuery.toUpperCase())
+      );
 
-      const [snapName, snapFolio, snapDoc] = await Promise.all([
+      const [snapName, snapFolioLegacy, snapFolioOriginal, snapDoc] = await Promise.all([
         getDocs(qByName), 
-        getDocs(qByFolio),
-        getDoc(doc(db, "registrations", parsedQuery)) // Intentar buscar por ID de documento (QR escaneado en el buscador)
+        getDocs(qByFolioLegacy),
+        getDocs(qByFolioOriginal),
+        getDoc(doc(db, "registrations", originalQuery)) // Intentar buscar por ID de documento (QR escaneado en el buscador)
       ]);
       
       let results: any[] = [];
       snapName.forEach(d => results.push({ id: d.id, ...d.data() }));
-      snapFolio.forEach(d => {
+      snapFolioLegacy.forEach(d => {
+        if (!results.find(r => r.id === d.id)) results.push({ id: d.id, ...d.data() });
+      });
+      snapFolioOriginal.forEach(d => {
         if (!results.find(r => r.id === d.id)) results.push({ id: d.id, ...d.data() });
       });
       if (snapDoc.exists()) {
@@ -295,7 +305,9 @@ export default function MedalsPage() {
                      >
                        <div>
                          <p className="text-sm font-bold text-white">{res.firstName} {res.lastName}</p>
-                         <p className="text-[10px] uppercase text-gray-400 font-mono tracking-wider">{res.folio}</p>
+                         <p className="text-[10px] uppercase text-gray-400 font-mono tracking-wider">
+                           <span className="text-[#00d2ff]">{eventsData[res.eventId]?.name || "Evento Desconocido"}</span> • Folio: {res.folio}
+                         </p>
                        </div>
                        <span className="text-[9px] uppercase tracking-widest text-[#ffc371] font-bold bg-[#ffc371]/10 px-2 py-1 rounded">Seleccionar</span>
                      </button>
