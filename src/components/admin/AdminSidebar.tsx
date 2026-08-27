@@ -13,7 +13,7 @@ const navItems = [
   { name: "Eventos", href: "/admin/events", icon: Settings, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Registros", href: "/admin/registrations", icon: Users, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Audit. Mesa (Scan)", href: "/admin/scanner", icon: Target, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
-  { name: "Monitoreo Ruta", href: "/admin/route", icon: MapPin, roles: ["SUPERADMIN", "ORGANIZER"] },
+  { name: "Monitoreo Ruta", href: "/admin/route", icon: MapPin, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Meta / Medallas", href: "/admin/medals", icon: Award, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Ranking Tiempos", href: "/admin/ranking", icon: Timer, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Dorsales", href: "/admin/bibs", icon: Tag, roles: ["SUPERADMIN", "ORGANIZER"] },

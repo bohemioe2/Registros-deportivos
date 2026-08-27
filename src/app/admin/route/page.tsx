@@ -20,11 +20,11 @@ export default function RouteMonitoringPage() {
     if (!role) return;
     const unsub = onSnapshot(collection(db, "events"), (snapshot) => {
       let evs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-      if (role === "ORGANIZER" && assignedEventId) {
+      if (role !== "SUPERADMIN" && assignedEventId) {
         evs = evs.filter(e => e.id === assignedEventId);
       }
       setEvents(evs);
-      if (role === "ORGANIZER" && assignedEventId && selectedEventId === "ALL") {
+      if (role !== "SUPERADMIN" && assignedEventId && selectedEventId === "ALL") {
          setSelectedEventId(assignedEventId);
       }
     });
