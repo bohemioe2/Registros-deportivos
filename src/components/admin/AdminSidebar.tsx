@@ -11,7 +11,7 @@ import { useState } from "react";
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: Activity, roles: ["SUPERADMIN", "ORGANIZER"] },
   { name: "Eventos", href: "/admin/events", icon: Settings, roles: ["SUPERADMIN", "ORGANIZER"] },
-  { name: "Registros", href: "/admin/registrations", icon: Users, roles: ["SUPERADMIN", "ORGANIZER"] },
+  { name: "Registros", href: "/admin/registrations", icon: Users, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Audit. Mesa (Scan)", href: "/admin/scanner", icon: Target, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Monitoreo Ruta", href: "/admin/route", icon: MapPin, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },
   { name: "Meta / Medallas", href: "/admin/medals", icon: Award, roles: ["SUPERADMIN", "ORGANIZER", "STAFF"] },

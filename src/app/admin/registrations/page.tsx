@@ -40,13 +40,13 @@ export default function RegistrationsPage() {
     const unsub = onSnapshot(collection(db, "events"), (snapshot) => {
       let evs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       
-      if (role === "ORGANIZER" && assignedEventId) {
+      if (!isSuperAdmin && assignedEventId) {
         evs = evs.filter(e => e.id === assignedEventId);
       }
       
       setEvents(evs);
 
-      if (role === "ORGANIZER" && assignedEventId && selectedEventId === "ALL") {
+      if (!isSuperAdmin && assignedEventId && selectedEventId === "ALL") {
          setSelectedEventId(assignedEventId);
       }
     });
