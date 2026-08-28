@@ -88,8 +88,8 @@ export default function MedalsPage() {
   }, [role, assignedEventId, eventsData, selectedEventId]);
 
   const processParticipant = async (data: any, docId: string) => {
-    // Bloqueo de seguridad: El organizador solo puede escanear su evento
-    if (role === "ORGANIZER" && data.eventId !== assignedEventId) {
+    // Bloqueo de seguridad: El organizador o staff solo puede escanear su evento
+    if (role !== "SUPERADMIN" && data.eventId !== assignedEventId) {
       setErrorStatus(`ERROR DE SEGURIDAD: Este atleta pertenece a otro evento. No tienes permisos para escanearlo.`);
       setLoading(false);
       return;
@@ -208,7 +208,7 @@ export default function MedalsPage() {
         if (!results.find(r => r.id === snapDoc.id)) results.push({ id: snapDoc.id, ...snapDoc.data() });
       }
 
-      if (role === "ORGANIZER" && assignedEventId) {
+      if (role !== "SUPERADMIN" && assignedEventId) {
         results = results.filter(r => r.eventId === assignedEventId);
       } else if (role === "SUPERADMIN" && selectedEventId !== "all") {
         results = results.filter(r => r.eventId === selectedEventId);
