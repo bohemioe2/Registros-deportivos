@@ -18,6 +18,7 @@ export default function RankingPage() {
   const [rankings, setRankings] = useState<any[]>([]);
   
   const [isReady, setIsReady] = useState(false);
+  const [isSimplePrint, setIsSimplePrint] = useState(false);
 
   useEffect(() => {
     setIsReady(true);
@@ -215,12 +216,20 @@ export default function RankingPage() {
                   </button>
                </div>
                
-               <button 
-                 onClick={() => window.print()}
-                 className="bg-gray-100 hover:bg-white text-gray-900 border border-transparent hover:border-gray-300 transition-all px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg"
-               >
-                 📄 Descargar PDF
-               </button>
+               <div className="flex gap-2">
+                 <button 
+                   onClick={() => { setIsSimplePrint(false); setTimeout(() => window.print(), 100); }}
+                   className="bg-gray-100 hover:bg-white text-gray-900 border border-transparent hover:border-gray-300 transition-all px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg"
+                 >
+                   📄 PDF Completo
+                 </button>
+                 <button 
+                   onClick={() => { setIsSimplePrint(true); setTimeout(() => window.print(), 100); }}
+                   className="bg-[#242636] hover:bg-[#2a2d3d] text-[#00d2ff] border border-[#ffffff10] hover:border-[#00d2ff]/50 transition-all px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg"
+                 >
+                   📄 PDF Solo Nombres
+                 </button>
+               </div>
              </div>
 
              {/* Título solo para impresión */}
@@ -283,10 +292,10 @@ export default function RankingPage() {
                    <table className="w-full text-left border-collapse print:text-black">
                       <thead>
                          <tr className="bg-[#171821] print:bg-gray-100 border-b border-[#ffffff10] print:border-black/30">
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] w-24 text-center">Posición</th>
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Folio</th>
+                            <th className={`px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] w-24 text-center ${isSimplePrint ? 'print:hidden' : ''}`}>Posición</th>
+                            <th className={`px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] ${isSimplePrint ? 'print:hidden' : ''}`}>Folio</th>
                             <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Atleta</th>
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Categoría / Edad</th>
+                            <th className={`px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] ${isSimplePrint ? 'print:hidden' : ''}`}>Categoría / Edad</th>
                             <th className="px-6 py-5 text-[10px] font-black text-[#00d2ff] print:text-black uppercase tracking-[0.2em] text-right">Tiempo Oficial</th>
                             <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:hidden uppercase tracking-[0.2em] text-center w-16">Omitir</th>
                          </tr>
@@ -308,12 +317,12 @@ export default function RankingPage() {
 
                              return (
                                <tr key={participant.id} className={rowStyle}>
-                                 <td className="px-6 py-4 text-center">{posBadge}</td>
-                                 <td className="px-6 py-4 font-mono text-sm text-[#00d2ff] print:text-black font-bold">{participant.folio}</td>
+                                 <td className={`px-6 py-4 text-center ${isSimplePrint ? 'print:hidden' : ''}`}>{posBadge}</td>
+                                 <td className={`px-6 py-4 font-mono text-sm text-[#00d2ff] print:text-black font-bold ${isSimplePrint ? 'print:hidden' : ''}`}>{participant.folio}</td>
                                  <td className="px-6 py-4">
                                     <div className="font-bold text-white print:text-black text-sm">{participant.firstName} {participant.lastName}</div>
                                  </td>
-                                 <td className="px-6 py-4">
+                                 <td className={`px-6 py-4 ${isSimplePrint ? 'print:hidden' : ''}`}>
                                     <div className="text-xs text-gray-400 print:text-black font-bold uppercase tracking-widest flex items-center gap-2">
                                        {participant.gender === 'MALE' ? 'Varonil' : 'Femenil'} <span className="w-1 h-1 bg-gray-600 print:bg-black rounded-full"></span> {participant.age} Años
                                     </div>
