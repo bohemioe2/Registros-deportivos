@@ -83,6 +83,10 @@ export default function RankingPage() {
       // Ordenar por tiempo (menor a mayor)
       results.sort((a, b) => a.elapsedMs - b.elapsedMs);
       
+      if (results.length === 0) {
+        alert("No se encontraron atletas que hayan llegado DESPUÉS de la hora de arranque indicada. Por favor, verifica que la hora de disparo sea correcta.");
+      }
+      
       setRankings(results);
     } catch (error) {
       console.error(error);
