@@ -5,6 +5,7 @@ import { useAuth } from "@/components/admin/AuthProvider";
 import { db } from "@/lib/firebase/config";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { Timer, Trophy, Medal, Users, User, ArrowRight, Loader2, CalendarClock, EyeOff } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function RankingPage() {
   const { role, assignedEventId } = useAuth();
@@ -229,6 +230,52 @@ export default function RankingPage() {
                </h2>
                <p className="text-sm text-gray-600">Evento: {selectedEventId} | Arranque: {new Date(startTime).toLocaleString('es-MX')}</p>
              </div>
+             
+             {/* Gráfica de Tiempos (Top 15) */}
+             {filteredRankings.length > 0 && (
+               <div className="bg-[#171821] p-6 sm:p-8 rounded-3xl border border-[#ffffff0a] mb-8 print:hidden shadow-inner">
+                 <h3 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-6 flex items-center gap-2">
+                   <div className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse"></div>
+                   Top 15 Tiempos Oficiales
+                 </h3>
+                 <div className="h-[300px] w-full">
+                   <ResponsiveContainer width="100%" height="100%">
+                     <BarChart data={filteredRankings.slice(0, 15)} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
+                       <XAxis 
+                         dataKey="firstName" 
+                         tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 'bold' }} 
+                         tickLine={false} 
+                         axisLine={false}
+                         angle={-45}
+                         textAnchor="end"
+                         dy={10}
+                       />
+                       <YAxis 
+                         tick={{ fill: '#6b7280', fontSize: 10 }} 
+                         tickLine={false} 
+                         axisLine={false} 
+                         tickFormatter={(val) => Math.floor(val/60000) + 'm'}
+                       />
+                       <Tooltip 
+                         cursor={{ fill: '#ffffff05' }}
+                         contentStyle={{ backgroundColor: '#242636', border: '1px solid #ffffff10', borderRadius: '12px', color: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
+                         formatter={(value: any) => {
+                           return [<span className="font-mono text-[#00d2ff]">{formatTime(value)}</span>, <span className="text-gray-400 text-[10px] uppercase tracking-widest">Tiempo Oficial</span>];
+                         }}
+                         labelStyle={{ fontWeight: 'bold', marginBottom: '4px', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.1em' }}
+                       />
+                       <Bar dataKey="elapsedMs" radius={[6, 6, 0, 0]} animationDuration={1500}>
+                         {
+                           filteredRankings.slice(0, 15).map((entry, index) => (
+                             <Cell key={`cell-${index}`} fill={index === 0 ? '#ffc371' : index === 1 ? '#e2e8f0' : index === 2 ? '#cd7f32' : '#00d2ff'} />
+                           ))
+                         }
+                       </Bar>
+                     </BarChart>
+                   </ResponsiveContainer>
+                 </div>
+               </div>
+             )}
              
              {/* Tabla de Resultados */}
              <div className="bg-[#242636]/60 print:bg-white print:border-black/20 backdrop-blur-md rounded-3xl border border-[#ffffff0a] shadow-[0_10px_40px_rgba(0,0,0,0.3)] print:shadow-none overflow-hidden print:overflow-visible print:rounded-none">
