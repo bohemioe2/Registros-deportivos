@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/admin/AuthProvider";
 import { db } from "@/lib/firebase/config";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
 import { Timer, Trophy, Medal, Users, User, ArrowRight, Loader2, CalendarClock, EyeOff, Link as LinkIcon, Check } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -80,7 +80,7 @@ export default function RankingPage() {
            const finishMs = new Date(data.finishedAt).getTime();
            const diffMs = finishMs - startMs;
            
-           if (diffMs > 0) { // Solo si llegaron después de que arrancó
+           if (diffMs > 0 && !data.excludedFromRanking) { // Solo si llegaron después de que arrancó y no omitidos
              results.push({
                 id: doc.id,
                 ...data,
@@ -119,8 +119,18 @@ export default function RankingPage() {
     ].join(':');
   };
 
-  const omitParticipant = (id: string) => {
+  const omitParticipant = async (id: string) => {
+    const confirmOmit = window.confirm("¿Seguro que deseas excluir a este atleta del ranking de forma permanente? También desaparecerá del enlace público.");
+    if (!confirmOmit) return;
+
     setRankings(prev => prev.filter(r => r.id !== id));
+    
+    try {
+      await updateDoc(doc(db, "registrations", id), { excludedFromRanking: true });
+    } catch (error) {
+      console.error("Error excluyendo corredor:", error);
+      alert("Hubo un error al excluirlo de la base de datos.");
+    }
   };
 
   const filteredRankings = rankings.filter(r => {
@@ -290,8 +300,8 @@ export default function RankingPage() {
                        <Tooltip 
                          cursor={{ fill: '#ffffff05' }}
                          contentStyle={{ backgroundColor: '#242636', border: '1px solid #ffffff10', borderRadius: '12px', color: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
-                         formatter={(value: any) => {
-                           return [<span className="font-mono text-[#00d2ff]">{formatTime(value)}</span>, <span className="text-gray-400 text-[10px] uppercase tracking-widest">Tiempo Oficial</span>];
+                         formatter={(value: any, name: any, props: any) => {
+                           return [<span className="font-mono text-[#00d2ff]">{formatTime(value)}</span>, <span className="text-gray-400 text-[10px] uppercase tracking-widest">{props.payload.age} Años - Tiempo Oficial</span>];
                          }}
                          labelStyle={{ fontWeight: 'bold', marginBottom: '4px', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.1em' }}
                        />

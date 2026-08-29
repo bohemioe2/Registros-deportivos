@@ -55,7 +55,7 @@ export default function PublicRankingPage() {
              const finishMs = new Date(data.finishedAt).getTime();
              const diffMs = finishMs - startMs;
              
-             if (diffMs > 0) { // Solo si llegaron después de que arrancó
+             if (diffMs > 0 && !data.excludedFromRanking) { // Solo si llegaron después de que arrancó y no están omitidos
                results.push({
                   id: document.id,
                   ...data,
@@ -201,8 +201,8 @@ export default function PublicRankingPage() {
                        <Tooltip 
                          cursor={{ fill: '#ffffff05' }}
                          contentStyle={{ backgroundColor: '#242636', border: '1px solid #ffffff10', borderRadius: '12px', color: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
-                         formatter={(value: any) => {
-                           return [<span className="font-mono text-[#00d2ff]">{formatTime(value)}</span>, <span className="text-gray-400 text-[10px] uppercase tracking-widest">Tiempo Oficial</span>];
+                         formatter={(value: any, name: any, props: any) => {
+                           return [<span className="font-mono text-[#00d2ff]">{formatTime(value)}</span>, <span className="text-gray-400 text-[10px] uppercase tracking-widest">{props.payload.age} Años - Tiempo Oficial</span>];
                          }}
                          labelStyle={{ fontWeight: 'bold', marginBottom: '4px', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.1em' }}
                        />
