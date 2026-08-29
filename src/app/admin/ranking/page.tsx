@@ -127,7 +127,7 @@ export default function RankingPage() {
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* HEADER */}
-        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#ffffff10] print:border-black/10 pb-6 gap-6">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#ffffff10] print:border-black/10 pb-6 print:pb-2 gap-6 print:gap-2">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-tr from-[#00d2ff] to-[#4b55f5] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(75,85,245,0.4)] print:shadow-none print:border print:border-black">
               <Trophy className="w-6 h-6 text-white print:text-black" />
@@ -237,8 +237,8 @@ export default function RankingPage() {
              </div>
 
              {/* Título solo para impresión */}
-             <div className="hidden print:block mb-4">
-               <h2 className="text-xl font-bold uppercase tracking-widest text-black">
+             <div className="hidden print:block mb-1">
+               <h2 className="text-lg font-bold uppercase tracking-widest text-black">
                  Resultados - Categoría {activeTab === "general" ? "General" : activeTab === "male" ? "Varonil" : "Femenil"}
                </h2>
                <p className="text-sm text-gray-600">Evento: {selectedEventId} | Arranque: {new Date(startTime).toLocaleString('es-MX')}</p>
@@ -298,12 +298,12 @@ export default function RankingPage() {
                    <table className="w-full text-left border-collapse print:text-black">
                       <thead>
                          <tr className="bg-[#171821] print:bg-gray-100 border-b border-[#ffffff10] print:border-black/30">
-                            <th className={`px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] w-24 text-center ${isSimplePrint ? 'print:hidden' : ''}`}>Posición</th>
-                            <th className={`px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] ${isSimplePrint ? 'print:hidden' : ''}`}>Folio</th>
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Atleta</th>
-                            <th className={`px-6 py-5 text-[10px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] ${isSimplePrint ? 'print:hidden' : ''}`}>Categoría / Edad</th>
-                            <th className="px-6 py-5 text-[10px] font-black text-[#00d2ff] print:text-black uppercase tracking-[0.2em] text-right">Tiempo Oficial</th>
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-500 print:hidden uppercase tracking-[0.2em] text-center w-16">Omitir</th>
+                            <th className={`px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] w-24 text-center ${isSimplePrint ? 'print:hidden' : ''}`}>Posición</th>
+                            <th className={`px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] ${isSimplePrint ? 'print:hidden' : ''}`}>Folio</th>
+                            <th className="px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Atleta</th>
+                            <th className={`px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] ${isSimplePrint ? 'print:hidden' : ''}`}>Categoría / Edad</th>
+                            <th className="px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-[#00d2ff] print:text-black uppercase tracking-[0.2em] text-right">Tiempo Oficial</th>
+                            <th className="px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:hidden uppercase tracking-[0.2em] text-center w-16">Omitir</th>
                          </tr>
                       </thead>
                       <tbody>
@@ -317,24 +317,24 @@ export default function RankingPage() {
                              let rowStyle = "hover:bg-[#ffffff05] border-b border-[#ffffff05] print:border-black/10 transition-colors";
                              let posBadge = <span className="text-gray-400 print:text-black font-bold">{position}</span>;
                              
-                             if (position === 1) posBadge = <span className="bg-[#ffc371]/20 print:bg-transparent text-[#ffc371] print:text-black border border-[#ffc371]/30 print:border-black w-8 h-8 flex items-center justify-center rounded-full font-black mx-auto shadow-[0_0_15px_rgba(255,195,113,0.3)] print:shadow-none">1</span>;
-                             else if (position === 2) posBadge = <span className="bg-[#d1d5db]/20 print:bg-transparent text-[#d1d5db] print:text-black border border-[#d1d5db]/30 print:border-black w-8 h-8 flex items-center justify-center rounded-full font-black mx-auto">2</span>;
-                             else if (position === 3) posBadge = <span className="bg-[#cd7f32]/20 print:bg-transparent text-[#cd7f32] print:text-black border border-[#cd7f32]/30 print:border-black w-8 h-8 flex items-center justify-center rounded-full font-black mx-auto">3</span>;
+                             if (position === 1) posBadge = <span className="bg-[#ffc371]/20 print:bg-transparent text-[#ffc371] print:text-black border border-[#ffc371]/30 print:border-black w-8 h-8 print:w-4 print:h-4 flex items-center justify-center rounded-full font-black mx-auto shadow-[0_0_15px_rgba(255,195,113,0.3)] print:shadow-none">1</span>;
+                             else if (position === 2) posBadge = <span className="bg-[#d1d5db]/20 print:bg-transparent text-[#d1d5db] print:text-black border border-[#d1d5db]/30 print:border-black w-8 h-8 print:w-4 print:h-4 flex items-center justify-center rounded-full font-black mx-auto">2</span>;
+                             else if (position === 3) posBadge = <span className="bg-[#cd7f32]/20 print:bg-transparent text-[#cd7f32] print:text-black border border-[#cd7f32]/30 print:border-black w-8 h-8 print:w-4 print:h-4 flex items-center justify-center rounded-full font-black mx-auto">3</span>;
 
                              return (
                                <tr key={participant.id} className={rowStyle}>
-                                 <td className={`px-6 py-4 text-center ${isSimplePrint ? 'print:hidden' : ''}`}>{posBadge}</td>
-                                 <td className={`px-6 py-4 font-mono text-sm text-[#00d2ff] print:text-black font-bold ${isSimplePrint ? 'print:hidden' : ''}`}>{participant.folio}</td>
-                                 <td className="px-6 py-4">
-                                    <div className="font-bold text-white print:text-black text-sm">{participant.firstName} {participant.lastName}</div>
+                                 <td className={`px-6 py-4 print:py-1 print:px-2 text-center ${isSimplePrint ? 'print:hidden' : ''}`}>{posBadge}</td>
+                                 <td className={`px-6 py-4 print:py-1 print:px-2 font-mono text-sm print:text-[10px] text-[#00d2ff] print:text-black font-bold ${isSimplePrint ? 'print:hidden' : ''}`}>{participant.folio}</td>
+                                 <td className="px-6 py-4 print:py-1 print:px-2">
+                                    <div className="font-bold text-white print:text-black text-sm print:text-[11px]">{participant.firstName} {participant.lastName}</div>
                                  </td>
-                                 <td className={`px-6 py-4 ${isSimplePrint ? 'print:hidden' : ''}`}>
-                                    <div className="text-xs text-gray-400 print:text-black font-bold uppercase tracking-widest flex items-center gap-2">
+                                 <td className={`px-6 py-4 print:py-1 print:px-2 ${isSimplePrint ? 'print:hidden' : ''}`}>
+                                    <div className="text-xs print:text-[9px] text-gray-400 print:text-black font-bold uppercase tracking-widest flex items-center gap-2">
                                        {participant.gender === 'MALE' ? 'Varonil' : 'Femenil'} <span className="w-1 h-1 bg-gray-600 print:bg-black rounded-full"></span> {participant.age} Años
                                     </div>
                                  </td>
-                                 <td className="px-6 py-4 text-right">
-                                    <div className="inline-block bg-[#171821] print:bg-transparent print:border-none border border-[#ffffff10] px-4 py-1.5 rounded-lg text-[#00ff88] print:text-black font-mono font-bold text-sm tracking-widest shadow-inner print:shadow-none">
+                                 <td className="px-6 py-4 print:py-1 print:px-2 text-right">
+                                    <div className="inline-block bg-[#171821] print:bg-transparent print:border-none border border-[#ffffff10] px-4 py-1.5 print:py-0 print:px-0 rounded-lg text-[#00ff88] print:text-black font-mono font-bold text-sm print:text-[11px] tracking-widest shadow-inner print:shadow-none">
                                        {formatTime(participant.elapsedMs)}
                                     </div>
                                  </td>
