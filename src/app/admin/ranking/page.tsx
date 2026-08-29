@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/components/admin/AuthProvider";
 import { db } from "@/lib/firebase/config";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { Timer, Trophy, Medal, Users, User, ArrowRight, Loader2, CalendarClock, EyeOff } from "lucide-react";
+import { Timer, Trophy, Medal, Users, User, ArrowRight, Loader2, CalendarClock, EyeOff, Link as LinkIcon, Check } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function RankingPage() {
@@ -19,6 +19,16 @@ export default function RankingPage() {
   
   const [isReady, setIsReady] = useState(false);
   const [isSimplePrint, setIsSimplePrint] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const handleCopyLink = () => {
+    if (!selectedEventId || !startTime) return alert("Calcula los tiempos primero");
+    const startMs = new Date(startTime).getTime();
+    const url = `${window.location.origin}/ranking/${selectedEventId}?start=${startMs}`;
+    navigator.clipboard.writeText(url);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 3000);
+  };
 
   useEffect(() => {
     setIsReady(true);
@@ -220,7 +230,14 @@ export default function RankingPage() {
                   </button>
                </div>
                
-               <div className="flex gap-2">
+               <div className="flex flex-wrap gap-2 justify-end">
+                 <button 
+                   onClick={handleCopyLink}
+                   className="bg-[#242636] hover:bg-[#2a2d3d] text-[#00ff88] border border-[#ffffff10] hover:border-[#00ff88]/50 transition-all px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg"
+                 >
+                   {copiedLink ? <Check className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
+                   {copiedLink ? "Link Copiado" : "Link Público"}
+                 </button>
                  <button 
                    onClick={() => { setIsSimplePrint(false); setTimeout(() => window.print(), 100); }}
                    className="bg-gray-100 hover:bg-white text-gray-900 border border-transparent hover:border-gray-300 transition-all px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg"
