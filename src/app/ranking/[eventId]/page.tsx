@@ -59,6 +59,7 @@ export default function PublicRankingPage() {
                results.push({
                   id: document.id,
                   ...data,
+                  firstName: (data.firstName || "").split(" ")[0],
                   elapsedMs: diffMs
                });
              }
