@@ -244,16 +244,17 @@ export default function RankingPage() {
                <p className="text-sm text-gray-600">Evento: {selectedEventId} | Arranque: {new Date(startTime).toLocaleString('es-MX')}</p>
              </div>
              
-             {/* Gráfica de Tiempos (Top 15) */}
+             {/* Gráfica de Tiempos */}
              {filteredRankings.length > 0 && (
                <div className="bg-[#171821] p-6 sm:p-8 rounded-3xl border border-[#ffffff0a] mb-8 print:hidden shadow-inner">
                  <h3 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-6 flex items-center gap-2">
                    <div className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse"></div>
-                   Top 15 Tiempos Oficiales
+                   Gráfica de Tiempos Oficiales
                  </h3>
-                 <div className="h-[300px] w-full">
-                   <ResponsiveContainer width="100%" height="100%">
-                     <BarChart data={filteredRankings.slice(0, 15)} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
+                 <div className="w-full overflow-x-auto custom-scrollbar pb-4">
+                   <div style={{ minWidth: `${Math.max(800, filteredRankings.length * 40)}px`, height: '350px' }}>
+                     <ResponsiveContainer width="100%" height="100%">
+                       <BarChart data={filteredRankings} margin={{ top: 10, right: 10, left: -20, bottom: 60 }}>
                        <XAxis 
                          dataKey="firstName" 
                          tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 'bold' }} 
@@ -279,13 +280,14 @@ export default function RankingPage() {
                        />
                        <Bar dataKey="elapsedMs" radius={[6, 6, 0, 0]} animationDuration={1500}>
                          {
-                           filteredRankings.slice(0, 15).map((entry, index) => (
+                           filteredRankings.map((entry, index) => (
                              <Cell key={`cell-${index}`} fill={index === 0 ? '#ffc371' : index === 1 ? '#e2e8f0' : index === 2 ? '#cd7f32' : '#00d2ff'} />
                            ))
                          }
                        </Bar>
                      </BarChart>
                    </ResponsiveContainer>
+                   </div>
                  </div>
                </div>
              )}
