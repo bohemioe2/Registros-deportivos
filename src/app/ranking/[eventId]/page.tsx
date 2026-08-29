@@ -132,7 +132,7 @@ export default function PublicRankingPage() {
               <Trophy className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl sm:text-3xl font-light tracking-tight mt-2 sm:mt-0">Resultados <span className="font-bold text-[#00d2ff]">En Vivo</span></h1>
+              <h1 className="text-2xl sm:text-3xl font-light tracking-tight mt-2 sm:mt-0">Resultados de <span className="font-bold text-[#00d2ff]">Hora de entrega de medalla</span></h1>
               <p className="text-gray-400 text-xs sm:text-sm font-bold mt-2 uppercase tracking-widest">{eventName}</p>
             </div>
           </div>
