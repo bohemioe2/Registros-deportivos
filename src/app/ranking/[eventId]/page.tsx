@@ -222,7 +222,7 @@ export default function PublicRankingPage() {
                          cursor={{ fill: '#ffffff05' }}
                          contentStyle={{ backgroundColor: '#242636', border: '1px solid #ffffff10', borderRadius: '12px', color: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
                          formatter={(value: any, name: any, props: any) => {
-                           return [<span className="font-mono text-[#00d2ff]">{formatTime(value)}</span>, <span className="text-gray-400 text-[10px] uppercase tracking-widest">{props.payload.age} Años - Tiempo Oficial</span>];
+                           return [<span className="font-mono text-[#00d2ff]">{formatTime(value)}</span>, <span className="text-gray-400 text-[10px] uppercase tracking-widest">Tiempo Oficial</span>];
                          }}
                          labelStyle={{ fontWeight: 'bold', marginBottom: '4px', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.1em' }}
                        />
@@ -290,14 +290,13 @@ export default function PublicRankingPage() {
                              <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] w-16 sm:w-24 text-center">Pos</th>
                              <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Folio</th>
                              <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Atleta</th>
-                             <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Edad</th>
                              <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-[#00d2ff] uppercase tracking-[0.2em] text-right">Tiempo</th>
                           </tr>
                        </thead>
                        <tbody>
                           {filteredRankings.length === 0 ? (
                             <tr>
-                               <td colSpan={5} className="px-6 py-12 text-center text-gray-500 text-sm font-medium">No hay llegadas en esta categoría.</td>
+                               <td colSpan={4} className="px-6 py-12 text-center text-gray-500 text-sm font-medium">No hay llegadas en esta categoría.</td>
                             </tr>
                           ) : (
                             filteredRankings.map((participant, index) => {
@@ -314,12 +313,7 @@ export default function PublicRankingPage() {
                                   <td className="px-4 sm:px-6 py-4 text-center">{posBadge}</td>
                                   <td className="px-4 sm:px-6 py-4 font-mono text-xs sm:text-sm text-[#00d2ff] font-bold">{participant.folio}</td>
                                   <td className="px-4 sm:px-6 py-4">
-                                     <div className="font-bold text-white text-xs sm:text-sm">{participant.firstName} {participant.lastName}</div>
-                                  </td>
-                                  <td className="px-4 sm:px-6 py-4">
-                                     <div className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1 sm:gap-2">
-                                        {participant.age} Años
-                                     </div>
+                                     <div className="font-bold text-white text-xs sm:text-sm">{participant.firstName}</div>
                                   </td>
                                   <td className="px-4 sm:px-6 py-4 text-right">
                                      <div className="inline-block bg-[#171821] border border-[#ffffff10] px-3 sm:px-4 py-1.5 rounded-lg text-[#00ff88] font-mono font-bold text-xs sm:text-sm tracking-widest shadow-inner">
