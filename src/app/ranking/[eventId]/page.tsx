@@ -229,7 +229,7 @@ export default function PublicRankingPage() {
                              <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] w-16 sm:w-24 text-center">Pos</th>
                              <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Folio</th>
                              <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Atleta</th>
-                             <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Categoría / Edad</th>
+                             <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Edad</th>
                              <th className="px-4 sm:px-6 py-5 text-[10px] font-black text-[#00d2ff] uppercase tracking-[0.2em] text-right">Tiempo</th>
                           </tr>
                        </thead>
@@ -257,7 +257,7 @@ export default function PublicRankingPage() {
                                   </td>
                                   <td className="px-4 sm:px-6 py-4">
                                      <div className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1 sm:gap-2">
-                                        {participant.gender === 'MALE' ? 'Varonil' : 'Femenil'} <span className="w-1 h-1 bg-gray-600 rounded-full"></span> {participant.age} Años
+                                        {participant.age} Años
                                      </div>
                                   </td>
                                   <td className="px-4 sm:px-6 py-4 text-right">

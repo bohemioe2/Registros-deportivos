@@ -328,7 +328,7 @@ export default function RankingPage() {
                             <th className={`px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] w-24 text-center ${isSimplePrint ? 'print:hidden' : ''}`}>Posición</th>
                             <th className={`px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] ${isSimplePrint ? 'print:hidden' : ''}`}>Folio</th>
                             <th className="px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em]">Atleta</th>
-                            <th className={`px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] ${isSimplePrint ? 'print:hidden' : ''}`}>Categoría / Edad</th>
+                            <th className={`px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:text-black uppercase tracking-[0.2em] ${isSimplePrint ? 'print:hidden' : ''}`}>Edad</th>
                             <th className="px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-[#00d2ff] print:text-black uppercase tracking-[0.2em] text-right">Tiempo Oficial</th>
                             <th className="px-6 py-5 print:py-1 print:px-2 text-[10px] print:text-[8px] font-black text-gray-500 print:hidden uppercase tracking-[0.2em] text-center w-16">Omitir</th>
                          </tr>
@@ -357,7 +357,7 @@ export default function RankingPage() {
                                  </td>
                                  <td className={`px-6 py-4 print:py-1 print:px-2 ${isSimplePrint ? 'print:hidden' : ''}`}>
                                     <div className="text-xs print:text-[9px] text-gray-400 print:text-black font-bold uppercase tracking-widest flex items-center gap-2">
-                                       {participant.gender === 'MALE' ? 'Varonil' : 'Femenil'} <span className="w-1 h-1 bg-gray-600 print:bg-black rounded-full"></span> {participant.age} Años
+                                       {participant.age} Años
                                     </div>
                                  </td>
                                  <td className="px-6 py-4 print:py-1 print:px-2 text-right">
