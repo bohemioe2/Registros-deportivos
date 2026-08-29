@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { db } from "@/lib/firebase/config";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { Timer, Trophy, Users, User, Loader2 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 
 export default function PublicRankingPage() {
   const params = useParams();
@@ -99,6 +99,26 @@ export default function PublicRankingPage() {
     if (activeTab === "female") return r.gender === "FEMALE";
     return true;
   });
+
+  const ageDistribution = [
+    { name: 'Menores de 18', value: 0 },
+    { name: '18 a 29', value: 0 },
+    { name: '30 a 39', value: 0 },
+    { name: '40 a 49', value: 0 },
+    { name: '50+', value: 0 },
+  ];
+  
+  filteredRankings.forEach(r => {
+     const age = parseInt(r.age) || 0;
+     if (age < 18) ageDistribution[0].value++;
+     else if (age <= 29) ageDistribution[1].value++;
+     else if (age <= 39) ageDistribution[2].value++;
+     else if (age <= 49) ageDistribution[3].value++;
+     else ageDistribution[4].value++;
+  });
+  
+  const pieData = ageDistribution.filter(d => d.value > 0);
+  const PIE_COLORS = ['#ffc371', '#00d2ff', '#4b55f5', '#ff5f6d', '#cd7f32'];
 
   if (loading) {
      return (
@@ -216,6 +236,47 @@ export default function PublicRankingPage() {
                      </BarChart>
                    </ResponsiveContainer>
                    </div>
+                 </div>
+               </div>
+             )}
+
+             {/* Gráfica de Pastel: Rangos de Edad */}
+             {pieData.length > 0 && (
+               <div className="bg-[#171821] p-4 sm:p-8 rounded-3xl border border-[#ffffff0a] shadow-[0_10px_40px_rgba(0,0,0,0.3)]">
+                 <h3 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-2 flex items-center justify-center sm:justify-start gap-2">
+                   <div className="w-2 h-2 rounded-full bg-[#ffc371] animate-pulse"></div>
+                   Distribución por Edades
+                 </h3>
+                 <div className="w-full" style={{ height: '350px' }}>
+                   <ResponsiveContainer width="100%" height="100%">
+                     <PieChart>
+                       <Pie
+                         data={pieData}
+                         cx="50%"
+                         cy="50%"
+                         innerRadius={60}
+                         outerRadius={100}
+                         paddingAngle={5}
+                         dataKey="value"
+                         stroke="none"
+                       >
+                         {pieData.map((entry, index) => (
+                           <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                         ))}
+                       </Pie>
+                       <Tooltip
+                         contentStyle={{ backgroundColor: '#242636', border: '1px solid #ffffff10', borderRadius: '12px', color: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
+                         itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                         formatter={(value: any, name: any) => [`${value} Atletas`, name]}
+                       />
+                       <Legend 
+                         verticalAlign="bottom" 
+                         height={36} 
+                         iconType="circle"
+                         formatter={(value) => <span className="text-gray-400 text-[11px] uppercase tracking-widest font-bold">{value}</span>}
+                       />
+                     </PieChart>
+                   </ResponsiveContainer>
                  </div>
                </div>
              )}
