@@ -251,24 +251,24 @@ export default function RankingPage() {
                    <div className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse"></div>
                    Gráfica de Tiempos Oficiales
                  </h3>
-                 <div className="w-full overflow-x-auto custom-scrollbar pb-4">
-                   <div style={{ minWidth: `${Math.max(800, filteredRankings.length * 40)}px`, height: '350px' }}>
+                 <div className="w-full overflow-y-auto custom-scrollbar pr-2" style={{ maxHeight: '600px' }}>
+                   <div style={{ height: `${Math.max(300, filteredRankings.length * 35)}px`, width: '100%' }}>
                      <ResponsiveContainer width="100%" height="100%">
-                       <BarChart data={filteredRankings} margin={{ top: 10, right: 10, left: -20, bottom: 60 }}>
+                       <BarChart data={filteredRankings} layout="vertical" margin={{ top: 10, right: 30, left: 30, bottom: 20 }}>
                        <XAxis 
+                         type="number" 
+                         tick={{ fill: '#6b7280', fontSize: 10 }} 
+                         tickLine={false} 
+                         axisLine={false}
+                         tickFormatter={(val) => Math.floor(val/60000) + 'm'}
+                       />
+                       <YAxis 
+                         type="category" 
                          dataKey="firstName" 
                          tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 'bold' }} 
                          tickLine={false} 
-                         axisLine={false}
-                         angle={-45}
-                         textAnchor="end"
-                         dy={10}
-                       />
-                       <YAxis 
-                         tick={{ fill: '#6b7280', fontSize: 10 }} 
-                         tickLine={false} 
                          axisLine={false} 
-                         tickFormatter={(val) => Math.floor(val/60000) + 'm'}
+                         width={120}
                        />
                        <Tooltip 
                          cursor={{ fill: '#ffffff05' }}
@@ -278,7 +278,7 @@ export default function RankingPage() {
                          }}
                          labelStyle={{ fontWeight: 'bold', marginBottom: '4px', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.1em' }}
                        />
-                       <Bar dataKey="elapsedMs" radius={[6, 6, 0, 0]} animationDuration={1500}>
+                       <Bar dataKey="elapsedMs" radius={[0, 6, 6, 0]} animationDuration={1500} barSize={20}>
                          {
                            filteredRankings.map((entry, index) => (
                              <Cell key={`cell-${index}`} fill={index === 0 ? '#ffc371' : index === 1 ? '#e2e8f0' : index === 2 ? '#cd7f32' : '#00d2ff'} />
